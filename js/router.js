@@ -34,7 +34,7 @@ export async function renderCurrentRoute(container) {
     container.innerHTML = '<div class="card">Halaman tidak ditemukan.</div>';
     return;
   }
-  container.innerHTML = '<div class="loading-skeleton">Memuat...</div>';
+  container.innerHTML = '';
   try {
     const render = await match.loader();
     await render(container, match.params);

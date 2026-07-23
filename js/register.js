@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient.js';
+import { supabase, isSupabaseConfigured } from './supabaseClient.js';
 import { api } from './apiClient.js';
 
 export default async function renderRegisterPage(container) {
@@ -7,6 +7,12 @@ export default async function renderRegisterPage(container) {
       <form id="register-form" class="card auth-card">
         <h1 class="auth-title">Daftar Akun</h1>
         <p class="auth-subtitle">Akun baru akan mendapat role Siswa secara default</p>
+
+        ${!isSupabaseConfigured ? `
+          <p class="auth-error" style="background:rgba(245,158,11,0.12); padding:10px 12px; border-radius:8px;">
+            ⚠️ Backend belum dikonfigurasi — isi <code>SUPABASE_URL</code> &amp; <code>SUPABASE_ANON_KEY</code> di <code>index.html</code> (bagian <code>window.__ENV__</code>) supaya pendaftaran bisa jalan.
+          </p>
+        ` : ''}
 
         <label class="input-label" for="full_name">Nama Lengkap</label>
         <input class="input" type="text" id="full_name" required />

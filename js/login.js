@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient.js';
+import { supabase, isSupabaseConfigured } from './supabaseClient.js';
 import { clearSessionCache } from './session.js';
 
 export default async function renderLoginPage(container) {
@@ -7,6 +7,12 @@ export default async function renderLoginPage(container) {
       <form id="login-form" class="card auth-card">
         <h1 class="auth-title">Masuk</h1>
         <p class="auth-subtitle">Masuk ke Sistem Informasi Kelas</p>
+
+        ${!isSupabaseConfigured ? `
+          <p class="auth-error" style="background:rgba(245,158,11,0.12); padding:10px 12px; border-radius:8px;">
+            ⚠️ Backend belum dikonfigurasi — isi <code>SUPABASE_URL</code> &amp; <code>SUPABASE_ANON_KEY</code> di <code>index.html</code> (bagian <code>window.__ENV__</code>) supaya login bisa jalan.
+          </p>
+        ` : ''}
 
         <label class="input-label" for="email">Email</label>
         <input class="input" type="email" id="email" required />
@@ -35,7 +41,7 @@ export default async function renderLoginPage(container) {
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      errorEl.textContent = 'Email atau kata sandi salah.';
+      errorEl.textContent = error.message || 'Email atau kata sandi salah.';
       errorEl.hidden = false;
       return;
     }
