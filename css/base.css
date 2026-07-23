@@ -51,9 +51,3 @@ ul, ol {
   padding: 0;
   list-style: none;
 }
-.loading-skeleton {
-  padding: 40px;
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: 13px;
-}
