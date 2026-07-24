@@ -106,11 +106,6 @@
   padding: 24px;
 }
 
-/* ---------- Bottom nav (mobile) ---------- */
-.bottom-nav {
-  display: none;
-}
-
 /* ---------- Sidebar toggle default hidden on desktop ---------- */
 #sidebar-toggle { display: none; }
 
@@ -138,32 +133,7 @@
 
   .navbar-search { max-width: none; }
 
-  .app-content { padding: 16px 16px 84px; }
-
-  .bottom-nav {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    background-color: var(--color-navbar);
-    border-top: 1px solid var(--color-border);
-    z-index: 30;
-  }
-
-  .bottom-nav-link {
-    font-size: 12px;
-    color: var(--color-text-muted);
-    text-align: center;
-  }
-
-  .bottom-nav-link.active {
-    color: var(--color-primary);
-    font-weight: 600;
-  }
+  .app-content { padding: 16px; }
 }
 
 .notif-bell { position: relative; }
