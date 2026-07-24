@@ -10,6 +10,55 @@ function statCard(label, value) {
   `;
 }
 
+// Menu cepat per role/jabatan, sesuai pembagian di spek "Struktur Organisasi":
+// Ketua -> Pengumuman & Agenda, Sekretaris -> Jadwal & Dokumen, Bendahara -> Kas, dst.
+const ROLE_PANEL = {
+  owner: [
+    { label: 'Kelola User & Role', path: '/users', desc: 'Atur akses dan jabatan seluruh anggota' },
+    { label: 'Role & Permission', path: '/roles', desc: 'Kelola jabatan dan hak aksesnya' },
+    { label: 'Pengaturan Website', path: '/settings', desc: 'Tema, banner, backup & restore database' },
+    { label: 'Activity Log', path: '/activity-log', desc: 'Riwayat aktivitas seluruh sistem' },
+  ],
+  admin: [
+    { label: 'Data Siswa', path: '/students', desc: 'Kelola data siswa kelas' },
+    { label: 'Album Kenangan', path: '/albums', desc: 'Kelola galeri & foto kelas' },
+    { label: 'Pengumuman', path: '/announcements', desc: 'Kelola pengumuman kelas' },
+    { label: 'Jadwal', path: '/schedule', desc: 'Atur jadwal pelajaran' },
+  ],
+  ketua: [
+    { label: 'Pengumuman', path: '/announcements', desc: 'Buat & kelola pengumuman kelas' },
+  ],
+  wakil: [
+    { label: 'Pengumuman', path: '/announcements', desc: 'Pantau pengumuman kelas' },
+  ],
+  sekretaris: [
+    { label: 'Jadwal', path: '/schedule', desc: 'Kelola jadwal pelajaran, jadi acuan dokumen kelas' },
+  ],
+  bendahara: [
+    { label: 'Kas', path: '/finance', desc: 'Kelola pemasukan, pengeluaran, dan saldo kas kelas' },
+  ],
+  siswa: [
+    { label: 'Profil Saya', path: '/profile', desc: 'Lihat & lengkapi profil kamu' },
+    { label: 'Album Kenangan', path: '/albums', desc: 'Lihat momen & kenangan kelas' },
+  ],
+};
+
+// Fallback buat role custom yang dibuat Owner (Keamanan, Kebersihan, dst) dan
+// belum ada di daftar spesifik di atas — tetap dikasih menu cepat yang masuk akal.
+const DEFAULT_PANEL = [
+  { label: 'Struktur Organisasi', path: '/struktur', desc: 'Lihat susunan pengurus & jabatan kelas' },
+  { label: 'Pengumuman', path: '/announcements', desc: 'Lihat pengumuman terbaru' },
+];
+
+function panelCard(item) {
+  return `
+    <a href="#${item.path}" class="card card-hover" style="display:block;">
+      <div style="font-weight:600; font-size:14px; margin-bottom:4px;">${item.label}</div>
+      <div style="font-size:12px; color:var(--color-text-muted);">${item.desc}</div>
+    </a>
+  `;
+}
+
 export default async function renderDashboardPage(container) {
   const me = await getSession();
   const role = me ? (me.role || 'siswa') : 'guest';
@@ -54,12 +103,19 @@ export default async function renderDashboardPage(container) {
     </div>
   `).join('') || '<div class="empty-state">Belum ada jadwal.</div>';
 
+  const rolePanel = me ? (ROLE_PANEL[role] || DEFAULT_PANEL) : [];
+
   container.innerHTML = `
     <h1 class="section-title" style="font-size:20px; margin-bottom:20px;">
       ${me ? `Selamat datang, ${me.profile?.full_name || 'Pengguna'} 👋` : 'Selamat datang di Sistem Informasi Kelas 👋'}
     </h1>
 
     ${stats ? `<div class="stat-grid">${stats}</div>` : ''}
+
+    ${rolePanel.length ? `
+      <h2 class="section-title" style="margin-bottom:12px;">Menu Cepat</h2>
+      <div class="stat-grid" style="margin-bottom:24px;">${rolePanel.map(panelCard).join('')}</div>
+    ` : ''}
 
     <div class="two-col">
       <div>

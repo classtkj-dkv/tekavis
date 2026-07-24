@@ -3,7 +3,6 @@ import { getSession } from './session.js';
 import { registerRoute, startRouter, navigate } from './router.js';
 import { renderSidebar } from './sidebar.js';
 import { renderNavbar, bindNavbarEvents, updateNotifBadge } from './navbar.js';
-import { renderBottomNav } from './bottomNav.js';
 import { api } from './apiClient.js';
 import { subscribeNotifications } from './realtime.js';
 
@@ -76,7 +75,6 @@ async function bootstrap() {
           ${renderNavbar(me?.profile)}
           <main class="app-content" id="page-content"></main>
         </div>
-        ${renderBottomNav(role)}
       </div>
     `;
 
