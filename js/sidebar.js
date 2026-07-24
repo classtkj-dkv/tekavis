@@ -40,10 +40,23 @@ const MENU_BY_ROLE = {
     { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
     { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
   ],
+  guest: [
+    { label: 'Beranda', path: '/', icon: 'layout-dashboard' },
+    { label: 'Album Kenangan', path: '/albums', icon: 'image' },
+    { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
+    { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
+    { label: 'Masuk / Daftar', path: '/login', icon: 'log-in' },
+  ],
 };
 
 export function getMenuForRole(role) {
-  return MENU_BY_ROLE[role] || MENU_BY_ROLE.siswa;
+  const menu = MENU_BY_ROLE[role] || MENU_BY_ROLE.siswa;
+  const hasStruktur = menu.some(item => item.path === '/struktur');
+  if (hasStruktur) return menu;
+
+  // Sisipkan "Struktur Organisasi" setelah Dashboard/Beranda untuk semua role,
+  // termasuk role custom (Keamanan, Kebersihan, dst) yang belum masuk daftar di atas.
+  return [menu[0], { label: 'Struktur Organisasi', path: '/struktur', icon: 'users-round' }, ...menu.slice(1)];
 }
 
 export function renderSidebar(role, siteName = 'Sistem Informasi Kelas') {

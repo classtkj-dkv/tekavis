@@ -27,6 +27,7 @@ function registerAppRoutes() {
   registerRoute('/users', () => import('./users.js').then(m => m.default));
   registerRoute('/roles', () => import('./roles.js').then(m => m.default));
   registerRoute('/search', () => import('./search.js').then(m => m.default));
+  registerRoute('/struktur', () => import('./struktur.js').then(m => m.default));
 }
 
 async function bootstrap() {
@@ -38,26 +39,30 @@ async function bootstrap() {
 
   const me = await getSession().catch(() => null);
 
-  if (!me) {
-    if (!AUTH_ROUTES.includes(currentHash)) navigate('/login');
+  // Halaman login/register selalu ditampilkan polos (tanpa shell), baik sudah
+  // login maupun belum — kalau sudah login dan buka /login, lempar ke dashboard.
+  if (AUTH_ROUTES.includes(currentHash)) {
+    if (me) navigate('/');
     app.innerHTML = '<div id="page-content"></div>';
     startRouter(document.getElementById('page-content'));
     return;
   }
 
-  if (AUTH_ROUTES.includes(currentHash)) navigate('/');
-
+  // Tidak wajib login untuk melihat halaman lain — kalau belum login, tetap
+  // tampilkan shell & halamannya (data yang butuh izin akan otomatis kosong,
+  // ditangani masing-masing halaman lewat .catch(() => [])).
   const settings = await api.get('/api/settings').catch(() => null);
   const siteName = settings?.site_name || 'Sistem Informasi Kelas';
+  const role = me?.role || 'guest';
 
   app.innerHTML = `
     <div class="app-shell">
-      ${renderSidebar(me.role, siteName)}
+      ${renderSidebar(role, siteName)}
       <div>
-        ${renderNavbar(me.profile)}
+        ${renderNavbar(me?.profile)}
         <main class="app-content" id="page-content"></main>
       </div>
-      ${renderBottomNav(me.role)}
+      ${renderBottomNav(role)}
     </div>
   `;
 
@@ -67,18 +72,20 @@ async function bootstrap() {
     document.getElementById('sidebar')?.classList.remove('sidebar-open');
   });
 
-  // Badge notifikasi awal + realtime update (perlu Realtime diaktifkan utk tabel
-  // `notifications` di Supabase: Database > Replication).
-  api.get('/api/notifications').then(list => {
-    updateNotifBadge(list.filter(n => !n.is_read).length);
-  }).catch(() => {});
+  if (me) {
+    // Badge notifikasi awal + realtime update (perlu Realtime diaktifkan utk tabel
+    // `notifications` di Supabase: Database > Replication).
+    api.get('/api/misc', { resource: 'notifications' }).then(list => {
+      updateNotifBadge(list.filter(n => !n.is_read).length);
+    }).catch(() => {});
 
-  if (me.profile?.id) {
-    subscribeNotifications(me.profile.id, () => {
-      const badge = document.getElementById('notif-badge');
-      const current = badge && !badge.hidden ? Number(badge.textContent) || 0 : 0;
-      updateNotifBadge(current + 1);
-    });
+    if (me.profile?.id) {
+      subscribeNotifications(me.profile.id, () => {
+        const badge = document.getElementById('notif-badge');
+        const current = badge && !badge.hidden ? Number(badge.textContent) || 0 : 0;
+        updateNotifBadge(current + 1);
+      });
+    }
   }
 
   startRouter(document.getElementById('page-content'));

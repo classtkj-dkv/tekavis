@@ -1,7 +1,7 @@
 import { api } from './apiClient.js';
 
 export default async function renderNotificationsPage(container) {
-  const list = await api.get('/api/notifications').catch(() => []);
+  const list = await api.get('/api/misc', { resource: 'notifications' }).catch(() => []);
 
   const items = list.map(n => `
     <div class="list-item" style="${n.is_read ? '' : 'border-left:3px solid var(--color-accent);'}">
@@ -16,5 +16,5 @@ export default async function renderNotificationsPage(container) {
   `;
 
   const unreadIds = list.filter(n => !n.is_read).map(n => n.id);
-  if (unreadIds.length) api.patch('/api/notifications', { ids: unreadIds }).catch(() => {});
+  if (unreadIds.length) api.patch('/api/misc?resource=notifications', { ids: unreadIds }).catch(() => {});
 }

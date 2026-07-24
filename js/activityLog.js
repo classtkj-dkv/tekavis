@@ -1,7 +1,7 @@
 import { api } from './apiClient.js';
 
 export default async function renderActivityLogPage(container) {
-  const logs = await api.get('/api/activity-log').catch(() => []);
+  const logs = await api.get('/api/misc', { resource: 'activity-log' }).catch(() => []);
 
   const rows = logs.map(l => `
     <tr>

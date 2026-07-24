@@ -10,7 +10,7 @@ export default async function renderSearchPage(container) {
     return;
   }
 
-  const result = await api.get('/api/search', { q }).catch(() => null);
+  const result = await api.get('/api/misc', { resource: 'search', q }).catch(() => null);
   if (!result) {
     container.innerHTML = '<div class="card">Pencarian gagal.</div>';
     return;

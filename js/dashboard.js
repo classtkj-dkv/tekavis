@@ -12,7 +12,7 @@ function statCard(label, value) {
 
 export default async function renderDashboardPage(container) {
   const me = await getSession();
-  const role = me?.role || 'siswa';
+  const role = me?.role || 'guest';
   const perms = me?.permissions || {};
   const canViewKas = role === 'owner' || perms.view_kas;
 
@@ -55,7 +55,9 @@ export default async function renderDashboardPage(container) {
   `).join('') || '<div class="empty-state">Belum ada jadwal.</div>';
 
   container.innerHTML = `
-    <h1 class="section-title" style="font-size:20px; margin-bottom:20px;">Selamat datang, ${me?.profile?.full_name || 'Pengguna'} 👋</h1>
+    <h1 class="section-title" style="font-size:20px; margin-bottom:20px;">
+      ${me ? `Selamat datang, ${me.profile?.full_name || 'Pengguna'} 👋` : 'Selamat datang di Sistem Informasi Kelas 👋'}
+    </h1>
 
     ${stats ? `<div class="stat-grid">${stats}</div>` : ''}
 
