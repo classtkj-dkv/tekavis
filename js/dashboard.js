@@ -12,7 +12,7 @@ function statCard(label, value) {
 
 export default async function renderDashboardPage(container) {
   const me = await getSession();
-  const role = me?.role || 'guest';
+  const role = me ? (me.role || 'siswa') : 'guest';
   const perms = me?.permissions || {};
   const canViewKas = role === 'owner' || perms.view_kas;
 

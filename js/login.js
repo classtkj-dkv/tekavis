@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient.js';
 import { clearSessionCache } from './session.js';
 import { restartApp } from './app.js';
+import { api } from './apiClient.js';
 
 export default async function renderLoginPage(container) {
   container.innerHTML = `
@@ -48,6 +49,19 @@ export default async function renderLoginPage(container) {
     }
 
     clearSessionCache();
+
+    // FIX: sebelumnya row `profiles` cuma dibuat di register.js, dan CUMA kalau
+    // signUp langsung dapet session (gak kejadian kalau project Supabase-nya
+    // punya "Confirm email" aktif — user yang confirm lewat email lalu login
+    // normal di sini gak pernah dapet row profiles, jadi selamanya ke-anggep
+    // guest oleh UI). POST /api/auth idempotent (lihat api/auth.js), jadi aman
+    // dipanggil di sini sebagai jaring pengaman tiap kali berhasil login.
+    try {
+      await api.post('/api/auth', {});
+    } catch (err) {
+      console.error('Gagal memastikan profil user:', err);
+    }
+
     window.location.hash = '/';
     await restartApp();
   });

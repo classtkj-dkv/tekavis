@@ -10,6 +10,7 @@ import { subscribeNotifications } from './realtime.js';
 const AUTH_ROUTES = ['/login', '/register'];
 
 let routesRegistered = false;
+let sidebarCloseBound = false;
 function registerAppRoutes() {
   if (routesRegistered) return;
   routesRegistered = true;
@@ -60,7 +61,13 @@ async function bootstrap() {
     // ditangani masing-masing halaman lewat .catch(() => [])).
     const settings = await api.get('/api/settings').catch(() => null);
     const siteName = settings?.site_name || 'Sistem Informasi Kelas';
-    const role = me?.role || 'guest';
+    // FIX: sebelumnya `me?.role || 'guest'` nyamain dua kondisi beda — "belum
+    // login" (me null) VS "sudah login tapi role-nya null" (me ada, me.role
+    // null, misal row profiles belum sempat kebuat). Keduanya kefallback ke
+    // 'guest' dan bikin user yang SEBENARNYA login keliatan kayak guest
+    // (nongol menu "Masuk/Daftar" walau session-nya valid). Sekarang dibedain:
+    // cuma bener-bener 'guest' kalau memang belum ada sesi sama sekali.
+    const role = me ? (me.role || 'siswa') : 'guest';
 
     app.innerHTML = `
       <div class="app-shell">
@@ -75,9 +82,12 @@ async function bootstrap() {
 
     bindNavbarEvents({ onSearch: (q) => { if (q) navigate(`/search?q=${encodeURIComponent(q)}`); } });
 
-    window.addEventListener('hashchange', () => {
-      document.getElementById('sidebar')?.classList.remove('sidebar-open');
-    });
+    if (!sidebarCloseBound) {
+      sidebarCloseBound = true;
+      window.addEventListener('hashchange', () => {
+        document.getElementById('sidebar')?.classList.remove('sidebar-open');
+      });
+    }
 
     if (me) {
       // Badge notifikasi awal + realtime update (perlu Realtime diaktifkan utk tabel
