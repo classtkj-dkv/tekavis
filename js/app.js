@@ -31,64 +31,80 @@ function registerAppRoutes() {
 }
 
 async function bootstrap() {
-  initTheme();
-  registerAppRoutes();
-
   const app = document.getElementById('app');
-  const currentHash = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
+  try {
+    initTheme();
+    registerAppRoutes();
 
-  const me = await getSession().catch(() => null);
+    const currentHash = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
 
-  // Halaman login/register selalu ditampilkan polos (tanpa shell), baik sudah
-  // login maupun belum — kalau sudah login dan buka /login, lempar ke dashboard.
-  if (AUTH_ROUTES.includes(currentHash)) {
-    if (me) navigate('/');
-    app.innerHTML = '<div id="page-content"></div>';
-    startRouter(document.getElementById('page-content'));
-    return;
-  }
+    const me = await getSession().catch((err) => {
+      console.error('getSession gagal:', err);
+      return null;
+    });
 
-  // Tidak wajib login untuk melihat halaman lain — kalau belum login, tetap
-  // tampilkan shell & halamannya (data yang butuh izin akan otomatis kosong,
-  // ditangani masing-masing halaman lewat .catch(() => [])).
-  const settings = await api.get('/api/settings').catch(() => null);
-  const siteName = settings?.site_name || 'Sistem Informasi Kelas';
-  const role = me?.role || 'guest';
-
-  app.innerHTML = `
-    <div class="app-shell">
-      ${renderSidebar(role, siteName)}
-      <div>
-        ${renderNavbar(me?.profile)}
-        <main class="app-content" id="page-content"></main>
-      </div>
-      ${renderBottomNav(role)}
-    </div>
-  `;
-
-  bindNavbarEvents({ onSearch: (q) => { if (q) navigate(`/search?q=${encodeURIComponent(q)}`); } });
-
-  window.addEventListener('hashchange', () => {
-    document.getElementById('sidebar')?.classList.remove('sidebar-open');
-  });
-
-  if (me) {
-    // Badge notifikasi awal + realtime update (perlu Realtime diaktifkan utk tabel
-    // `notifications` di Supabase: Database > Replication).
-    api.get('/api/misc', { resource: 'notifications' }).then(list => {
-      updateNotifBadge(list.filter(n => !n.is_read).length);
-    }).catch(() => {});
-
-    if (me.profile?.id) {
-      subscribeNotifications(me.profile.id, () => {
-        const badge = document.getElementById('notif-badge');
-        const current = badge && !badge.hidden ? Number(badge.textContent) || 0 : 0;
-        updateNotifBadge(current + 1);
-      });
+    // Halaman login/register selalu ditampilkan polos (tanpa shell), baik sudah
+    // login maupun belum — kalau sudah login dan buka /login, lempar ke dashboard.
+    if (AUTH_ROUTES.includes(currentHash)) {
+      if (me) navigate('/');
+      app.innerHTML = '<div id="page-content"></div>';
+      startRouter(document.getElementById('page-content'));
+      return;
     }
-  }
 
-  startRouter(document.getElementById('page-content'));
+    // Tidak wajib login untuk melihat halaman lain — kalau belum login, tetap
+    // tampilkan shell & halamannya (data yang butuh izin akan otomatis kosong,
+    // ditangani masing-masing halaman lewat .catch(() => [])).
+    const settings = await api.get('/api/settings').catch(() => null);
+    const siteName = settings?.site_name || 'Sistem Informasi Kelas';
+    const role = me?.role || 'guest';
+
+    app.innerHTML = `
+      <div class="app-shell">
+        ${renderSidebar(role, siteName)}
+        <div>
+          ${renderNavbar(me?.profile)}
+          <main class="app-content" id="page-content"></main>
+        </div>
+        ${renderBottomNav(role)}
+      </div>
+    `;
+
+    bindNavbarEvents({ onSearch: (q) => { if (q) navigate(`/search?q=${encodeURIComponent(q)}`); } });
+
+    window.addEventListener('hashchange', () => {
+      document.getElementById('sidebar')?.classList.remove('sidebar-open');
+    });
+
+    if (me) {
+      // Badge notifikasi awal + realtime update (perlu Realtime diaktifkan utk tabel
+      // `notifications` di Supabase: Database > Replication).
+      api.get('/api/misc', { resource: 'notifications' }).then(list => {
+        updateNotifBadge(list.filter(n => !n.is_read).length);
+      }).catch(() => {});
+
+      if (me.profile?.id) {
+        subscribeNotifications(me.profile.id, () => {
+          const badge = document.getElementById('notif-badge');
+          const current = badge && !badge.hidden ? Number(badge.textContent) || 0 : 0;
+          updateNotifBadge(current + 1);
+        });
+      }
+    }
+
+    startRouter(document.getElementById('page-content'));
+  } catch (err) {
+    // Sengaja ditangkap di sini: kalau ada apapun yang gagal di luar dugaan,
+    // tampilkan pesannya daripada nyisain layar putih kosong tanpa penjelasan.
+    console.error('Bootstrap gagal:', err);
+    app.innerHTML = `
+      <div style="max-width:420px; margin:60px auto; padding:20px; font-family:system-ui, sans-serif;">
+        <h1 style="font-size:18px; margin-bottom:8px;">Gagal memuat aplikasi</h1>
+        <p style="font-size:13px; color:#4B5563; margin-bottom:12px;">${err?.message || 'Terjadi kesalahan tak terduga.'}</p>
+        <button onclick="window.location.reload()" style="padding:8px 16px; border-radius:8px; border:none; background:#1E3A5F; color:#fff; cursor:pointer;">Muat Ulang</button>
+      </div>
+    `;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', bootstrap);
