@@ -21,7 +21,7 @@ export async function getAuthContext(req) {
   const admin = getSupabaseAdmin();
   const { data: profile } = await admin
     .from('profiles')
-    .select('id, role_id, roles ( name, permissions )')
+    .select('id, role_id, full_name, avatar_url, hobby, dream_job, occupation, roles ( name, permissions )')
     .eq('id', user.id)
     .single();
 
