@@ -23,4 +23,6 @@ export async function signOut() {
   await supabase.auth.signOut();
   clearSessionCache();
   window.location.hash = '/login';
+  const { restartApp } = await import('./app.js');
+  await restartApp();
 }

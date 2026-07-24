@@ -36,7 +36,12 @@ export async function getAccessToken() {
   return data?.session?.access_token || null;
 }
 
+// Sengaja pakai getSession() (baca sesi yang udah tersimpan di localStorage,
+// termasuk auto-refresh kalau tokennya mau expired), BUKAN getUser() yang
+// selalu bikin network request ke server Supabase tiap dipanggil. Kalau
+// getUser() dipanggil di setiap page load dan networknya kebetulan lemot/
+// gagal sebentar, user yang sebenarnya masih login bisa keanggep logout.
 export async function getCurrentUser() {
-  const { data } = await supabase.auth.getUser();
-  return data?.user || null;
+  const { data } = await supabase.auth.getSession();
+  return data?.session?.user || null;
 }

@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient.js';
 import { clearSessionCache } from './session.js';
+import { restartApp } from './app.js';
 
 export default async function renderLoginPage(container) {
   container.innerHTML = `
@@ -48,6 +49,6 @@ export default async function renderLoginPage(container) {
 
     clearSessionCache();
     window.location.hash = '/';
-    window.location.reload();
+    await restartApp();
   });
 }

@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient.js';
 import { api } from './apiClient.js';
+import { restartApp } from './app.js';
 
 export default async function renderRegisterPage(container) {
   container.innerHTML = `
@@ -54,7 +55,7 @@ export default async function renderRegisterPage(container) {
     if (data.session) {
       await api.post('/api/auth', { full_name });
       window.location.hash = '/';
-      window.location.reload();
+      await restartApp();
     } else {
       errorEl.style.color = 'var(--color-success)';
       errorEl.textContent = 'Pendaftaran berhasil. Silakan cek email untuk verifikasi sebelum masuk.';

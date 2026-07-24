@@ -9,7 +9,10 @@ import { subscribeNotifications } from './realtime.js';
 
 const AUTH_ROUTES = ['/login', '/register'];
 
+let routesRegistered = false;
 function registerAppRoutes() {
+  if (routesRegistered) return;
+  routesRegistered = true;
   registerRoute('/', () => import('./dashboard.js').then(m => m.default));
   registerRoute('/login', () => import('./login.js').then(m => m.default));
   registerRoute('/register', () => import('./register.js').then(m => m.default));
@@ -105,6 +108,10 @@ async function bootstrap() {
       </div>
     `;
   }
+}
+
+export async function restartApp() {
+  return bootstrap();
 }
 
 document.addEventListener('DOMContentLoaded', bootstrap);
