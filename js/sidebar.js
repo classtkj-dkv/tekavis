@@ -64,7 +64,7 @@ export function renderSidebar(role, siteName = 'Sistem Informasi Kelas') {
   const currentPath = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
 
   const items = menu.map(item => `
-    <a href="#${item.path}" class="sidebar-link ${currentPath === item.path ? 'active' : ''}">
+    <a href="#${item.path}" data-path="${item.path}" class="sidebar-link ${currentPath === item.path ? 'active' : ''}">
       <span class="sidebar-link-label">${item.label}</span>
     </a>
   `).join('');
@@ -77,4 +77,17 @@ export function renderSidebar(role, siteName = 'Sistem Informasi Kelas') {
       <nav class="sidebar-nav">${items}</nav>
     </aside>
   `;
+}
+
+// FIX: sebelumnya status "active" cuma dihitung sekali pas renderSidebar()
+// dipanggil (awal buka app), dan gak pernah diupdate lagi walau user pindah
+// halaman lewat router — jadi highlight-nya nyangkut di halaman lama padahal
+// konten yang tampil udah beda. Fungsi ini dipanggil tiap 'hashchange' buat
+// nyamain highlight sidebar sama halaman yang beneran lagi aktif, tanpa perlu
+// render ulang seluruh sidebar (cukup toggle class).
+export function updateActiveSidebarLink() {
+  const currentPath = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
+  document.querySelectorAll('#sidebar .sidebar-link').forEach(link => {
+    link.classList.toggle('active', link.dataset.path === currentPath);
+  });
 }

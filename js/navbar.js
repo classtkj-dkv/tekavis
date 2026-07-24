@@ -1,7 +1,7 @@
 import { getStoredTheme, setTheme } from './theme.js';
 
-export function renderNavbar(profile) {
-  const initials = (profile?.full_name || 'U').trim().slice(0, 1).toUpperCase();
+export function renderNavbar(profile, email) {
+  const initials = (profile?.full_name || email || 'U').trim().slice(0, 1).toUpperCase();
   const currentTheme = getStoredTheme();
 
   return `
@@ -23,7 +23,7 @@ export function renderNavbar(profile) {
           🔔<span id="notif-badge" class="notif-badge" hidden>0</span>
         </a>
 
-        <div class="navbar-avatar" title="${profile?.full_name || ''}">${initials}</div>
+        <div class="navbar-avatar" title="${profile?.full_name || email || ''}">${initials}</div>
       </div>
     </header>
   `;

@@ -1,7 +1,7 @@
 import { initTheme } from './theme.js';
 import { getSession } from './session.js';
 import { registerRoute, startRouter, navigate } from './router.js';
-import { renderSidebar } from './sidebar.js';
+import { renderSidebar, updateActiveSidebarLink } from './sidebar.js';
 import { renderNavbar, bindNavbarEvents, updateNotifBadge } from './navbar.js';
 import { api } from './apiClient.js';
 import { subscribeNotifications } from './realtime.js';
@@ -72,7 +72,7 @@ async function bootstrap() {
       <div class="app-shell">
         ${renderSidebar(role, siteName)}
         <div>
-          ${renderNavbar(me?.profile)}
+          ${renderNavbar(me?.profile, me?.email)}
           <main class="app-content" id="page-content"></main>
         </div>
       </div>
@@ -84,6 +84,7 @@ async function bootstrap() {
       sidebarCloseBound = true;
       window.addEventListener('hashchange', () => {
         document.getElementById('sidebar')?.classList.remove('sidebar-open');
+        updateActiveSidebarLink();
       });
     }
 
