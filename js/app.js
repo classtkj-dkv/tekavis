@@ -116,7 +116,7 @@ async function bootstrap() {
       <div style="max-width:420px; margin:60px auto; padding:20px; font-family:system-ui, sans-serif;">
         <h1 style="font-size:18px; margin-bottom:8px;">Gagal memuat aplikasi</h1>
         <p style="font-size:13px; color:#4B5563; margin-bottom:12px;">${err?.message || 'Terjadi kesalahan tak terduga.'}</p>
-        <button onclick="window.location.reload()" style="padding:8px 16px; border-radius:8px; border:none; background:#1E3A5F; color:#fff; cursor:pointer;">Muat Ulang</button>
+        <button onclick="window.location.reload()" style="padding:8px 16px; border-radius:8px; border:none; background:#4F6EF7; color:#fff; cursor:pointer;">Muat Ulang</button>
       </div>
     `;
   }

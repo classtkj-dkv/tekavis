@@ -59,12 +59,31 @@ export function getMenuForRole(role) {
   return [menu[0], { label: 'Struktur Organisasi', path: '/struktur', icon: 'users-round' }, ...menu.slice(1)];
 }
 
+// Pemetaan key ikon (sudah ada di data menu) ke class Font Awesome — murni visual,
+// tidak mengubah path/label/logic routing sama sekali.
+const ICON_MAP = {
+  'layout-dashboard': 'fa-solid fa-gauge-high',
+  'users': 'fa-solid fa-users',
+  'users-round': 'fa-solid fa-sitemap',
+  'image': 'fa-solid fa-images',
+  'megaphone': 'fa-solid fa-bullhorn',
+  'calendar': 'fa-solid fa-calendar-days',
+  'wallet': 'fa-solid fa-wallet',
+  'shield': 'fa-solid fa-shield-halved',
+  'key': 'fa-solid fa-key',
+  'history': 'fa-solid fa-clock-rotate-left',
+  'settings': 'fa-solid fa-gear',
+  'user': 'fa-solid fa-user',
+  'log-in': 'fa-solid fa-right-to-bracket',
+};
+
 export function renderSidebar(role, siteName = 'Class Tekavis') {
   const menu = getMenuForRole(role);
   const currentPath = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
 
   const items = menu.map(item => `
     <a href="#${item.path}" data-path="${item.path}" class="sidebar-link ${currentPath === item.path ? 'active' : ''}">
+      <i class="${ICON_MAP[item.icon] || 'fa-solid fa-circle-dot'}"></i>
       <span class="sidebar-link-label">${item.label}</span>
     </a>
   `).join('');

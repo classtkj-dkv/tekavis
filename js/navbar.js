@@ -7,7 +7,7 @@ export function renderNavbar(profile, email) {
 
   return `
     <header class="navbar">
-      <button id="sidebar-toggle" class="icon-btn" aria-label="Buka menu">☰</button>
+      <button id="sidebar-toggle" class="icon-btn" aria-label="Buka menu"><i class="fa-solid fa-bars"></i></button>
 
       <div class="navbar-search">
         <input id="global-search" class="input" type="search" placeholder="Cari siswa, album, pengumuman..." />
@@ -21,7 +21,7 @@ export function renderNavbar(profile, email) {
         </select>
 
         <a href="#/notifications" class="icon-btn notif-bell" aria-label="Notifikasi">
-          🔔<span id="notif-badge" class="notif-badge" hidden>0</span>
+          <i class="fa-regular fa-bell"></i><span id="notif-badge" class="notif-badge" hidden>0</span>
         </a>
 
         <div class="navbar-avatar-wrap">
@@ -29,11 +29,11 @@ export function renderNavbar(profile, email) {
           ${isLoggedIn ? `
             <div id="navbar-user-menu" class="navbar-user-menu" hidden>
               <div class="navbar-user-menu-info">
-                <div style="font-weight:600; font-size:13px;">${profile?.full_name || 'Pengguna'}</div>
+                <div style="font-weight:700; font-size:13px;">${profile?.full_name || 'Pengguna'}</div>
                 <div style="font-size:12px; color:var(--color-text-muted);">${email || ''}</div>
               </div>
-              <a href="#/profile" class="navbar-user-menu-item">Profil Saya</a>
-              <button id="navbar-logout-btn" class="navbar-user-menu-item navbar-user-menu-item-danger">Keluar</button>
+              <a href="#/profile" class="navbar-user-menu-item"><i class="fa-regular fa-user"></i> Profil Saya</a>
+              <button id="navbar-logout-btn" class="navbar-user-menu-item navbar-user-menu-item-danger"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
             </div>
           ` : ''}
         </div>

@@ -1,9 +1,20 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
 
+const STAT_ICON_CYCLE = [
+  { icon: 'fa-solid fa-user-graduate', chip: 'si-blue' },
+  { icon: 'fa-solid fa-images', chip: 'si-purple' },
+  { icon: 'fa-solid fa-user-shield', chip: 'si-orange' },
+  { icon: 'fa-solid fa-wallet', chip: 'si-green' },
+];
+let statCardIndex = 0;
+
 function statCard(label, value) {
+  const style = STAT_ICON_CYCLE[statCardIndex % STAT_ICON_CYCLE.length];
+  statCardIndex += 1;
   return `
     <div class="card stat-card">
+      <div class="stat-icon ${style.chip}"><i class="${style.icon}"></i></div>
       <span class="stat-value">${value}</span>
       <span class="stat-label">${label}</span>
     </div>
@@ -52,14 +63,18 @@ const DEFAULT_PANEL = [
 
 function panelCard(item) {
   return `
-    <a href="#${item.path}" class="card card-hover" style="display:block;">
-      <div style="font-weight:600; font-size:14px; margin-bottom:4px;">${item.label}</div>
-      <div style="font-size:12px; color:var(--color-text-muted);">${item.desc}</div>
+    <a href="#${item.path}" class="card card-hover" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+      <div>
+        <div style="font-weight:700; font-size:14px; margin-bottom:4px;">${item.label}</div>
+        <div style="font-size:12px; color:var(--color-text-muted);">${item.desc}</div>
+      </div>
+      <i class="fa-solid fa-chevron-right" style="color:var(--color-text-muted); font-size:12px; flex-shrink:0;"></i>
     </a>
   `;
 }
 
 export default async function renderDashboardPage(container) {
+  statCardIndex = 0;
   const me = await getSession();
   const role = me ? (me.role || 'siswa') : 'guest';
   const perms = me?.permissions || {};
