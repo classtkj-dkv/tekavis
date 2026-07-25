@@ -77,7 +77,7 @@ const ICON_MAP = {
   'log-in': 'fa-solid fa-right-to-bracket',
 };
 
-export function renderSidebar(role, siteName = 'Class Tekavis') {
+export function renderSidebar(role, siteName = 'Class Tekavis', logoUrl = '') {
   const menu = getMenuForRole(role);
   const currentPath = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
 
@@ -88,10 +88,14 @@ export function renderSidebar(role, siteName = 'Class Tekavis') {
     </a>
   `).join('');
 
+  const brandIcon = logoUrl
+    ? `<img src="${logoUrl}" alt="${siteName}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;" />`
+    : (siteName || 'C').trim().slice(0, 1).toUpperCase();
+
   return `
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">${(siteName || 'C').trim().slice(0, 1).toUpperCase()}</div>
+        <div class="sidebar-brand-icon">${brandIcon}</div>
         <span class="sidebar-brand-name">${siteName}</span>
       </div>
       <nav class="sidebar-nav">${items}</nav>

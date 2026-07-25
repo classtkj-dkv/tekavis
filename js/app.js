@@ -60,6 +60,16 @@ async function bootstrap() {
     // ditangani masing-masing halaman lewat .catch(() => [])).
     const settings = await api.get('/api/settings').catch(() => null);
     const siteName = settings?.site_name || 'Class Tekavis';
+
+    if (settings?.favicon_url) {
+      let iconLink = document.querySelector('link[rel="icon"]');
+      if (!iconLink) {
+        iconLink = document.createElement('link');
+        iconLink.rel = 'icon';
+        document.head.appendChild(iconLink);
+      }
+      iconLink.href = settings.favicon_url;
+    }
     // FIX: sebelumnya `me?.role || 'guest'` nyamain dua kondisi beda — "belum
     // login" (me null) VS "sudah login tapi role-nya null" (me ada, me.role
     // null, misal row profiles belum sempat kebuat). Keduanya kefallback ke
@@ -70,7 +80,7 @@ async function bootstrap() {
 
     app.innerHTML = `
       <div class="app-shell">
-        ${renderSidebar(role, siteName)}
+        ${renderSidebar(role, siteName, settings?.logo_url)}
         <div>
           ${renderNavbar(me?.profile, me?.email)}
           <main class="app-content" id="page-content"></main>
