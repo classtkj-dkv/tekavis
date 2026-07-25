@@ -1,6 +1,10 @@
+/* ============================================================
+   AUTH (login / register)
+   ============================================================ */
 .auth-screen {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
@@ -9,26 +13,72 @@
 
 .auth-card {
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
+  border-radius: var(--radius-xl);
+  padding: 36px 32px;
+  box-shadow: var(--shadow-lg);
+  animation: authFadeUp .35s ease;
 }
 
-.auth-title { font-size: 22px; margin-bottom: 4px; }
-.auth-subtitle { font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px; }
-.auth-error { color: var(--color-danger); font-size: 13px; margin-top: 10px; }
-.auth-footer { margin-top: 16px; font-size: 13px; text-align: center; color: var(--color-text-muted); }
-.auth-footer a { color: var(--color-primary); font-weight: 600; }
+@keyframes authFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-logo {
+  text-align: center;
+  margin-bottom: 8px;
+}
+.auth-logo .auth-brand-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--gradient-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 22px;
+  margin-bottom: 14px;
+}
+
+.auth-title { font-size: 21px; margin-bottom: 4px; text-align: center; }
+.auth-subtitle { font-size: 13px; color: var(--color-text-muted); margin-bottom: 22px; text-align: center; }
+.auth-error {
+  color: var(--color-danger);
+  font-size: 13px;
+  margin-top: 10px;
+  background: rgba(220,38,38,0.08);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(220,38,38,0.2);
+}
+.auth-footer { margin-top: 18px; font-size: 13px; text-align: center; color: var(--color-text-muted); }
+.auth-footer a { color: var(--color-primary); font-weight: 700; }
+.auth-footer a:hover { text-decoration: underline; }
+
+.auth-copyright {
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 18px;
+}
+
+/* ============================================================
+   DASHBOARD GRIDS
+   ============================================================ */
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin-bottom: 26px;
 }
 
 .section-title {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 800;
   margin-bottom: 12px;
 }
 
@@ -44,25 +94,39 @@
 
 .list-plain { display: flex; flex-direction: column; gap: 10px; }
 .list-item {
-  padding: 12px 14px;
+  padding: 13px 15px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background-color: var(--color-surface);
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
-.list-item-title { font-weight: 600; font-size: 14px; }
-.list-item-meta { font-size: 12px; color: var(--color-text-muted); margin-top: 2px; }
+.list-item:hover { box-shadow: var(--shadow-xs); border-color: var(--color-primary); }
+.list-item-title { font-weight: 700; font-size: 13.5px; }
+.list-item-meta { font-size: 12px; color: var(--color-text-muted); margin-top: 3px; }
 
 .empty-state {
-  padding: 24px;
+  padding: 28px 16px;
   text-align: center;
   color: var(--color-text-muted);
   font-size: 13px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
 }
 
+/* ============================================================
+   ROLES & PERMISSIONS
+   ============================================================ */
 .role-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.role-card, .org-role-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-card);
+  padding: 18px 20px;
 }
 
 .permission-grid {
@@ -79,6 +143,20 @@
   font-size: 13px;
   color: var(--color-text-secondary);
 }
+
+.role-select {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   ALBUMS & PHOTOS
+   ============================================================ */
 .album-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -90,22 +168,26 @@
   height: 160px;
   background-size: cover;
   background-position: center;
-  background-color: var(--color-border);
+  background-color: var(--color-bg-2);
   position: relative;
   overflow: hidden;
   padding: 0;
   display: block;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
+.album-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
 
 .album-card-overlay {
   position: absolute;
   inset: auto 0 0 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.65), transparent);
-  padding: 12px;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  padding: 14px;
   color: #fff;
 }
 
-.album-card-name { font-weight: 600; font-size: 14px; }
+.album-card-name { font-weight: 700; font-size: 14px; }
 .album-card-meta { font-size: 12px; opacity: 0.85; }
 
 .photo-grid {
@@ -118,10 +200,12 @@
   aspect-ratio: 1;
   background-size: cover;
   background-position: center;
-  background-color: var(--color-border);
+  background-color: var(--color-bg-2);
   border-radius: var(--radius-md);
   display: block;
+  transition: transform var(--transition-fast);
 }
+.photo-thumb:hover { transform: scale(1.02); }
 
 .photo-detail {
   display: grid;
@@ -135,23 +219,34 @@
 .photo-detail-img {
   width: 100%;
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+}
+
+.photo-detail-info {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
 }
 
 .detail-list {
   display: grid;
   grid-template-columns: 90px 1fr;
-  gap: 8px 12px;
+  gap: 10px 12px;
   font-size: 13px;
   margin: 0;
 }
 .detail-list dt { color: var(--color-text-muted); }
 .detail-list dd { margin: 0; }
 
+/* ============================================================
+   PROFILE
+   ============================================================ */
 .profile-card {
   display: flex;
   gap: 20px;
   align-items: flex-start;
-  max-width: 500px;
+  max-width: 520px;
 }
 .profile-avatar {
   width: 72px;
@@ -163,10 +258,13 @@
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 800;
   flex-shrink: 0;
 }
 
+/* ============================================================
+   STRUKTUR ORGANISASI
+   ============================================================ */
 .org-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -174,7 +272,8 @@
 }
 
 .org-role-label {
-  font-size: 15px;
+  font-size: 14.5px;
+  font-weight: 700;
   margin-bottom: 12px;
 }
 
@@ -204,11 +303,4 @@
   font-size: 12px;
   font-weight: 700;
   flex-shrink: 0;
-}
-
-.auth-copyright {
-  text-align: center;
-  font-size: 11px;
-  color: var(--color-text-muted);
-  margin-top: 16px;
 }
