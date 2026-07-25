@@ -14,6 +14,22 @@ function fileToBase64(file) {
   });
 }
 
+function getImageDimensions(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Gagal membaca dimensi gambar'));
+    };
+    img.src = url;
+  });
+}
+
 async function uploadAsset(file, folder) {
   const base64 = await fileToBase64(file);
   const res = await api.post('/api/settings?action=upload', { file: base64, folder });
@@ -45,6 +61,18 @@ export default async function renderSettingsPage(container) {
 
   const homepage = settings.homepage || {};
   const slides = Array.isArray(homepage.slides) ? homepage.slides : [];
+  const visibility = {
+    students: true, schedule: true, announcements: true, albums: true, struktur: true, finance: false,
+    ...(settings.visibility || {}),
+  };
+  const VISIBILITY_LABELS = {
+    students: { label: 'Data Siswa', desc: 'Halaman Siswa bisa dilihat tanpa login' },
+    schedule: { label: 'Jadwal Pelajaran', desc: 'Halaman Jadwal bisa dilihat tanpa login' },
+    announcements: { label: 'Pengumuman', desc: 'Pengumuman yang sudah publish bisa dilihat tanpa login' },
+    albums: { label: 'Album Kenangan', desc: 'Album & foto bisa dilihat tanpa login' },
+    struktur: { label: 'Struktur Organisasi', desc: 'Susunan pengurus bisa dilihat tanpa login' },
+    finance: { label: 'Kas', desc: 'Data kas hanya untuk anggota yang login (disarankan tetap OFF)' },
+  };
 
   container.innerHTML = `
     <h1 class="section-title">Pengaturan Website</h1>
@@ -95,6 +123,7 @@ export default async function renderSettingsPage(container) {
         <hr style="border:none; border-top:1px solid var(--color-border); margin:6px 0;" />
 
         <label class="input-label">Tambah Foto Baru</label>
+        <p style="font-size:12px; color:var(--color-text-muted); margin:-4px 0 4px;">Wajib foto landscape (mendatar), bukan potrait.</p>
         <label class="btn btn-secondary" style="cursor:pointer; width:fit-content;">
           <i class="fa-solid fa-image"></i> Pilih dari Galeri
           <input type="file" accept="image/*" id="banner-file" style="display:none;" />
@@ -105,6 +134,22 @@ export default async function renderSettingsPage(container) {
         <button type="button" id="banner-add-btn" class="btn btn-primary" style="width:fit-content;" disabled><i class="fa-solid fa-plus"></i> Tambah Slide</button>
         <span id="banner-status" style="font-size:12px; color:var(--color-text-muted);"></span>
       </div>
+
+      <h2 class="section-title" style="margin-top:28px;">Kontrol Akses Publik</h2>
+      <p style="font-size:12.5px; margin-bottom:12px;">Atur halaman mana yang bisa dilihat siapa saja tanpa login/daftar, dan mana yang wajib login.</p>
+      <form id="visibility-form" class="card" style="max-width:560px; display:flex; flex-direction:column; gap:14px;">
+        ${Object.entries(VISIBILITY_LABELS).map(([key, meta]) => `
+          <label style="display:flex; align-items:flex-start; gap:12px; cursor:pointer;">
+            <input type="checkbox" name="${key}" ${visibility[key] ? 'checked' : ''} style="width:18px; height:18px; margin-top:2px; flex-shrink:0;" />
+            <span>
+              <span style="display:block; font-weight:700; font-size:13.5px;">${meta.label}</span>
+              <span style="display:block; font-size:12px; color:var(--color-text-muted); margin-top:2px;">${meta.desc}</span>
+            </span>
+          </label>
+        `).join('')}
+        <button type="submit" class="btn btn-primary" style="width:fit-content;">Simpan Akses</button>
+        <span id="visibility-status" style="font-size:12px; color:var(--color-text-muted);"></span>
+      </form>
 
       <h2 class="section-title" style="margin-top:28px;">Backup &amp; Restore Database</h2>
       <div class="card" style="max-width:520px; display:flex; flex-direction:column; gap:12px;">
@@ -175,6 +220,19 @@ export default async function renderSettingsPage(container) {
       const status = document.getElementById('banner-status');
       const preview = document.getElementById('banner-new-preview');
       const addBtn = document.getElementById('banner-add-btn');
+
+      try {
+        const { width, height } = await getImageDimensions(file);
+        if (height >= width) {
+          status.textContent = 'Foto harus landscape (mendatar), bukan potrait/lurus ke bawah. Pilih foto lain.';
+          e.target.value = '';
+          return;
+        }
+      } catch (err) {
+        status.textContent = 'Gagal membaca foto: ' + err.message;
+        return;
+      }
+
       status.textContent = 'Mengunggah...';
       addBtn.disabled = true;
       try {
@@ -228,6 +286,22 @@ export default async function renderSettingsPage(container) {
       }
     });
   }
+
+  document.getElementById('visibility-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = document.getElementById('visibility-status');
+    const nextVisibility = {};
+    Object.keys(VISIBILITY_LABELS).forEach(key => {
+      nextVisibility[key] = e.target.elements[key].checked;
+    });
+    try {
+      status.textContent = 'Menyimpan...';
+      await api.patch('/api/settings', { visibility: nextVisibility });
+      status.textContent = 'Tersimpan.';
+    } catch (err) {
+      status.textContent = 'Gagal: ' + err.message;
+    }
+  });
 
   document.getElementById('backup-btn')?.addEventListener('click', async () => {
     try {

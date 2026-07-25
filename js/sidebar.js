@@ -42,6 +42,7 @@ const MENU_BY_ROLE = {
   ],
   guest: [
     { label: 'Beranda', path: '/', icon: 'layout-dashboard' },
+    { label: 'Siswa', path: '/students', icon: 'users' },
     { label: 'Album Kenangan', path: '/albums', icon: 'image' },
     { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
     { label: 'Jadwal', path: '/schedule', icon: 'calendar' },

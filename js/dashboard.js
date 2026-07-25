@@ -96,7 +96,9 @@ function heroCarousel(homepage, siteName, isOwner) {
   }
 
   const slideEls = slides.map((s, i) => `
-    <div class="hero-slide" style="background-image:url('${s.url}')" data-index="${i}">
+    <div class="hero-slide" data-index="${i}">
+      <div class="hero-slide-backdrop" style="background-image:url('${s.url}')"></div>
+      <img class="hero-slide-img" src="${s.url}" alt="${s.title || badge}" loading="${i === 0 ? 'eager' : 'lazy'}" />
       <div class="hero-slide-overlay">
         <span class="hero-badge"><i class="fa-solid fa-star"></i> ${badge}</span>
         ${s.title ? `<h2>${s.title}</h2>` : ''}
@@ -255,8 +257,8 @@ export default async function renderDashboardPage(container) {
 
   const scheduleItems = schedule.slice(0, 5).map(s => `
     <div class="list-item">
-      <div class="list-item-title">${s.subject}</div>
-      <div class="list-item-meta">${s.teacher || '-'} · ${s.room || '-'} · ${s.start_time?.slice(0,5)}-${s.end_time?.slice(0,5)}</div>
+      <div class="list-item-title">${s.is_break ? `<i class="fa-solid fa-mug-hot" style="color:var(--color-warning);"></i> ` : ''}${s.subject}</div>
+      <div class="list-item-meta">${s.is_break ? (s.notes || 'Jam istirahat') : `${s.teacher || '-'} · ${s.room || '-'}`} · ${s.start_time?.slice(0,5)}-${s.end_time?.slice(0,5)}</div>
     </div>
   `).join('') || '<div class="empty-state">Belum ada jadwal.</div>';
 

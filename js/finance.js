@@ -2,6 +2,63 @@ import { api } from './apiClient.js';
 import { getSession } from './session.js';
 
 const rupiah = (n) => `Rp${Number(n).toLocaleString('id-ID')}`;
+const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function groupByMonth(transactions) {
+  const map = {};
+  transactions.forEach(t => {
+    const d = new Date(t.transaction_date);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (!map[key]) {
+      map[key] = { key, label: `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`, income: 0, expense: 0, transactions: [] };
+    }
+    map[key].transactions.push(t);
+    if (t.type === 'income') map[key].income += Number(t.amount);
+    else map[key].expense += Number(t.amount);
+  });
+  return Object.values(map).sort((a, b) => b.key.localeCompare(a.key));
+}
+
+function downloadMonthlyCSV(month) {
+  const header = 'Tanggal,Jenis,Kategori,Keterangan,Nominal\n';
+  const rows = month.transactions.map(t => {
+    const cells = [
+      t.transaction_date,
+      t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+      (t.category || '-').replace(/,/g, ' '),
+      (t.description || '-').replace(/,/g, ' '),
+      t.amount,
+    ];
+    return cells.join(',');
+  }).join('\n');
+  const summary = `\n\nTotal Pemasukan,${month.income}\nTotal Pengeluaran,${month.expense}\nSaldo Bulan Ini,${month.income - month.expense}`;
+  const blob = new Blob([header + rows + summary], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rekap-kas-${month.key}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function monthlyRecapCard(month) {
+  return `
+    <div class="card" style="margin-bottom:10px;">
+      <div class="card-header" style="margin-bottom:8px;">
+        <div>
+          <div style="font-weight:700; font-size:14px;">${month.label}</div>
+          <div style="font-size:12px; color:var(--color-text-muted); margin-top:2px;">
+            ${month.transactions.length} transaksi · Masuk ${rupiah(month.income)} · Keluar ${rupiah(month.expense)}
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-weight:800; font-size:15px; color:${month.income - month.expense >= 0 ? 'var(--color-success)' : 'var(--color-danger)'};">${rupiah(month.income - month.expense)}</span>
+          <button type="button" class="btn btn-secondary btn-sm recap-download-btn" data-key="${month.key}"><i class="fa-solid fa-download"></i> Simpan</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
 export default async function renderFinancePage(container) {
   const me = await getSession();
@@ -21,11 +78,16 @@ export default async function renderFinancePage(container) {
       <td>${t.description || '-'}</td>
       <td style="text-align:right; font-weight:600;">${rupiah(t.amount)}</td>
       ${canManage ? `<td style="white-space:nowrap;">
-        <button class="icon-btn edit-tx-btn" data-id="${t.id}" title="Edit">✏️</button>
-        <button class="icon-btn delete-tx-btn" data-id="${t.id}" title="Hapus">🗑️</button>
+        <button class="icon-btn edit-tx-btn" data-id="${t.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
+        <button class="icon-btn delete-tx-btn" data-id="${t.id}" title="Hapus"><i class="fa-solid fa-trash"></i></button>
       </td>` : ''}
     </tr>
   `).join('') || `<tr><td colspan="${canManage ? 6 : 5}" class="empty-state">Belum ada transaksi.</td></tr>`;
+
+  const months = groupByMonth(finance.transactions);
+  const recapSection = months.length
+    ? `<h2 class="section-title" style="margin-bottom:10px;">Rekap Kas Per Bulan</h2>${months.map(monthlyRecapCard).join('')}`
+    : '';
 
   container.innerHTML = `
     <div class="stat-grid">
@@ -34,9 +96,11 @@ export default async function renderFinancePage(container) {
       <div class="card stat-card"><span class="stat-value" style="color:var(--color-danger);">${rupiah(finance.summary.expense)}</span><span class="stat-label">Pengeluaran</span></div>
     </div>
 
-    <div class="card-header">
+    ${recapSection}
+
+    <div class="card-header" style="margin-top:22px;">
       <h1 class="section-title" style="margin:0;">Riwayat Transaksi</h1>
-      ${canManage ? '<button id="add-tx-btn" class="btn btn-primary">+ Tambah Transaksi</button>' : ''}
+      ${canManage ? '<button id="add-tx-btn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Tambah Transaksi</button>' : ''}
     </div>
 
     <div class="card" style="overflow-x:auto;">
@@ -96,6 +160,13 @@ export default async function renderFinancePage(container) {
     } catch (err) {
       alert(err.message);
     }
+  });
+
+  container.querySelectorAll('.recap-download-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const month = months.find(m => m.key === btn.dataset.key);
+      if (month) downloadMonthlyCSV(month);
+    });
   });
 
   container.querySelectorAll('.edit-tx-btn').forEach(btn => {
