@@ -197,6 +197,13 @@ select.input {
 .table tbody tr:last-child td { border-bottom: none; }
 .table tbody tr:hover td { background-color: var(--color-bg-2); }
 
+.schedule-break-row td {
+  background-color: rgba(217, 119, 6, 0.06);
+}
+.schedule-break-row:hover td {
+  background-color: rgba(217, 119, 6, 0.1);
+}
+
 /* ============================================================
    MODAL (native <dialog>)
    ============================================================ */

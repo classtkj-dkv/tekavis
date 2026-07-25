@@ -271,6 +271,7 @@
   overflow: hidden;
   box-shadow: var(--shadow-md);
   margin-bottom: 26px;
+  background-color: var(--color-bg-2);
 }
 
 .hero-track {
@@ -285,20 +286,41 @@
 .hero-slide {
   flex: 0 0 100%;
   scroll-snap-align: center;
-  height: 220px;
-  background-size: cover;
-  background-position: center;
-  background-color: var(--color-bg-2);
   position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
   display: flex;
   align-items: flex-end;
 }
 
+/* Backdrop blur dari foto yang sama, ngisi ruang kosong tanpa motong foto asli */
+.hero-slide-backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(24px) brightness(0.65) saturate(1.1);
+  transform: scale(1.15);
+}
+
+/* Foto asli ditampilkan utuh — object-fit:contain, gak ada yang kepotong */
+.hero-slide-img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 .hero-slide-overlay {
+  position: relative;
+  z-index: 2;
   width: 100%;
   padding: 20px 22px;
-  background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15) 70%, transparent);
+  background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.1) 75%, transparent);
   color: #fff;
+  pointer-events: none;
 }
 
 .hero-slide-overlay .hero-badge,
@@ -372,7 +394,6 @@
 }
 
 @media (max-width: 640px) {
-  .hero-slide { height: 180px; }
   .hero-nav { display: none; }
 }
 
