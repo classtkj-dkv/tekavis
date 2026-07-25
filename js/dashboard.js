@@ -97,7 +97,6 @@ function heroCarousel(homepage, siteName, isOwner) {
 
   const slideEls = slides.map((s, i) => `
     <div class="hero-slide" data-index="${i}">
-      <div class="hero-slide-backdrop" style="background-image:url('${s.url}')"></div>
       <img class="hero-slide-img" src="${s.url}" alt="${s.title || badge}" loading="${i === 0 ? 'eager' : 'lazy'}" />
       <div class="hero-slide-overlay">
         <span class="hero-badge"><i class="fa-solid fa-star"></i> ${badge}</span>

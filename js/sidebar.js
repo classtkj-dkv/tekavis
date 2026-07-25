@@ -40,6 +40,14 @@ const MENU_BY_ROLE = {
     { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
     { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
   ],
+  pengunjung: [
+    { label: 'Dashboard', path: '/', icon: 'layout-dashboard' },
+    { label: 'Profil Saya', path: '/profile', icon: 'user' },
+    { label: 'Siswa', path: '/students', icon: 'users' },
+    { label: 'Album Kenangan', path: '/albums', icon: 'image' },
+    { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
+    { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
+  ],
   guest: [
     { label: 'Beranda', path: '/', icon: 'layout-dashboard' },
     { label: 'Siswa', path: '/students', icon: 'users' },

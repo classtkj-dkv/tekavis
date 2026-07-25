@@ -9,7 +9,7 @@ export default async function renderRegisterPage(container) {
         <div class="auth-logo">
           <div class="auth-brand-icon"><i class="fa-solid fa-user-plus"></i></div>
           <h1 class="auth-title">Daftar Akun</h1>
-          <p class="auth-subtitle">Akun baru akan mendapat role Siswa secara default</p>
+          <p class="auth-subtitle">Akun ini untuk pengunjung umum, bukan data siswa resmi kelas</p>
         </div>
 
         ${!isSupabaseConfigured ? `
