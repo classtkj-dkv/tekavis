@@ -2,7 +2,8 @@ import { getSupabaseAdmin } from './_lib/supabaseClient.js';
 import { requireAuth } from './_lib/auth.js';
 import { isRole } from './_lib/permissions.js';
 import { logActivity } from './_lib/activityLog.js';
-import { ok, forbidden, badRequest, serverError } from './_lib/response.js';
+import { uploadImage, deleteImage } from './_lib/cloudinary.js';
+import { ok, created, forbidden, badRequest, serverError } from './_lib/response.js';
 
 const BACKUP_TABLES = [
   'roles', 'profiles', 'students', 'albums', 'photos',
@@ -11,15 +12,36 @@ const BACKUP_TABLES = [
 ];
 const RESTORE_ORDER = BACKUP_TABLES;
 
-// GET   /api/settings                 -> site settings
-// PATCH /api/settings                 -> update settings (Owner)
-// GET   /api/settings?action=backup   -> unduh seluruh isi tabel sebagai JSON (Owner)
-// POST  /api/settings?action=restore  -> timpa data dari JSON backup (Owner)
+// GET   /api/settings                    -> site settings
+// PATCH /api/settings                    -> update settings (Owner)
+// GET   /api/settings?action=backup      -> unduh seluruh isi tabel sebagai JSON (Owner)
+// POST  /api/settings?action=restore     -> timpa data dari JSON backup (Owner)
+// POST  /api/settings?action=upload      -> upload gambar (logo/favicon/banner) ke Cloudinary, kembalikan url (Owner)
+// POST  /api/settings?action=delete-asset -> hapus gambar dari Cloudinary lewat public_id (Owner)
 export default requireAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
   const { action } = req.query;
 
   try {
+    if (req.method === 'POST' && action === 'upload') {
+      if (!isRole(ctx, 'owner')) return forbidden(res, 'Hanya Owner yang dapat mengunggah gambar website');
+      const { file, folder } = req.body || {};
+      if (!file) return badRequest(res, 'File wajib diisi');
+      const safeFolder = ['banner', 'logo', 'favicon'].includes(folder) ? folder : 'misc';
+      const result = await uploadImage(file, { folder: `kelas-cms/site/${safeFolder}` });
+      await logActivity(req, ctx, { action: 'upload_site_asset', meta: { folder: safeFolder } });
+      return created(res, { url: result.url, publicId: result.publicId });
+    }
+
+    if (req.method === 'POST' && action === 'delete-asset') {
+      if (!isRole(ctx, 'owner')) return forbidden(res, 'Hanya Owner yang dapat menghapus gambar website');
+      const { publicId } = req.body || {};
+      if (!publicId) return badRequest(res, 'publicId wajib diisi');
+      await deleteImage(publicId);
+      await logActivity(req, ctx, { action: 'delete_site_asset', meta: { publicId } });
+      return ok(res, { deleted: true });
+    }
+
     if (req.method === 'GET' && action === 'backup') {
       if (!isRole(ctx, 'owner')) return forbidden(res, 'Hanya Owner yang dapat melakukan backup');
       const backup = { generated_at: new Date().toISOString(), tables: {} };
