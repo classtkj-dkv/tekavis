@@ -42,5 +42,17 @@ export default async function renderProfilePage(container) {
         </p>
       </div>
     ` : ''}
+
+    <div class="card" style="margin-top:14px; border-color:var(--color-warning);">
+      <p style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-warning); margin-bottom:8px;">
+        🔧 Info Debug (data mentah dari server)
+      </p>
+      <dl class="detail-list" style="font-family:monospace; font-size:12px;">
+        <dt>user.id</dt><dd>${me.id}</dd>
+        <dt>role</dt><dd><strong>${me.role === null ? 'null' : me.role}</strong></dd>
+        <dt>profile.role_id</dt><dd>${p.role_id === undefined ? '(gak dikirim server)' : (p.role_id ?? 'null')}</dd>
+        <dt>permissions</dt><dd>${JSON.stringify(me.permissions)}</dd>
+      </dl>
+    </div>
   `;
 }
