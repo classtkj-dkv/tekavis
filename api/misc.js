@@ -45,7 +45,7 @@ export default optionalAuth(async (req, res, ctx) => {
       const { data: roles, error: roleError } = await admin
         .from('roles')
         .select('id, name, label')
-        .not('name', 'in', '(owner,admin,siswa)')
+        .not('name', 'in', '(owner,admin,siswa,pengunjung)')
         .order('label', { ascending: true });
       if (roleError) throw roleError;
 
