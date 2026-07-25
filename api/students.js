@@ -1,19 +1,23 @@
 import { getSupabaseAdmin } from './_lib/supabaseClient.js';
-import { requireAuth } from './_lib/auth.js';
+import { optionalAuth } from './_lib/auth.js';
 import { requirePermission } from './_lib/permissions.js';
 import { logActivity } from './_lib/activityLog.js';
-import { ok, created, badRequest, serverError } from './_lib/response.js';
+import { isPublicResource } from './_lib/visibility.js';
+import { ok, created, badRequest, serverError, unauthorized } from './_lib/response.js';
 
-// GET    /api/students          -> daftar siswa
+// GET    /api/students          -> daftar siswa (publik, kecuali Owner set privat)
 // POST   /api/students          -> tambah siswa (manage_students)
 // PATCH  /api/students?id=...   -> edit siswa (manage_students)
 // DELETE /api/students?id=...   -> hapus siswa (manage_students)
-export default requireAuth(async (req, res, ctx) => {
+export default optionalAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
   const { id } = req.query;
 
   try {
     if (req.method === 'GET') {
+      if (!ctx.profile && !(await isPublicResource(admin, 'students'))) {
+        return unauthorized(res, 'Data siswa hanya untuk anggota yang login');
+      }
       const { data, error } = await admin.from('students').select('*').order('name', { ascending: true });
       if (error) throw error;
       return ok(res, data);

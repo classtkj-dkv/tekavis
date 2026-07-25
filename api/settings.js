@@ -1,5 +1,5 @@
 import { getSupabaseAdmin } from './_lib/supabaseClient.js';
-import { requireAuth } from './_lib/auth.js';
+import { optionalAuth } from './_lib/auth.js';
 import { isRole } from './_lib/permissions.js';
 import { logActivity } from './_lib/activityLog.js';
 import { uploadImage, deleteImage } from './_lib/cloudinary.js';
@@ -18,7 +18,7 @@ const RESTORE_ORDER = BACKUP_TABLES;
 // POST  /api/settings?action=restore     -> timpa data dari JSON backup (Owner)
 // POST  /api/settings?action=upload      -> upload gambar (logo/favicon/banner) ke Cloudinary, kembalikan url (Owner)
 // POST  /api/settings?action=delete-asset -> hapus gambar dari Cloudinary lewat public_id (Owner)
-export default requireAuth(async (req, res, ctx) => {
+export default optionalAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
   const { action } = req.query;
 
@@ -94,7 +94,7 @@ export default requireAuth(async (req, res, ctx) => {
 
     if (req.method === 'PATCH') {
       if (!isRole(ctx, 'owner')) return forbidden(res, 'Hanya Owner yang dapat mengubah pengaturan website');
-      const allowed = ['site_name', 'logo_url', 'favicon_url', 'footer_text', 'theme', 'homepage', 'contact', 'social_media'];
+      const allowed = ['site_name', 'logo_url', 'favicon_url', 'footer_text', 'theme', 'homepage', 'contact', 'social_media', 'visibility'];
       const patch = Object.fromEntries(Object.entries(req.body || {}).filter(([k]) => allowed.includes(k)));
       const { data, error } = await admin.from('site_settings').update(patch).eq('id', 1).select().single();
       if (error) throw error;

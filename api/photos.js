@@ -1,21 +1,25 @@
 import { getSupabaseAdmin } from './_lib/supabaseClient.js';
 import { uploadImage, deleteImage } from './_lib/cloudinary.js';
-import { requireAuth } from './_lib/auth.js';
+import { optionalAuth } from './_lib/auth.js';
 import { requirePermission } from './_lib/permissions.js';
 import { logActivity } from './_lib/activityLog.js';
-import { ok, created, notFound, badRequest, serverError } from './_lib/response.js';
+import { isPublicResource } from './_lib/visibility.js';
+import { ok, created, notFound, badRequest, serverError, unauthorized } from './_lib/response.js';
 
-// GET    /api/photos?id=...    -> detail foto (metadata lengkap dari DB, bukan dari Cloudinary)
+// GET    /api/photos?id=...    -> detail foto (metadata lengkap dari DB, bukan dari Cloudinary) — publik, kecuali Owner set privat
 // POST   /api/photos           -> upload foto baru (upload_album) — body termasuk file base64
 // PATCH  /api/photos?id=...    -> edit metadata foto (manage_gallery)
 // DELETE /api/photos?id=...    -> hapus foto dari Cloudinary + DB (manage_gallery)
-export default requireAuth(async (req, res, ctx) => {
+export default optionalAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
   const { id } = req.query;
 
   try {
     if (req.method === 'GET') {
       if (!id) return badRequest(res, 'Parameter id wajib diisi');
+      if (!ctx.profile && !(await isPublicResource(admin, 'albums'))) {
+        return unauthorized(res, 'Foto hanya untuk anggota yang login');
+      }
       const { data, error } = await admin
         .from('photos')
         .select('id, url, name, description, category, tags, location, taken_or_uploaded_at, album_id, uploaded_by, albums(name, year, month)')

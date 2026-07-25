@@ -1,19 +1,20 @@
 import { getSupabaseAdmin } from './_lib/supabaseClient.js';
-import { requireAuth } from './_lib/auth.js';
+import { optionalAuth } from './_lib/auth.js';
 import { isRole } from './_lib/permissions.js';
-import { ok, badRequest, forbidden, serverError } from './_lib/response.js';
+import { isPublicResource } from './_lib/visibility.js';
+import { ok, badRequest, forbidden, unauthorized, serverError } from './_lib/response.js';
 
 // Endpoint serbaguna: gabungan search, struktur organisasi, activity log, dan
 // notifikasi jadi 1 file. Sengaja digabung supaya total Serverless Function di
 // /api tetap di bawah limit 12 punya Vercel Hobby plan (sebelumnya 14 file
 // terpisah bikin deployment gagal diam-diam di tahap "Deploying outputs").
 // Dibedain lewat query ?resource=search | org-structure | activity-log | notifications
-export default requireAuth(async (req, res, ctx) => {
+export default optionalAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
   const { resource } = req.query;
 
   try {
-    // ---------------- SEARCH ----------------
+    // ---------------- SEARCH (publik) ----------------
     if (resource === 'search') {
       if (req.method !== 'GET') return badRequest(res, 'Method tidak didukung');
       const q = (req.query.q || '').trim();
@@ -35,9 +36,12 @@ export default requireAuth(async (req, res, ctx) => {
       });
     }
 
-    // ---------------- STRUKTUR ORGANISASI ----------------
+    // ---------------- STRUKTUR ORGANISASI (publik, kecuali Owner set privat) ----------------
     if (resource === 'org-structure') {
       if (req.method !== 'GET') return badRequest(res, 'Method tidak didukung');
+      if (!ctx.profile && !(await isPublicResource(admin, 'struktur'))) {
+        return unauthorized(res, 'Struktur organisasi hanya untuk anggota yang login');
+      }
       const { data: roles, error: roleError } = await admin
         .from('roles')
         .select('id, name, label')
@@ -59,9 +63,10 @@ export default requireAuth(async (req, res, ctx) => {
       return ok(res, structure);
     }
 
-    // ---------------- ACTIVITY LOG ----------------
+    // ---------------- ACTIVITY LOG (wajib login) ----------------
     if (resource === 'activity-log') {
       if (req.method !== 'GET') return badRequest(res, 'Method tidak didukung');
+      if (!ctx.profile) return unauthorized(res);
       if (!isRole(ctx, 'owner', 'admin')) return forbidden(res, 'Hanya Owner/Admin yang dapat melihat activity log');
       const page = Math.max(1, Number(req.query.page) || 1);
       const limit = Math.min(100, Number(req.query.limit) || 30);
@@ -76,8 +81,9 @@ export default requireAuth(async (req, res, ctx) => {
       return ok(res, data, { page, limit, total: count });
     }
 
-    // ---------------- NOTIFIKASI ----------------
+    // ---------------- NOTIFIKASI (wajib login) ----------------
     if (resource === 'notifications') {
+      if (!ctx.profile) return unauthorized(res);
       if (req.method === 'GET') {
         const { data, error } = await admin
           .from('notifications')

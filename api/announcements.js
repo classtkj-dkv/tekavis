@@ -1,19 +1,23 @@
 import { getSupabaseAdmin } from './_lib/supabaseClient.js';
-import { requireAuth } from './_lib/auth.js';
+import { optionalAuth } from './_lib/auth.js';
 import { requirePermission, isRole } from './_lib/permissions.js';
 import { logActivity } from './_lib/activityLog.js';
-import { ok, created, badRequest, serverError } from './_lib/response.js';
+import { isPublicResource } from './_lib/visibility.js';
+import { ok, created, badRequest, serverError, unauthorized } from './_lib/response.js';
 
-// GET    /api/announcements          -> published untuk semua; draft/scheduled hanya yang punya izin
+// GET    /api/announcements          -> published untuk semua (publik, kecuali Owner set privat); draft/scheduled hanya yang punya izin
 // POST   /api/announcements          -> buat pengumuman (manage_announcements)
 // PATCH  /api/announcements?id=...   -> edit (manage_announcements)
 // DELETE /api/announcements?id=...   -> hapus (manage_announcements)
-export default requireAuth(async (req, res, ctx) => {
+export default optionalAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
   const { id } = req.query;
 
   try {
     if (req.method === 'GET') {
+      if (!ctx.profile && !(await isPublicResource(admin, 'announcements'))) {
+        return unauthorized(res, 'Pengumuman hanya untuk anggota yang login');
+      }
       const canManage = isRole(ctx, 'owner') || ctx.profile?.roles?.permissions?.manage_announcements;
       let query = admin.from('announcements').select('*').order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
       if (!canManage) query = query.eq('status', 'published');

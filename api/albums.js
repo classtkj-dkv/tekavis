@@ -1,19 +1,24 @@
 import { getSupabaseAdmin } from './_lib/supabaseClient.js';
-import { requireAuth } from './_lib/auth.js';
+import { optionalAuth } from './_lib/auth.js';
 import { requirePermission } from './_lib/permissions.js';
 import { logActivity } from './_lib/activityLog.js';
-import { ok, created, notFound, badRequest, serverError } from './_lib/response.js';
+import { isPublicResource } from './_lib/visibility.js';
+import { ok, created, notFound, badRequest, serverError, unauthorized } from './_lib/response.js';
 
-// GET    /api/albums            -> daftar album (?year=&month= opsional)
+// GET    /api/albums            -> daftar album (?year=&month= opsional) (publik, kecuali Owner set privat)
 // GET    /api/albums?id=...     -> detail album + daftar foto
 // POST   /api/albums            -> buat album (manage_gallery)
 // PATCH  /api/albums?id=...     -> update album (manage_gallery)
 // DELETE /api/albums?id=...     -> hapus album (manage_gallery)
-export default requireAuth(async (req, res, ctx) => {
+export default optionalAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
   const { id } = req.query;
 
   try {
+    if (req.method === 'GET' && !ctx.profile && !(await isPublicResource(admin, 'albums'))) {
+      return unauthorized(res, 'Album hanya untuk anggota yang login');
+    }
+
     if (req.method === 'GET' && id) {
       const { data: album, error } = await admin.from('albums').select('*').eq('id', id).single();
       if (error || !album) return notFound(res);
