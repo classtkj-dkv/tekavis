@@ -1,13 +1,18 @@
+function noStore(res) {
+  res.setHeader('Cache-Control', 'no-store, must-revalidate');
+  return res;
+}
+
 export function ok(res, data, meta = undefined) {
-  return res.status(200).json({ success: true, data, meta });
+  return noStore(res).status(200).json({ success: true, data, meta });
 }
 
 export function created(res, data) {
-  return res.status(201).json({ success: true, data });
+  return noStore(res).status(201).json({ success: true, data });
 }
 
 export function fail(res, status, message, details = undefined) {
-  return res.status(status).json({ success: false, error: message, details });
+  return noStore(res).status(status).json({ success: false, error: message, details });
 }
 
 export function badRequest(res, message = 'Permintaan tidak valid', details) {
