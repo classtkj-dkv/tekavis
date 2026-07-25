@@ -157,7 +157,7 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background-color: var(--color-primary);
+  background: var(--gradient-brand);
   color: #fff;
   display: flex;
   align-items: center;
@@ -196,7 +196,7 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background-color: var(--color-primary);
+  background: var(--gradient-brand);
   color: #fff;
   display: flex;
   align-items: center;
@@ -204,4 +204,11 @@
   font-size: 12px;
   font-weight: 700;
   flex-shrink: 0;
+}
+
+.auth-copyright {
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 16px;
 }
