@@ -293,23 +293,16 @@
   align-items: flex-end;
 }
 
-/* Backdrop blur dari foto yang sama, ngisi ruang kosong tanpa motong foto asli */
-.hero-slide-backdrop {
+/* Foto landscape wajib diisi (divalidasi pas upload), jadi aman di-cover
+   penuh tanpa kepotong bagian penting & tanpa celah kosong di sisi. */
+.hero-slide-img {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center;
-  filter: blur(24px) brightness(0.65) saturate(1.1);
-  transform: scale(1.15);
-}
-
-/* Foto asli ditampilkan utuh — object-fit:contain, gak ada yang kepotong */
-.hero-slide-img {
-  position: relative;
   z-index: 1;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
   display: block;
 }
 
