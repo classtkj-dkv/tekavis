@@ -263,6 +263,120 @@
 }
 
 /* ============================================================
+   HERO CAROUSEL (beranda — foto yang bisa digeser)
+   ============================================================ */
+.hero-carousel {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 26px;
+}
+
+.hero-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.hero-track::-webkit-scrollbar { display: none; }
+
+.hero-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-bg-2);
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.hero-slide-overlay {
+  width: 100%;
+  padding: 20px 22px;
+  background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15) 70%, transparent);
+  color: #fff;
+}
+
+.hero-slide-overlay .hero-badge,
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(6px);
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.hero-slide-overlay h2 {
+  font-size: 19px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.hero-slide-overlay p {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.85);
+}
+
+.hero-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: background var(--transition-fast);
+}
+.hero-nav:hover { background: rgba(0,0,0,0.55); }
+.hero-prev { left: 10px; }
+.hero-next { right: 10px; }
+
+.hero-dots {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+}
+
+.hero-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.hero-dot.active {
+  background: #fff;
+  width: 18px;
+}
+
+@media (max-width: 640px) {
+  .hero-slide { height: 180px; }
+  .hero-nav { display: none; }
+}
+
+/* ============================================================
    STRUKTUR ORGANISASI
    ============================================================ */
 .org-grid {
