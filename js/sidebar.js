@@ -59,7 +59,7 @@ export function getMenuForRole(role) {
   return [menu[0], { label: 'Struktur Organisasi', path: '/struktur', icon: 'users-round' }, ...menu.slice(1)];
 }
 
-export function renderSidebar(role, siteName = 'Sistem Informasi Kelas') {
+export function renderSidebar(role, siteName = 'Class Tekavis') {
   const menu = getMenuForRole(role);
   const currentPath = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
 
@@ -72,6 +72,7 @@ export function renderSidebar(role, siteName = 'Sistem Informasi Kelas') {
   return `
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">${(siteName || 'C').trim().slice(0, 1).toUpperCase()}</div>
         <span class="sidebar-brand-name">${siteName}</span>
       </div>
       <nav class="sidebar-nav">${items}</nav>

@@ -59,7 +59,7 @@ async function bootstrap() {
     // tampilkan shell & halamannya (data yang butuh izin akan otomatis kosong,
     // ditangani masing-masing halaman lewat .catch(() => [])).
     const settings = await api.get('/api/settings').catch(() => null);
-    const siteName = settings?.site_name || 'Sistem Informasi Kelas';
+    const siteName = settings?.site_name || 'Class Tekavis';
     // FIX: sebelumnya `me?.role || 'guest'` nyamain dua kondisi beda — "belum
     // login" (me null) VS "sudah login tapi role-nya null" (me ada, me.role
     // null, misal row profiles belum sempat kebuat). Keduanya kefallback ke
@@ -74,6 +74,9 @@ async function bootstrap() {
         <div>
           ${renderNavbar(me?.profile, me?.email)}
           <main class="app-content" id="page-content"></main>
+          <footer class="app-footer">
+            ${settings?.footer_text || `© ${new Date().getFullYear()} XREZZKY OFFICIAL. All Rights Reserved.`}
+          </footer>
         </div>
       </div>
     `;

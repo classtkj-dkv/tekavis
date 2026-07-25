@@ -107,7 +107,7 @@ export default async function renderDashboardPage(container) {
 
   container.innerHTML = `
     <h1 class="section-title" style="font-size:20px; margin-bottom:20px;">
-      ${me ? `Selamat datang, ${me.profile?.full_name || 'Pengguna'} 👋` : 'Selamat datang di Sistem Informasi Kelas 👋'}
+      ${me ? `Selamat datang, ${me.profile?.full_name || 'Pengguna'} 👋` : 'Selamat datang di Class Tekavis 👋'}
     </h1>
 
     ${stats ? `<div class="stat-grid">${stats}</div>` : ''}

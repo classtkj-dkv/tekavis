@@ -30,6 +30,7 @@ export default async function renderRegisterPage(container) {
 
         <p class="auth-footer">Sudah punya akun? <a href="#/login">Masuk</a></p>
       </form>
+      <p class="auth-copyright">© ${new Date().getFullYear()} XREZZKY OFFICIAL. All Rights Reserved.</p>
     </div>
   `;
 

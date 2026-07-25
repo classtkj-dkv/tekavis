@@ -8,7 +8,7 @@ export default async function renderLoginPage(container) {
     <div class="auth-screen">
       <form id="login-form" class="card auth-card">
         <h1 class="auth-title">Masuk</h1>
-        <p class="auth-subtitle">Masuk ke Sistem Informasi Kelas</p>
+        <p class="auth-subtitle">Masuk ke Class Tekavis</p>
 
         ${!isSupabaseConfigured ? `
           <p class="auth-error" style="background:rgba(245,158,11,0.12); padding:10px 12px; border-radius:8px;">
@@ -28,6 +28,7 @@ export default async function renderLoginPage(container) {
 
         <p class="auth-footer">Belum punya akun? <a href="#/register">Daftar</a></p>
       </form>
+      <p class="auth-copyright">© ${new Date().getFullYear()} XREZZKY OFFICIAL. All Rights Reserved.</p>
     </div>
   `;
 
