@@ -39,3 +39,16 @@ export function requireAuth(handler) {
     return handler(req, res, ctx);
   };
 }
+
+/**
+ * Wrapper untuk endpoint yang BOLEH diakses tanpa login (mis. GET publik),
+ * tapi tetap butuh tau siapa yang login (kalau ada) buat cek permission pas
+ * mutasi (POST/PATCH/DELETE). ctx.profile bakal null kalau belum login —
+ * setiap pemanggilan requirePermission/isRole udah aman nerima itu.
+ */
+export function optionalAuth(handler) {
+  return async (req, res) => {
+    const ctx = (await getAuthContext(req)) || { token: null, user: null, profile: null };
+    return handler(req, res, ctx);
+  };
+}
