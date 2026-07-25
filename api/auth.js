@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from './_lib/supabaseClient.js';
 import { requireAuth } from './_lib/auth.js';
-import { ok, badRequest, serverError } from './_lib/response.js';
+import { uploadImage } from './_lib/cloudinary.js';
+import { ok, created, badRequest, serverError } from './_lib/response.js';
 
 // GET   /api/auth  -> profil + role + permission user yang sedang login
 //                     (kalau role 'siswa', ikut disertakan data siswa terkait: nama, NISN, jurusan, dll)
@@ -27,6 +28,20 @@ export default requireAuth(async (req, res, ctx) => {
         role: ctx.profile?.roles?.name || null,
         permissions: ctx.profile?.roles?.permissions || {},
       });
+    }
+
+    if (req.method === 'POST' && req.query.action === 'upload-photo') {
+      const { file } = req.body || {};
+      if (!file) return badRequest(res, 'File wajib diisi');
+
+      const result = await uploadImage(file, { folder: 'kelas-cms/profile' });
+
+      if (ctx.profile?.roles?.name === 'siswa') {
+        await admin.from('students').update({ photo_url: result.url }).eq('profile_id', ctx.user.id);
+      }
+      await admin.from('profiles').update({ avatar_url: result.url }).eq('id', ctx.user.id);
+
+      return created(res, { url: result.url });
     }
 
     if (req.method === 'POST') {

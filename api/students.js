@@ -19,7 +19,10 @@ export default optionalAuth(async (req, res, ctx) => {
       if (!ctx.profile && !(await isPublicResource(admin, 'students'))) {
         return unauthorized(res, 'Data siswa hanya untuk anggota yang login');
       }
-      const { data, error } = await admin.from('students').select('*').order('name', { ascending: true });
+      const { data, error } = await admin
+        .from('students')
+        .select('*, profiles(motto, hobby, dream_job)')
+        .order('name', { ascending: true });
       if (error) throw error;
       return ok(res, data);
     }
