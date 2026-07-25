@@ -105,7 +105,7 @@
   z-index: 20;
 }
 
-.navbar-search { flex: 1; max-width: 420px; }
+.navbar-spacer { flex: 1; }
 
 .navbar-actions {
   display: flex;
@@ -131,17 +131,6 @@
 .icon-btn:hover { background: var(--color-accent-light); color: var(--color-primary); }
 
 #sidebar-toggle { display: none; }
-
-.theme-select {
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface);
-  color: var(--color-text-primary);
-  padding: 7px 10px;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-}
 
 .navbar-avatar {
   width: 34px;
@@ -188,7 +177,6 @@
   #sidebar-toggle { display: inline-flex; }
 
   .navbar { padding: 0 16px; }
-  .navbar-search { max-width: none; }
 
   .app-content { padding: 16px; }
 }
