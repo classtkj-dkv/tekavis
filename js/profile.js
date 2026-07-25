@@ -1,6 +1,15 @@
 import { api } from './apiClient.js';
 import { getSession, clearSessionCache } from './session.js';
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Gagal membaca file'));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default async function renderProfilePage(container) {
   const me = await getSession();
 
@@ -16,6 +25,7 @@ export default async function renderProfilePage(container) {
 
   const p = me.profile || {};
   const s = me.student || null; // hanya terisi kalau rolenya 'siswa'
+  const photoUrl = s?.photo_url || p.avatar_url || '';
 
   // Field terkunci (dikelola Admin/Owner lewat data siswa) — tampil apa adanya, tidak bisa diedit di sini.
   const lockedFields = s ? [
@@ -30,12 +40,21 @@ export default async function renderProfilePage(container) {
   container.innerHTML = `
     <h1 class="section-title">Profil Saya</h1>
     <div class="card profile-card">
-      <div class="profile-avatar">${(s?.name || p.full_name || me.email || 'U').slice(0,1).toUpperCase()}</div>
-      <div style="flex:1;">
+      <div style="position:relative; flex-shrink:0;">
+        <div class="profile-avatar" id="profile-avatar-preview" style="${photoUrl ? 'background:none; padding:0; overflow:hidden;' : ''}">
+          ${photoUrl ? `<img src="${photoUrl}" alt="Foto profil" style="width:100%; height:100%; object-fit:cover;" />` : (s?.name || p.full_name || me.email || 'U').slice(0,1).toUpperCase()}
+        </div>
+        <label class="icon-btn" style="position:absolute; bottom:-4px; right:-4px; background:var(--color-primary); color:#fff; cursor:pointer;" title="Ganti foto">
+          <i class="fa-solid fa-camera"></i>
+          <input type="file" accept="image/*" id="photo-file" style="display:none;" />
+        </label>
+      </div>
+      <div style="flex:1; min-width:0;">
         <dl class="detail-list">
           ${lockedFields.map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`).join('')}
           <dt>Email</dt><dd>${me.email}</dd>
         </dl>
+        <span id="photo-status" style="font-size:11px; color:var(--color-text-muted); display:block; margin-top:6px;"></span>
       </div>
     </div>
 
@@ -66,6 +85,26 @@ export default async function renderProfilePage(container) {
       </div>
     </form>
   `;
+
+  document.getElementById('photo-file')?.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const status = document.getElementById('photo-status');
+    status.textContent = 'Mengunggah...';
+    try {
+      const base64 = await fileToBase64(file);
+      const { url } = await api.post('/api/auth?action=upload-photo', { file: base64 });
+      const preview = document.getElementById('profile-avatar-preview');
+      preview.style.background = 'none';
+      preview.style.padding = '0';
+      preview.style.overflow = 'hidden';
+      preview.innerHTML = `<img src="${url}" alt="Foto profil" style="width:100%; height:100%; object-fit:cover;" />`;
+      status.textContent = 'Foto berhasil diperbarui.';
+      clearSessionCache();
+    } catch (err) {
+      status.textContent = 'Gagal: ' + err.message;
+    }
+  });
 
   const viewEl = document.getElementById('optional-view');
   const formEl = document.getElementById('optional-form');

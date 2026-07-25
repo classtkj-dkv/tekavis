@@ -1,49 +1,6 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
-
-const DAYS = ['', 'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-
-function scheduleRow(s, canManage) {
-  if (s.is_break) {
-    return `
-      <tr class="schedule-break-row">
-        <td>${s.start_time?.slice(0,5)} - ${s.end_time?.slice(0,5)}</td>
-        <td colspan="3"><span class="badge badge-draft"><i class="fa-solid fa-mug-hot"></i> ${s.subject || 'Istirahat'}</span> ${s.notes ? `<span style="color:var(--color-text-muted); font-size:12px;">— ${s.notes}</span>` : ''}</td>
-        ${canManage ? `<td style="white-space:nowrap;">
-          <button class="icon-btn edit-schedule-btn" data-id="${s.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
-          <button class="icon-btn delete-schedule-btn" data-id="${s.id}" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-        </td>` : ''}
-      </tr>
-    `;
-  }
-  return `
-    <tr>
-      <td>${s.start_time?.slice(0,5)} - ${s.end_time?.slice(0,5)}</td>
-      <td>${s.subject}${s.notes ? `<div style="font-size:12px; color:var(--color-text-muted); margin-top:2px;">${s.notes}</div>` : ''}</td>
-      <td>${s.teacher || '-'}</td>
-      <td>${s.room || '-'}</td>
-      ${canManage ? `<td style="white-space:nowrap;">
-        <button class="icon-btn edit-schedule-btn" data-id="${s.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
-        <button class="icon-btn delete-schedule-btn" data-id="${s.id}" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-      </td>` : ''}
-    </tr>
-  `;
-}
-
-function daySection(day, items, canManage) {
-  const rows = items.map(s => scheduleRow(s, canManage)).join('');
-  return `
-    <div class="card" style="overflow-x:auto; margin-bottom:16px;">
-      <div class="card-header" style="margin-bottom:10px;">
-        <h3 style="font-size:15px; margin:0;"><i class="fa-solid fa-calendar-day" style="color:var(--color-primary); margin-right:6px;"></i>${DAYS[day]}</h3>
-      </div>
-      <table class="table">
-        <thead><tr><th>Jam</th><th>Mapel / Kegiatan</th><th>Guru</th><th>Ruangan</th>${canManage ? '<th>Aksi</th>' : ''}</tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-  `;
-}
+import { renderScheduleWeek, bindScheduleWeek, DAY_NAMES, todayDbDay } from './scheduleWidget.js';
 
 export default async function renderSchedulePage(container) {
   const me = await getSession();
@@ -51,31 +8,20 @@ export default async function renderSchedulePage(container) {
 
   const list = await api.get('/api/schedule').catch(() => []);
 
-  const byDay = {};
-  list.forEach(s => {
-    if (!byDay[s.day_of_week]) byDay[s.day_of_week] = [];
-    byDay[s.day_of_week].push(s);
-  });
-  const activeDays = Object.keys(byDay).map(Number).sort((a, b) => a - b);
-
-  const sections = activeDays.length
-    ? activeDays.map(day => daySection(day, byDay[day], canManage)).join('')
-    : '<div class="empty-state">Belum ada jadwal.</div>';
-
   container.innerHTML = `
     <div class="card-header">
       <h1 class="section-title" style="margin:0;">Jadwal Pelajaran</h1>
       ${canManage ? '<button id="add-schedule-btn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Tambah Jadwal</button>' : ''}
     </div>
 
-    ${sections}
+    ${renderScheduleWeek(list, { canManage, idPrefix: 'page-sched' })}
 
     <dialog id="add-schedule-dialog" class="modal">
       <form id="add-schedule-form" class="modal-content">
         <h2 class="section-title">Tambah Jadwal</h2>
         <label class="input-label">Hari</label>
         <select class="input" name="day_of_week" required>
-          ${DAYS.slice(1).map((d, i) => `<option value="${i + 1}">${d}</option>`).join('')}
+          ${DAY_NAMES.slice(1).map((d, i) => `<option value="${i + 1}">${d}</option>`).join('')}
         </select>
         <div style="display:flex; gap:10px; margin-top:10px;">
           <div style="flex:1;"><label class="input-label">Jam Mulai</label><input class="input" type="time" name="start_time" required /></div>
@@ -110,6 +56,8 @@ export default async function renderSchedulePage(container) {
     </dialog>
   `;
 
+  bindScheduleWeek('page-sched');
+
   const dialog = document.getElementById('add-schedule-dialog');
   const form = document.getElementById('add-schedule-form');
   const isBreakCheckbox = document.getElementById('is-break-checkbox');
@@ -125,11 +73,12 @@ export default async function renderSchedulePage(container) {
     teacherRoomFields.style.display = isBreak ? 'none' : 'block';
     subjectFieldGroup.querySelector('.input-label').textContent = isBreak ? 'Label (opsional)' : 'Mata Pelajaran';
   }
-  isBreakCheckbox.addEventListener('change', syncBreakFields);
+  isBreakCheckbox?.addEventListener('change', syncBreakFields);
 
   document.getElementById('add-schedule-btn')?.addEventListener('click', () => {
     editingId = null;
     form.reset();
+    form.day_of_week.value = todayDbDay();
     syncBreakFields();
     dialog.showModal();
   });

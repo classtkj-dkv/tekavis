@@ -1,5 +1,7 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
+import { renderScheduleWeek, bindScheduleWeek } from './scheduleWidget.js';
+import { studentDetailDialogHtml, bindStudentDetailClicks } from './studentDetail.js';
 
 const STAT_ICON_CYCLE = [
   { icon: 'fa-solid fa-user-graduate', chip: 'si-blue' },
@@ -164,14 +166,17 @@ function bindHeroCarousel() {
 }
 
 // ---------------------------------------------------------------------------
-// Preview "Daftar Siswa" di beranda, dengan pencarian cepat (filter client-side
-// dari data yang sudah ke-fetch — tidak nambah request baru per ketikan).
+// Preview "Daftar Siswa" di beranda — publik (gak wajib login), dengan
+// pencarian cepat (filter client-side) dan tap nama buat lihat detail profil.
 // ---------------------------------------------------------------------------
 function studentRow(s) {
   const initials = (s.name || '?').trim().slice(0, 1).toUpperCase();
+  const avatar = s.photo_url
+    ? `<img src="${s.photo_url}" alt="${s.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`
+    : initials;
   return `
-    <div class="list-item student-row" data-name="${(s.name || '').toLowerCase()}" data-nisn="${(s.nisn || '').toLowerCase()}" style="display:flex; align-items:center; gap:12px;">
-      <div class="org-avatar" style="flex-shrink:0;">${initials}</div>
+    <div class="list-item student-row" data-id="${s.id}" data-name="${(s.name || '').toLowerCase()}" data-nisn="${(s.nisn || '').toLowerCase()}" style="display:flex; align-items:center; gap:12px;">
+      <div class="org-avatar" style="flex-shrink:0; overflow:hidden;">${avatar}</div>
       <div style="min-width:0;">
         <div class="list-item-title">${s.name}</div>
         <div class="list-item-meta">${s.major || '-'} ${s.nisn ? `· NISN ${s.nisn}` : ''}</div>
@@ -197,6 +202,7 @@ function studentListSection(students) {
       </div>
     ` : ''}
     <div class="list-plain" id="student-list">${rows}</div>
+    ${studentDetailDialogHtml('dash')}
   `;
 }
 
@@ -225,10 +231,9 @@ export default async function renderDashboardPage(container) {
     api.get('/api/announcements').catch(() => []),
     api.get('/api/schedule').catch(() => []),
     api.get('/api/settings').catch(() => null),
-    me ? api.get('/api/students').catch(() => []) : Promise.resolve([]),
+    api.get('/api/students').catch(() => []), // publik — gak digantungin status login
   ]);
 
-  const heroSlides = settings?.homepage?.slides || [];
   let stats = '';
   if (role === 'owner' || role === 'admin') {
     const [albums, users] = await Promise.all([
@@ -254,13 +259,6 @@ export default async function renderDashboardPage(container) {
     </div>
   `).join('') || '<div class="empty-state">Belum ada pengumuman.</div>';
 
-  const scheduleItems = schedule.slice(0, 5).map(s => `
-    <div class="list-item">
-      <div class="list-item-title">${s.is_break ? `<i class="fa-solid fa-mug-hot" style="color:var(--color-warning);"></i> ` : ''}${s.subject}</div>
-      <div class="list-item-meta">${s.is_break ? (s.notes || 'Jam istirahat') : `${s.teacher || '-'} · ${s.room || '-'}`} · ${s.start_time?.slice(0,5)}-${s.end_time?.slice(0,5)}</div>
-    </div>
-  `).join('') || '<div class="empty-state">Belum ada jadwal.</div>';
-
   const rolePanel = me ? (ROLE_PANEL[role] || DEFAULT_PANEL) : [];
 
   container.innerHTML = `
@@ -277,20 +275,17 @@ export default async function renderDashboardPage(container) {
       <div class="stat-grid" style="margin-bottom:24px;">${rolePanel.map(panelCard).join('')}</div>
     ` : ''}
 
-    <div class="two-col">
-      <div>
-        <h2 class="section-title">Pengumuman Terbaru</h2>
-        <div class="list-plain">${announcementItems}</div>
-      </div>
-      <div>
-        <h2 class="section-title">Jadwal</h2>
-        <div class="list-plain">${scheduleItems}</div>
-      </div>
-    </div>
+    <h2 class="section-title">Pengumuman Terbaru</h2>
+    <div class="list-plain" style="margin-bottom:24px;">${announcementItems}</div>
 
-    ${me ? studentListSection(students.slice(0, 8)) : ''}
+    <h2 class="section-title">Jadwal Hari Ini</h2>
+    ${renderScheduleWeek(schedule, { canManage: false, idPrefix: 'dash-sched' })}
+
+    ${studentListSection(students.slice(0, 8))}
   `;
 
   bindHeroCarousel();
+  bindScheduleWeek('dash-sched');
   bindStudentSearch();
+  bindStudentDetailClicks('#student-list .student-row', students, 'dash');
 }

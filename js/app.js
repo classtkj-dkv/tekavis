@@ -91,13 +91,22 @@ async function bootstrap() {
       </div>
     `;
 
-    bindNavbarEvents({ onSearch: (q) => { if (q) navigate(`/search?q=${encodeURIComponent(q)}`); } });
+    bindNavbarEvents();
 
     if (!sidebarCloseBound) {
       sidebarCloseBound = true;
       window.addEventListener('hashchange', () => {
         document.getElementById('sidebar')?.classList.remove('sidebar-open');
         updateActiveSidebarLink();
+      });
+      // FIX: 'hashchange' gak nyala kalau user nge-tap link ke halaman yang
+      // SEDANG aktif (hash-nya emang gak berubah) — jadi di HP sidebar-nya
+      // kesangkut kebuka. Ini nutup sidebar langsung pas link mana pun
+      // ditekan, gak nunggu hashchange.
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.sidebar-link')) {
+          document.getElementById('sidebar')?.classList.remove('sidebar-open');
+        }
       });
     }
 

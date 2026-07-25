@@ -1,5 +1,6 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
+import { studentDetailDialogHtml, openStudentDetail } from './studentDetail.js';
 
 export default async function renderStudentsPage(container) {
   const me = await getSession();
@@ -7,9 +8,19 @@ export default async function renderStudentsPage(container) {
 
   const students = await api.get('/api/students').catch(() => []);
 
-  const rows = students.map(s => `
-    <tr>
-      <td>${s.name}${s.profile_id ? ' <i class="fa-solid fa-circle-check" style="color:var(--color-success); font-size:11px;" title="Punya akun login"></i>' : ''}</td>
+  const rows = students.map(s => {
+    const initials = (s.name || '?').trim().slice(0, 1).toUpperCase();
+    const avatar = s.photo_url
+      ? `<img src="${s.photo_url}" alt="${s.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`
+      : initials;
+    return `
+    <tr class="student-row" data-id="${s.id}" style="cursor:pointer;">
+      <td>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="org-avatar" style="flex-shrink:0; overflow:hidden;">${avatar}</div>
+          <span>${s.name}${s.profile_id ? ' <i class="fa-solid fa-circle-check" style="color:var(--color-success); font-size:11px;" title="Punya akun login"></i>' : ''}</span>
+        </div>
+      </td>
       <td>${s.major}</td>
       <td>${s.birth_place}, ${new Date(s.birth_date).toLocaleDateString('id-ID')}</td>
       <td>${s.nisn || '-'}</td>
@@ -18,7 +29,8 @@ export default async function renderStudentsPage(container) {
         <button class="icon-btn delete-student-btn" data-id="${s.id}" title="Hapus"><i class="fa-solid fa-trash"></i></button>
       </td>` : ''}
     </tr>
-  `).join('') || `<tr><td colspan="${canManage ? 5 : 4}" class="empty-state">Belum ada data siswa.</td></tr>`;
+  `;
+  }).join('') || `<tr><td colspan="${canManage ? 5 : 4}" class="empty-state">Belum ada data siswa.</td></tr>`;
 
   container.innerHTML = `
     <div class="card-header">
@@ -32,6 +44,8 @@ export default async function renderStudentsPage(container) {
         <tbody>${rows}</tbody>
       </table>
     </div>
+
+    ${studentDetailDialogHtml('page')}
 
     <dialog id="student-dialog" class="modal">
       <form id="student-form" class="modal-content">
@@ -112,6 +126,16 @@ export default async function renderStudentsPage(container) {
     } catch (err) {
       alert(err.message);
     }
+  });
+
+  // Klik baris = buka detail profil. Tombol edit/hapus (kalau ada) dicek
+  // duluan biar klik di tombol itu gak ikut kebuka detailnya.
+  container.querySelectorAll('.student-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('.icon-btn')) return;
+      const s = students.find(x => x.id === row.dataset.id);
+      if (s) openStudentDetail('page', s);
+    });
   });
 
   container.querySelectorAll('.edit-student-btn').forEach(btn => {

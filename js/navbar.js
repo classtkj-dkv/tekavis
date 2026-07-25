@@ -1,5 +1,13 @@
 import { getStoredTheme, setTheme } from './theme.js';
 
+const THEME_ICONS = {
+  light: 'fa-solid fa-sun',
+  dark: 'fa-solid fa-moon',
+  auto: 'fa-solid fa-circle-half-stroke',
+};
+const THEME_LABELS = { light: 'Terang', dark: 'Gelap', auto: 'Sistem' };
+const THEME_CYCLE = ['light', 'dark', 'auto'];
+
 export function renderNavbar(profile, email) {
   const initials = (profile?.full_name || email || 'U').trim().slice(0, 1).toUpperCase();
   const currentTheme = getStoredTheme();
@@ -9,16 +17,12 @@ export function renderNavbar(profile, email) {
     <header class="navbar">
       <button id="sidebar-toggle" class="icon-btn" aria-label="Buka menu"><i class="fa-solid fa-bars"></i></button>
 
-      <div class="navbar-search">
-        <input id="global-search" class="input" type="search" placeholder="Cari siswa, album, pengumuman..." />
-      </div>
+      <span class="navbar-spacer"></span>
 
       <div class="navbar-actions">
-        <select id="theme-select" class="theme-select" aria-label="Ganti tema">
-          <option value="light" ${currentTheme === 'light' ? 'selected' : ''}>Terang</option>
-          <option value="dark" ${currentTheme === 'dark' ? 'selected' : ''}>Gelap</option>
-          <option value="auto" ${currentTheme === 'auto' ? 'selected' : ''}>Sistem</option>
-        </select>
+        <button id="theme-toggle-btn" class="icon-btn" aria-label="Ganti tema (${THEME_LABELS[currentTheme]})" title="Tema: ${THEME_LABELS[currentTheme]}">
+          <i class="${THEME_ICONS[currentTheme]}"></i>
+        </button>
 
         <a href="#/notifications" class="icon-btn notif-bell" aria-label="Notifikasi">
           <i class="fa-regular fa-bell"></i><span id="notif-badge" class="notif-badge" hidden>0</span>
@@ -53,20 +57,21 @@ export function updateNotifBadge(count) {
   }
 }
 
-export function bindNavbarEvents({ onSearch } = {}) {
-  const themeSelect = document.getElementById('theme-select');
-  themeSelect?.addEventListener('change', (e) => setTheme(e.target.value));
+export function bindNavbarEvents() {
+  const themeBtn = document.getElementById('theme-toggle-btn');
+  themeBtn?.addEventListener('click', () => {
+    const current = getStoredTheme();
+    const next = THEME_CYCLE[(THEME_CYCLE.indexOf(current) + 1) % THEME_CYCLE.length];
+    setTheme(next);
+    const icon = themeBtn.querySelector('i');
+    icon.className = THEME_ICONS[next];
+    themeBtn.title = `Tema: ${THEME_LABELS[next]}`;
+    themeBtn.setAttribute('aria-label', `Ganti tema (${THEME_LABELS[next]})`);
+  });
 
   const sidebarToggle = document.getElementById('sidebar-toggle');
   sidebarToggle?.addEventListener('click', () => {
     document.getElementById('sidebar')?.classList.toggle('sidebar-open');
-  });
-
-  const searchInput = document.getElementById('global-search');
-  let debounceTimer;
-  searchInput?.addEventListener('input', (e) => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => onSearch?.(e.target.value.trim()), 300);
   });
 
   const avatarBtn = document.getElementById('navbar-avatar-btn');

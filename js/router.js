@@ -1,3 +1,5 @@
+import { getSkeleton } from './skeletons.js';
+
 // Router sederhana berbasis hash, tanpa build step (native ES Modules).
 const routes = {}; // path -> async () => renderFn(container, params)
 
@@ -34,7 +36,8 @@ export async function renderCurrentRoute(container) {
     container.innerHTML = '<div class="card">Halaman tidak ditemukan.</div>';
     return;
   }
-  container.innerHTML = '';
+  const [pathname] = (window.location.hash.replace(/^#/, '') || '/').split('?');
+  container.innerHTML = getSkeleton(pathname || '/');
   try {
     const render = await match.loader();
     await render(container, match.params);
