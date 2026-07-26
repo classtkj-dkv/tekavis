@@ -45,9 +45,17 @@ export default optionalAuth(async (req, res, ctx) => {
       const { data: roles, error: roleError } = await admin
         .from('roles')
         .select('id, name, label')
-        .not('name', 'in', '(owner,admin,siswa,pengunjung)')
+        .not('name', 'in', '(owner,siswa,pengunjung)')
         .order('label', { ascending: true });
       if (roleError) throw roleError;
+
+      // Wali Kelas (admin) ditaruh paling atas — posisi tertinggi di struktur,
+      // sisanya tetap urut abjad label seperti biasa.
+      roles.sort((a, b) => {
+        if (a.name === 'admin') return -1;
+        if (b.name === 'admin') return 1;
+        return a.label.localeCompare(b.label);
+      });
 
       const { data: members, error: memberError } = await admin
         .from('profiles')
@@ -56,6 +64,7 @@ export default optionalAuth(async (req, res, ctx) => {
 
       const structure = roles.map(role => ({
         ...role,
+        label: role.name === 'admin' ? 'Wali Kelas' : role.label,
         members: members
           .filter(m => m.role_id === role.id)
           .map(m => ({ id: m.id, full_name: m.full_name, avatar_url: m.avatar_url })),

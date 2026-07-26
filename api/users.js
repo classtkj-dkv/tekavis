@@ -6,6 +6,11 @@ import { ok, forbidden, badRequest, serverError } from './_lib/response.js';
 
 // GET   /api/users        -> daftar user + role (Owner & Admin)
 // PATCH /api/users        -> body: { user_id, role_id } ganti role (Owner)
+// GET    /api/users        -> daftar user + role (Owner & Admin)
+// PATCH  /api/users        -> body: { user_id, role_id } ganti role (Owner)
+// DELETE /api/users?id=... -> hapus user (Owner). Kalau user ini juga siswa
+//                             berakun, data siswanya (nama/foto/dll) TETAP ada,
+//                             cuma akun login-nya yang kehapus.
 export default requireAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
 
@@ -32,6 +37,21 @@ export default requireAuth(async (req, res, ctx) => {
       if (error) throw error;
       await logActivity(req, ctx, { action: 'change_user_role', targetTable: 'profiles', targetId: user_id, meta: { role_id } });
       return ok(res, data);
+    }
+
+    if (req.method === 'DELETE') {
+      if (!isRole(ctx, 'owner')) return forbidden(res, 'Hanya Owner yang dapat menghapus user');
+      const { id } = req.query;
+      if (!id) return badRequest(res, 'Parameter id wajib diisi');
+      if (id === ctx.user.id) return forbidden(res, 'Tidak bisa menghapus akun sendiri');
+
+      const { data: target } = await admin.from('profiles').select('id, roles(name)').eq('id', id).single();
+      if (target?.roles?.name === 'owner') return forbidden(res, 'Akun Owner tidak dapat dihapus');
+
+      const { error } = await admin.auth.admin.deleteUser(id); // cascade hapus row profiles juga
+      if (error) throw error;
+      await logActivity(req, ctx, { action: 'delete_user', targetTable: 'profiles', targetId: id });
+      return ok(res, { deleted: true });
     }
 
     return badRequest(res, `Method ${req.method} tidak didukung`);
