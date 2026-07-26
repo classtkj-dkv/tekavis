@@ -155,13 +155,29 @@ function bindHeroCarousel() {
   });
   dots.forEach(dot => dot.addEventListener('click', () => goTo(Number(dot.dataset.index))));
 
-  // Autoplay ringan, berhenti sendiri kalau user lagi interaksi (scroll manual).
+  // Autoplay tiap beberapa detik. Begitu user pegang/geser sendiri, berhenti
+  // dulu selama 30 detik, abis itu lanjut jalan otomatis lagi (bukan berhenti
+  // permanen).
   if (track.children.length > 1) {
-    let autoplay = setInterval(() => {
-      const next = (Math.round(track.scrollLeft / track.clientWidth) + 1) % track.children.length;
-      goTo(next);
-    }, 5000);
-    track.addEventListener('pointerdown', () => clearInterval(autoplay), { once: true });
+    let autoplay = null;
+    let resumeTimer = null;
+
+    const startAutoplay = () => {
+      clearInterval(autoplay);
+      autoplay = setInterval(() => {
+        const next = (Math.round(track.scrollLeft / track.clientWidth) + 1) % track.children.length;
+        goTo(next);
+      }, 4000);
+    };
+
+    const pauseThenResume = () => {
+      clearInterval(autoplay);
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(startAutoplay, 30000);
+    };
+
+    startAutoplay();
+    track.addEventListener('pointerdown', pauseThenResume);
   }
 }
 
