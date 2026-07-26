@@ -154,6 +154,7 @@
   max-width: 1280px;
   margin: 0 auto;
   width: 100%;
+  min-width: 0; /* grid/flex item default min-width:auto bisa maksa overflow kalau isinya lebih lebar dari yang tersedia */
 }
 
 /* ---------- Responsive ---------- */
