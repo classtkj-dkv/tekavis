@@ -1,6 +1,7 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
 import { renderScheduleWeek, bindScheduleWeek, DAY_NAMES, todayDbDay } from './scheduleWidget.js';
+import { showToast } from './toast.js';
 
 export default async function renderSchedulePage(container) {
   const me = await getSession();
@@ -100,6 +101,30 @@ export default async function renderSchedulePage(container) {
     } catch (err) {
       alert(err.message);
     }
+  });
+
+  container.querySelectorAll('.copy-schedule-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const s = list.find(x => x.id === btn.dataset.id);
+      if (!s) return;
+      const newSubject = s.is_break ? (s.subject || 'Istirahat') : `${s.subject} (Copy)`;
+      try {
+        await api.post('/api/schedule', {
+          day_of_week: s.day_of_week,
+          start_time: s.start_time,
+          end_time: s.end_time,
+          subject: newSubject,
+          teacher: s.teacher,
+          room: s.room,
+          notes: s.notes,
+          is_break: s.is_break,
+        });
+        showToast(`Jadwal "${newSubject}" berhasil ditambahkan (+1)`, { type: 'success' });
+        renderSchedulePage(container);
+      } catch (err) {
+        showToast('Gagal menduplikat jadwal: ' + err.message, { type: 'danger' });
+      }
+    });
   });
 
   container.querySelectorAll('.edit-schedule-btn').forEach(btn => {

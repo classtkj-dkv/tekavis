@@ -243,19 +243,17 @@ export default async function renderDashboardPage(container) {
   const canViewKas = role === 'owner' || perms.view_kas;
   const isOwner = role === 'owner';
 
-  const [announcements, schedule, settings, students] = await Promise.all([
+  const [announcements, schedule, settings, students, albums] = await Promise.all([
     api.get('/api/announcements').catch(() => []),
     api.get('/api/schedule').catch(() => []),
     api.get('/api/settings').catch(() => null),
     api.get('/api/students').catch(() => []), // publik — gak digantungin status login
+    api.get('/api/albums').catch(() => []), // publik juga
   ]);
 
   let stats = '';
   if (role === 'owner' || role === 'admin') {
-    const [albums, users] = await Promise.all([
-      api.get('/api/albums').catch(() => []),
-      role === 'owner' ? api.get('/api/users').catch(() => []) : Promise.resolve([]),
-    ]);
+    const users = role === 'owner' ? await api.get('/api/users').catch(() => []) : [];
     stats += statCard('Total Siswa', students.length);
     stats += statCard('Total Album', albums.length);
     if (role === 'owner') stats += statCard('Total User', users.length);
@@ -296,6 +294,27 @@ export default async function renderDashboardPage(container) {
 
     <h2 class="section-title">Jadwal Hari Ini</h2>
     ${renderScheduleWeek(schedule, { canManage: false, idPrefix: 'dash-sched' })}
+
+    <div class="card-header" style="margin-top:28px;">
+      <div>
+        <h2 class="section-title" style="margin:0;">Album Kenangan</h2>
+        <p style="font-size:12.5px; margin-top:2px;">Momen &amp; kenangan kelas</p>
+      </div>
+      <a href="#/albums" class="btn btn-secondary btn-sm">Lihat Semua</a>
+    </div>
+    ${albums.length ? `
+      <div class="album-grid" style="margin-bottom:8px;">
+        ${albums.slice(0, 4).map(a => `
+          <div class="card card-hover album-card" style="background-image:url('${a.cover_url || ''}');">
+            <a href="#/albums/${a.id}" style="position:absolute; inset:0;"></a>
+            <div class="album-card-overlay">
+              <div class="album-card-name">${a.name}</div>
+              <div class="album-card-meta">${a.photos?.[0]?.count ?? 0} foto</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    ` : '<div class="empty-state">Belum ada album.</div>'}
 
     ${studentListSection(students.slice(0, 8))}
   `;

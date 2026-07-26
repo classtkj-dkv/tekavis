@@ -19,6 +19,7 @@ function scheduleRowHtml(s, canManage) {
         <td>${s.start_time?.slice(0,5)} - ${s.end_time?.slice(0,5)}</td>
         <td colspan="3"><span class="badge badge-draft"><i class="fa-solid fa-mug-hot"></i> ${s.subject || 'Istirahat'}</span> ${s.notes ? `<span style="color:var(--color-text-muted); font-size:12px;">— ${s.notes}</span>` : ''}</td>
         ${canManage ? `<td style="white-space:nowrap;">
+          <button class="icon-btn copy-schedule-btn" data-id="${s.id}" title="Duplikat"><i class="fa-solid fa-copy"></i></button>
           <button class="icon-btn edit-schedule-btn" data-id="${s.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
           <button class="icon-btn delete-schedule-btn" data-id="${s.id}" title="Hapus"><i class="fa-solid fa-trash"></i></button>
         </td>` : ''}
@@ -32,6 +33,7 @@ function scheduleRowHtml(s, canManage) {
       <td>${s.teacher || '-'}</td>
       <td>${s.room || '-'}</td>
       ${canManage ? `<td style="white-space:nowrap;">
+        <button class="icon-btn copy-schedule-btn" data-id="${s.id}" title="Duplikat"><i class="fa-solid fa-copy"></i></button>
         <button class="icon-btn edit-schedule-btn" data-id="${s.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
         <button class="icon-btn delete-schedule-btn" data-id="${s.id}" title="Hapus"><i class="fa-solid fa-trash"></i></button>
       </td>` : ''}

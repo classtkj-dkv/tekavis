@@ -11,7 +11,11 @@ const dashboardSkeleton = () => `
   <div class="skel skel-title"></div>
   <div class="skel-grid">${repeat('<div class="skel skel-card"></div>', 4)}</div>
   <div class="skel skel-line" style="width:30%; height:18px; margin-bottom:14px;"></div>
-  ${repeat('<div class="skel skel-row"></div>', 3)}
+  ${repeat('<div class="skel skel-row"></div>', 2)}
+  <div class="skel skel-line" style="width:30%; height:18px; margin:18px 0 14px;"></div>
+  <div class="skel-grid">${repeat('<div class="skel skel-card" style="height:140px;"></div>', 4)}</div>
+  <div class="skel skel-line" style="width:30%; height:18px; margin-bottom:14px;"></div>
+  ${repeat('<div class="skel-flex-row"><div class="skel skel-circle"></div><div class="skel skel-line" style="flex:1;"></div></div>', 4)}
 `;
 
 const tableSkeleton = () => `
