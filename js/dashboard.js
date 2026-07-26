@@ -98,9 +98,9 @@ function heroCarousel(homepage, siteName, isOwner) {
   }
 
   const slideEls = slides.map((s, i) => `
-    <div class="hero-slide" data-index="${i}">
-      <img class="hero-slide-img" src="${s.url}" alt="${s.title || badge}" loading="${i === 0 ? 'eager' : 'lazy'}" />
-      <div class="hero-slide-overlay">
+    <div class="hero-slide" data-index="${i}" style="position:relative;width:100%;height:0;padding-top:56.25%;overflow:hidden;flex:0 0 100%;">
+      <img class="hero-slide-img" src="${s.url}" alt="${s.title || badge}" loading="${i === 0 ? 'eager' : 'lazy'}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;max-width:100%;" />
+      <div class="hero-slide-overlay" style="position:absolute;left:0;right:0;bottom:0;z-index:2;">
         <span class="hero-badge"><i class="fa-solid fa-star"></i> ${badge}</span>
         ${s.title ? `<h2>${s.title}</h2>` : ''}
         ${s.subtitle ? `<p>${s.subtitle}</p>` : ''}
@@ -111,8 +111,8 @@ function heroCarousel(homepage, siteName, isOwner) {
   const dots = slides.map((_, i) => `<button type="button" class="hero-dot ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Slide ${i + 1}"></button>`).join('');
 
   return `
-    <div class="hero-carousel" id="hero-carousel">
-      <div class="hero-track" id="hero-track">${slideEls}</div>
+    <div class="hero-carousel" id="hero-carousel" style="position:relative;overflow:hidden;border-radius:20px;margin-bottom:26px;">
+      <div class="hero-track" id="hero-track" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;">${slideEls}</div>
       ${slides.length > 1 ? `
         <button type="button" class="hero-nav hero-prev" id="hero-prev" aria-label="Sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>
         <button type="button" class="hero-nav hero-next" id="hero-next" aria-label="Berikutnya"><i class="fa-solid fa-chevron-right"></i></button>
