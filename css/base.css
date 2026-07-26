@@ -1,33 +1,40 @@
+/* ============================================================
+   BASE.CSS — Fully Responsive, No Manual Zoom Needed
+   ============================================================ */
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  width: 100%;
-}
-
 html {
   scroll-behavior: smooth;
+  overflow-x: auto;             /* ← kunci: biarkan scroll horizontal jika perlu */
+  -webkit-text-size-adjust: 100%;  /* cegah zoom otomatis di Safari */
+  text-size-adjust: 100%;
+  font-size: 100%;              /* 1rem = 16px */
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: auto;             /* ← ganti hidden → auto */
   font-family: var(--font-sans);
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background-color var(--transition-base), color var(--transition-base);
 }
 
+/* ===== TYPOGRAPHY ===== */
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--color-text-primary);
 }
-
 h4, h5, h6 {
   font-weight: 700;
 }
@@ -43,22 +50,38 @@ a {
   text-decoration: none;
 }
 
-img {
+/* ===== MEDIA ===== */
+img,
+video,
+iframe,
+embed,
+object {
   max-width: 100%;
+  height: auto;
   display: block;
 }
 
+/* ===== TABEL ===== */
+table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+}
+
+/* ===== FORM ELEMENTS ===== */
 button, input, textarea, select {
   font-family: inherit;
   font-size: inherit;
 }
 
+/* ===== LISTS ===== */
 ul, ol {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* ===== CODE ===== */
 code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   background: var(--color-bg-2);
@@ -67,8 +90,27 @@ code {
   font-size: 0.9em;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--color-bg-2); }
-::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-2);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ===== UTILITY CONTAINERS (opsional) ===== */
+.container,
+.app-content,
+.main-content {
+  max-width: 100%;
+  overflow-x: auto;   /* jika konten anak lebih lebar, biarkan scroll */
+  box-sizing: border-box;
+}
