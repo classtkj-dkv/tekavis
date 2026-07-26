@@ -98,7 +98,7 @@ function heroCarousel(homepage, siteName, isOwner) {
   }
 
   const slideEls = slides.map((s, i) => `
-    <div class="hero-slide" data-index="${i}" style="position:relative;width:100%;flex:0 0 100%;overflow:hidden;max-height:65vh;display:flex;justify-content:center;background:var(--color-bg-2);">
+    <div class="hero-slide" data-index="${i}" style="position:relative;width:100%;flex:0 0 100%;overflow:hidden;max-height:65vh;background:var(--color-bg-2);">
       <img class="hero-slide-img" src="${s.url}" alt="${s.title || badge}" loading="${i === 0 ? 'eager' : 'lazy'}" style="display:block;width:100%;height:auto;max-height:65vh;object-fit:contain;" />
       <div class="hero-slide-overlay" style="position:absolute;left:0;right:0;bottom:0;z-index:2;">
         <span class="hero-badge"><i class="fa-solid fa-star"></i> ${badge}</span>
