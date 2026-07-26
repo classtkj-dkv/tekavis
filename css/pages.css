@@ -276,6 +276,7 @@
 
 .hero-track {
   display: flex;
+  align-items: flex-start;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -288,22 +289,15 @@
   scroll-snap-align: center;
   position: relative;
   width: 100%;
-  height: 0;
-  padding-top: 56.25%; /* rasio 16:9 — teknik ini jauh lebih stabil lintas browser daripada aspect-ratio di dalam flex item */
   overflow: hidden;
 }
 
-/* Foto landscape wajib diisi (divalidasi pas upload), jadi aman di-cover
-   penuh tanpa kepotong bagian penting & tanpa celah kosong di sisi. */
+/* Foto tampil utuh sesuai ukuran aslinya — lebar 100%, tinggi ngikutin
+   otomatis (bukan dipaksa masuk kotak rasio tetap yang motong/ngunci). */
 .hero-slide-img {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
   display: block;
+  width: 100%;
+  height: auto;
 }
 
 .hero-slide-overlay {
