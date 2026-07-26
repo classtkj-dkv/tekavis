@@ -1,7 +1,13 @@
+/* ============================================================
+   LAYOUT.CSS — Sidebar, Navbar, dan struktur utama
+   ============================================================ */
+
 .app-shell {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
   min-height: 100vh;
+  overflow-x: visible;          /* biarkan anak-anak mengatur overflow */
+  max-width: 100%;
 }
 
 /* ---------- Sidebar ---------- */
@@ -16,6 +22,7 @@
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;            /* sidebar-nya sendiri tetap rapi */
 }
 
 .sidebar-brand {
@@ -64,7 +71,8 @@
   color: var(--color-text-secondary);
   font-size: 13.5px;
   font-weight: 500;
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast);
 }
 
 .sidebar-link i {
@@ -80,16 +88,20 @@
   background-color: var(--color-accent-light);
   color: var(--color-primary);
 }
-.sidebar-link:hover i { color: var(--color-primary); }
+.sidebar-link:hover i {
+  color: var(--color-primary);
+}
 
 .sidebar-link.active {
   background-color: var(--color-accent-light);
   color: var(--color-primary);
   font-weight: 700;
 }
-.sidebar-link.active i { color: var(--color-primary); }
+.sidebar-link.active i {
+  color: var(--color-primary);
+}
 
-/* ---------- Navbar / Topbar ---------- */
+/* ---------- Navbar ---------- */
 .navbar {
   height: 64px;
   background-color: var(--color-navbar);
@@ -103,9 +115,13 @@
   position: sticky;
   top: 0;
   z-index: 20;
+  overflow-x: auto;            /* biarkan konten navbar bergeser jika terlalu penuh */
+  max-width: 100%;
 }
 
-.navbar-spacer { flex: 1; }
+.navbar-spacer {
+  flex: 1;
+}
 
 .navbar-actions {
   display: flex;
@@ -128,9 +144,14 @@
   justify-content: center;
   transition: all var(--transition-fast);
 }
-.icon-btn:hover { background: var(--color-accent-light); color: var(--color-primary); }
+.icon-btn:hover {
+  background: var(--color-accent-light);
+  color: var(--color-primary);
+}
 
-#sidebar-toggle { display: none; }
+#sidebar-toggle {
+  display: none;
+}
 
 .navbar-avatar {
   width: 34px;
@@ -148,13 +169,15 @@
   font-family: inherit;
 }
 
-/* ---------- Content ---------- */
+/* ---------- Content Utama ---------- */
 .app-content {
   padding: 26px 28px;
   max-width: 1280px;
   margin: 0 auto;
   width: 100%;
-  min-width: 0; /* grid/flex item default min-width:auto bisa maksa overflow kalau isinya lebih lebar dari yang tersedia */
+  min-width: 0;
+  overflow-x: auto;            /* kunci: biarkan scroll horizontal di sini */
+  box-sizing: border-box;
 }
 
 /* ---------- Responsive ---------- */
@@ -178,14 +201,23 @@
     transform: translateX(0);
   }
 
-  #sidebar-toggle { display: inline-flex; }
+  #sidebar-toggle {
+    display: inline-flex;
+  }
 
-  .navbar { padding: 0 16px; }
+  .navbar {
+    padding: 0 16px;
+  }
 
-  .app-content { padding: 16px; }
+  .app-content {
+    padding: 16px;
+  }
 }
 
-.notif-bell { position: relative; }
+/* ===== Notifikasi & User Menu ===== */
+.notif-bell {
+  position: relative;
+}
 .notif-badge {
   position: absolute;
   top: -4px;
@@ -247,7 +279,7 @@
   color: var(--color-danger);
 }
 .navbar-user-menu-item-danger:hover {
-  background-color: rgba(220,38,38,.1);
+  background-color: rgba(220, 38, 38, 0.1);
 }
 
 .app-footer {
