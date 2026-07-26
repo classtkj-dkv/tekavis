@@ -1,17 +1,20 @@
 /* ============================================================
-   BASE.CSS — Fully Responsive, No Manual Zoom Needed
+   BASE.CSS — Fully Responsive, No Cutoff
    ============================================================ */
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
+/* Reset overflow pada root dan body agar tidak memotong konten */
 html {
   scroll-behavior: smooth;
-  overflow-x: auto;             /* ← kunci: biarkan scroll horizontal jika perlu */
-  -webkit-text-size-adjust: 100%;  /* cegah zoom otomatis di Safari */
+  overflow-x: auto;              /* BUKAN hidden — biarkan scroll horizontal */
+  -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  font-size: 100%;              /* 1rem = 16px */
+  font-size: 100%;
 }
 
 body {
@@ -19,23 +22,43 @@ body {
   padding: 0;
   min-height: 100vh;
   width: 100%;
-  overflow-x: auto;             /* ← ganti hidden → auto */
+  overflow-x: auto;              /* BUKAN hidden */
   font-family: var(--font-sans);
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color var(--transition-base), color var(--transition-base);
+  transition: background-color var(--transition-base),
+              color var(--transition-base);
+}
+
+/* Pastikan semua container utama tidak membatasi lebar secara berlebihan */
+html,
+body,
+.app-shell,
+.app-content,
+.main-content,
+.container {
+  max-width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
 }
 
 /* ===== TYPOGRAPHY ===== */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--color-text-primary);
 }
-h4, h5, h6 {
+h4,
+h5,
+h6 {
   font-weight: 700;
 }
 
@@ -69,13 +92,17 @@ table {
 }
 
 /* ===== FORM ELEMENTS ===== */
-button, input, textarea, select {
+button,
+input,
+textarea,
+select {
   font-family: inherit;
   font-size: inherit;
 }
 
 /* ===== LISTS ===== */
-ul, ol {
+ul,
+ol {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -104,13 +131,4 @@ code {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
-}
-
-/* ===== UTILITY CONTAINERS (opsional) ===== */
-.container,
-.app-content,
-.main-content {
-  max-width: 100%;
-  overflow-x: auto;   /* jika konten anak lebih lebar, biarkan scroll */
-  box-sizing: border-box;
 }
