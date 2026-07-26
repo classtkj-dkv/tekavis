@@ -1,13 +1,7 @@
-/* ============================================================
-   LAYOUT.CSS — Sidebar, Navbar, dan struktur utama
-   ============================================================ */
-
 .app-shell {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
   min-height: 100vh;
-  overflow-x: visible;
-  max-width: 100%;
 }
 
 /* ---------- Sidebar ---------- */
@@ -22,7 +16,6 @@
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .sidebar-brand {
@@ -87,20 +80,16 @@
   background-color: var(--color-accent-light);
   color: var(--color-primary);
 }
-.sidebar-link:hover i {
-  color: var(--color-primary);
-}
+.sidebar-link:hover i { color: var(--color-primary); }
 
 .sidebar-link.active {
   background-color: var(--color-accent-light);
   color: var(--color-primary);
   font-weight: 700;
 }
-.sidebar-link.active i {
-  color: var(--color-primary);
-}
+.sidebar-link.active i { color: var(--color-primary); }
 
-/* ---------- Navbar ---------- */
+/* ---------- Navbar / Topbar ---------- */
 .navbar {
   height: 64px;
   background-color: var(--color-navbar);
@@ -114,13 +103,9 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  overflow-x: auto;
-  max-width: 100%;
 }
 
-.navbar-spacer {
-  flex: 1;
-}
+.navbar-spacer { flex: 1; }
 
 .navbar-actions {
   display: flex;
@@ -143,14 +128,9 @@
   justify-content: center;
   transition: all var(--transition-fast);
 }
-.icon-btn:hover {
-  background: var(--color-accent-light);
-  color: var(--color-primary);
-}
+.icon-btn:hover { background: var(--color-accent-light); color: var(--color-primary); }
 
-#sidebar-toggle {
-  display: none;
-}
+#sidebar-toggle { display: none; }
 
 .navbar-avatar {
   width: 34px;
@@ -168,15 +148,13 @@
   font-family: inherit;
 }
 
-/* ---------- Content Utama ---------- */
+/* ---------- Content ---------- */
 .app-content {
   padding: 26px 28px;
-  max-width: 100%;              /* ← full width, tidak terbatas 1280px */
+  max-width: 1280px;
   margin: 0 auto;
   width: 100%;
-  min-width: 0;
-  overflow-x: auto;
-  box-sizing: border-box;
+  min-width: 0; /* grid/flex item default min-width:auto bisa maksa overflow kalau isinya lebih lebar dari yang tersedia */
 }
 
 /* ---------- Responsive ---------- */
@@ -200,23 +178,14 @@
     transform: translateX(0);
   }
 
-  #sidebar-toggle {
-    display: inline-flex;
-  }
+  #sidebar-toggle { display: inline-flex; }
 
-  .navbar {
-    padding: 0 16px;
-  }
+  .navbar { padding: 0 16px; }
 
-  .app-content {
-    padding: 16px;
-  }
+  .app-content { padding: 16px; }
 }
 
-/* ===== Notifikasi & User Menu ===== */
-.notif-bell {
-  position: relative;
-}
+.notif-bell { position: relative; }
 .notif-badge {
   position: absolute;
   top: -4px;
@@ -278,7 +247,7 @@
   color: var(--color-danger);
 }
 .navbar-user-menu-item-danger:hover {
-  background-color: rgba(220, 38, 38, 0.1);
+  background-color: rgba(220,38,38,.1);
 }
 
 .app-footer {
@@ -287,4 +256,4 @@
   font-size: 12px;
   color: var(--color-text-muted);
   border-top: 1px solid var(--color-border);
-                  }
+}

@@ -1,64 +1,36 @@
-/* ============================================================
-   BASE.CSS — Fully Responsive, No Cutoff
-   ============================================================ */
-
-*,
-*::before,
-*::after {
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
-/* Reset overflow pada root dan body agar tidak memotong konten */
-html {
-  scroll-behavior: smooth;
-  overflow-x: auto;              /* BUKAN hidden — biarkan scroll horizontal */
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  font-size: 100%;
+html, body {
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  width: 100%;
-  overflow-x: auto;              /* BUKAN hidden */
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
   font-family: var(--font-sans);
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transition: background-color var(--transition-base),
-              color var(--transition-base);
+  transition: background-color var(--transition-base), color var(--transition-base);
 }
 
-/* Pastikan semua container utama tidak membatasi lebar secara berlebihan */
-html,
-body,
-.app-shell,
-.app-content,
-.main-content,
-.container {
-  max-width: 100%;
-  overflow-x: auto;
-  box-sizing: border-box;
-}
-
-/* ===== TYPOGRAPHY ===== */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   margin: 0;
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--color-text-primary);
 }
-h4,
-h5,
-h6 {
+
+h4, h5, h6 {
   font-weight: 700;
 }
 
@@ -73,42 +45,22 @@ a {
   text-decoration: none;
 }
 
-/* ===== MEDIA ===== */
-img,
-video,
-iframe,
-embed,
-object {
+img {
   max-width: 100%;
-  height: auto;
   display: block;
 }
 
-/* ===== TABEL ===== */
-table {
-  width: 100%;
-  max-width: 100%;
-  border-collapse: collapse;
-}
-
-/* ===== FORM ELEMENTS ===== */
-button,
-input,
-textarea,
-select {
+button, input, textarea, select {
   font-family: inherit;
   font-size: inherit;
 }
 
-/* ===== LISTS ===== */
-ul,
-ol {
+ul, ol {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* ===== CODE ===== */
 code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   background: var(--color-bg-2);
@@ -117,18 +69,8 @@ code {
   font-size: 0.9em;
 }
 
-/* ===== SCROLLBAR ===== */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-bg-2);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 99px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg-2); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }

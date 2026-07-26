@@ -1,8 +1,4 @@
 /* ============================================================
-   PAGES.CSS — Semua gaya spesifik halaman
-   ============================================================ */
-
-/* ============================================================
    AUTH (login / register)
    ============================================================ */
 .auth-screen {
@@ -23,18 +19,12 @@
   border-radius: var(--radius-xl);
   padding: 36px 32px;
   box-shadow: var(--shadow-lg);
-  animation: authFadeUp 0.35s ease;
+  animation: authFadeUp .35s ease;
 }
 
 @keyframes authFadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .auth-logo {
@@ -54,39 +44,20 @@
   margin-bottom: 14px;
 }
 
-.auth-title {
-  font-size: 21px;
-  margin-bottom: 4px;
-  text-align: center;
-}
-.auth-subtitle {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  margin-bottom: 22px;
-  text-align: center;
-}
+.auth-title { font-size: 21px; margin-bottom: 4px; text-align: center; }
+.auth-subtitle { font-size: 13px; color: var(--color-text-muted); margin-bottom: 22px; text-align: center; }
 .auth-error {
   color: var(--color-danger);
   font-size: 13px;
   margin-top: 10px;
-  background: rgba(220, 38, 38, 0.08);
+  background: rgba(220,38,38,0.08);
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  border: 1px solid rgba(220,38,38,0.2);
 }
-.auth-footer {
-  margin-top: 18px;
-  font-size: 13px;
-  text-align: center;
-  color: var(--color-text-muted);
-}
-.auth-footer a {
-  color: var(--color-primary);
-  font-weight: 700;
-}
-.auth-footer a:hover {
-  text-decoration: underline;
-}
+.auth-footer { margin-top: 18px; font-size: 13px; text-align: center; color: var(--color-text-muted); }
+.auth-footer a { color: var(--color-primary); font-weight: 700; }
+.auth-footer a:hover { text-decoration: underline; }
 
 .auth-copyright {
   text-align: center;
@@ -118,16 +89,10 @@
 }
 
 @media (max-width: 900px) {
-  .two-col {
-    grid-template-columns: 1fr;
-  }
+  .two-col { grid-template-columns: 1fr; }
 }
 
-.list-plain {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+.list-plain { display: flex; flex-direction: column; gap: 10px; }
 .list-item {
   padding: 13px 15px;
   border: 1px solid var(--color-border);
@@ -135,19 +100,9 @@
   background-color: var(--color-surface);
   transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
-.list-item:hover {
-  box-shadow: var(--shadow-xs);
-  border-color: var(--color-primary);
-}
-.list-item-title {
-  font-weight: 700;
-  font-size: 13.5px;
-}
-.list-item-meta {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  margin-top: 3px;
-}
+.list-item:hover { box-shadow: var(--shadow-xs); border-color: var(--color-primary); }
+.list-item-title { font-weight: 700; font-size: 13.5px; }
+.list-item-meta { font-size: 12px; color: var(--color-text-muted); margin-top: 3px; }
 
 .empty-state {
   padding: 28px 16px;
@@ -167,8 +122,7 @@
   gap: 16px;
 }
 
-.role-card,
-.org-role-card {
+.role-card, .org-role-card {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background-color: var(--color-card);
@@ -223,27 +177,18 @@
   box-shadow: var(--shadow-xs);
   transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
-.album-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-card);
-}
+.album-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
 
 .album-card-overlay {
   position: absolute;
   inset: auto 0 0 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
   padding: 14px;
   color: #fff;
 }
 
-.album-card-name {
-  font-weight: 700;
-  font-size: 14px;
-}
-.album-card-meta {
-  font-size: 12px;
-  opacity: 0.85;
-}
+.album-card-name { font-weight: 700; font-size: 14px; }
+.album-card-meta { font-size: 12px; opacity: 0.85; }
 
 .photo-grid {
   display: grid;
@@ -260,9 +205,7 @@
   display: block;
   transition: transform var(--transition-fast);
 }
-.photo-thumb:hover {
-  transform: scale(1.02);
-}
+.photo-thumb:hover { transform: scale(1.02); }
 
 .photo-detail {
   display: grid;
@@ -270,9 +213,7 @@
   gap: 20px;
 }
 @media (max-width: 900px) {
-  .photo-detail {
-    grid-template-columns: 1fr;
-  }
+  .photo-detail { grid-template-columns: 1fr; }
 }
 
 .photo-detail-img {
@@ -295,12 +236,8 @@
   font-size: 13px;
   margin: 0;
 }
-.detail-list dt {
-  color: var(--color-text-muted);
-}
-.detail-list dd {
-  margin: 0;
-}
+.detail-list dt { color: var(--color-text-muted); }
+.detail-list dd { margin: 0; }
 
 /* ============================================================
    PROFILE
@@ -326,17 +263,15 @@
 }
 
 /* ============================================================
-   HERO CAROUSEL (banner) — FULL LEBAR, TIDAK TERPOTONG
+   HERO CAROUSEL (beranda — foto yang bisa digeser)
    ============================================================ */
 .hero-carousel {
   position: relative;
   border-radius: var(--radius-xl);
-  overflow: visible;
+  overflow: hidden;
   box-shadow: var(--shadow-md);
   margin-bottom: 26px;
   background-color: var(--color-bg-2);
-  width: 100%;
-  max-width: 100%;
 }
 
 .hero-track {
@@ -346,11 +281,8 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  width: 100%;
 }
-.hero-track::-webkit-scrollbar {
-  display: none;
-}
+.hero-track::-webkit-scrollbar { display: none; }
 
 .hero-slide {
   flex: 0 0 100%;
@@ -358,10 +290,14 @@
   position: relative;
   width: 100%;
   max-height: 65vh;
-  overflow: visible;
+  overflow: hidden;
   background-color: var(--color-bg-2);
 }
 
+/* Foto tampil utuh sesuai ukuran aslinya (width:100%, height:auto) untuk
+   foto landscape normal. max-height cuma jaring pengaman kalau ada foto
+   portrait yang kelolosan — dibatasin tingginya (object-fit:contain, BUKAN
+   crop) biar satu foto gak bisa bikin halaman jadi sepanjang itu. */
 .hero-slide-img {
   display: block;
   width: 100%;
@@ -377,7 +313,7 @@
   right: 0;
   bottom: 0;
   padding: 20px 22px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.1) 75%, transparent);
+  background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.1) 75%, transparent);
   color: #fff;
   pointer-events: none;
 }
@@ -389,7 +325,7 @@
   gap: 6px;
   padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255,255,255,0.18);
   backdrop-filter: blur(6px);
   font-size: 11px;
   font-weight: 700;
@@ -404,7 +340,7 @@
 
 .hero-slide-overlay p {
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255,255,255,0.85);
 }
 
 .hero-nav {
@@ -414,7 +350,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0,0,0,0.35);
   color: #fff;
   border: none;
   cursor: pointer;
@@ -424,15 +360,9 @@
   font-size: 13px;
   transition: background var(--transition-fast);
 }
-.hero-nav:hover {
-  background: rgba(0, 0, 0, 0.55);
-}
-.hero-prev {
-  left: 10px;
-}
-.hero-next {
-  right: 10px;
-}
+.hero-nav:hover { background: rgba(0,0,0,0.55); }
+.hero-prev { left: 10px; }
+.hero-next { right: 10px; }
 
 .hero-dots {
   position: absolute;
@@ -449,7 +379,7 @@
   padding: 0;
   border: none;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255,255,255,0.5);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -459,9 +389,7 @@
 }
 
 @media (max-width: 640px) {
-  .hero-nav {
-    display: none;
-  }
+  .hero-nav { display: none; }
 }
 
 /* ============================================================
@@ -481,11 +409,9 @@
 
 .org-role-top {
   border: 1.5px solid var(--color-warning);
-  background: linear-gradient(135deg, rgba(217, 119, 6, 0.06), transparent);
+  background: linear-gradient(135deg, rgba(217,119,6,0.06), transparent);
 }
-.org-role-top .org-role-label {
-  font-size: 16px;
-}
+.org-role-top .org-role-label { font-size: 16px; }
 
 .org-member-list {
   display: flex;
@@ -513,4 +439,4 @@
   font-size: 12px;
   font-weight: 700;
   flex-shrink: 0;
-   }
+}
