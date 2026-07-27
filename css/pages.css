@@ -240,6 +240,146 @@
 .detail-list dd { margin: 0; }
 
 /* ============================================================
+   KARTU DETAIL SISWA (ID card style) & GRID KARTU SISWA
+   ============================================================ */
+.id-card-modal {
+  max-width: 340px;
+  overflow: hidden;
+}
+
+.id-card-photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-bg-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.id-card-major-badge {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.id-card-body {
+  padding: 18px 20px;
+}
+
+.id-card-fields {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.id-card-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+.id-card-row dt {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.id-card-row dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+.id-card-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--color-border);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.student-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+@media (min-width: 640px) {
+  .student-card-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1000px) {
+  .student-card-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.student-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.student-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+
+.student-card-photo {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-bg-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.student-card-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 10px 12px;
+}
+
+.student-card-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-card-menu-btn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: none;
+  background: var(--color-bg-2);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.student-card-menu-btn:hover { background: var(--color-accent-light); color: var(--color-primary); }
+
+/* ============================================================
    PROFILE
    ============================================================ */
 .profile-card {
@@ -421,6 +561,12 @@
   gap: 10px;
   font-size: 13px;
   color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+.org-member:hover {
+  background-color: var(--color-accent-light);
+  color: var(--color-primary);
 }
 
 .org-avatar {
