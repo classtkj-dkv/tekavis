@@ -289,23 +289,17 @@
   scroll-snap-align: center;
   position: relative;
   width: 100%;
-  max-height: 75vw;
   overflow: hidden;
   background-color: var(--color-bg-2);
 }
 
-/* Foto tampil utuh sesuai ukuran aslinya (width:100%, height:auto) untuk
-   foto landscape normal. max-height cuma jaring pengaman kalau ada foto
-   portrait yang kelolosan — dibatasin tingginya (object-fit:contain, BUKAN
-   crop) biar satu foto gak bisa bikin halaman jadi sepanjang itu. Dipatok ke
-   vw (bukan vh) biar konsisten di semua device — foto landscape normal
-   (rasio sampai ~4:3) gak akan pernah kena batas ini sama sekali. */
+/* Foto tampil 100% utuh sesuai ukuran aslinya — lebar penuh, tinggi
+   ngikutin otomatis. Gak ada batasan/cap apapun, jadi gak akan pernah ada
+   letterbox/bar kosong di sisi manapun. */
 .hero-slide-img {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 75vw;
-  object-fit: contain;
 }
 
 .hero-slide-overlay {
