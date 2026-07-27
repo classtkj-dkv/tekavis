@@ -23,45 +23,45 @@ function statCard(label, value) {
   `;
 }
 
-// Menu cepat per role/jabatan, sesuai pembagian di spek "Struktur Organisasi":
-// Ketua -> Pengumuman & Agenda, Sekretaris -> Jadwal & Dokumen, Bendahara -> Kas, dst.
-const ROLE_PANEL = {
-  owner: [
-    { label: 'Kelola User & Role', path: '/users', desc: 'Atur akses dan jabatan seluruh anggota' },
-    { label: 'Role & Permission', path: '/roles', desc: 'Kelola jabatan dan hak aksesnya' },
-    { label: 'Pengaturan Website', path: '/settings', desc: 'Tema, banner, backup & restore database' },
-    { label: 'Activity Log', path: '/activity-log', desc: 'Riwayat aktivitas seluruh sistem' },
-  ],
-  admin: [
-    { label: 'Data Siswa', path: '/students', desc: 'Kelola data siswa kelas' },
-    { label: 'Album Kenangan', path: '/albums', desc: 'Kelola galeri & foto kelas' },
-    { label: 'Pengumuman', path: '/announcements', desc: 'Kelola pengumuman kelas' },
-    { label: 'Jadwal', path: '/schedule', desc: 'Atur jadwal pelajaran' },
-  ],
-  ketua: [
-    { label: 'Pengumuman', path: '/announcements', desc: 'Buat & kelola pengumuman kelas' },
-  ],
-  wakil: [
-    { label: 'Pengumuman', path: '/announcements', desc: 'Pantau pengumuman kelas' },
-  ],
-  sekretaris: [
-    { label: 'Jadwal', path: '/schedule', desc: 'Kelola jadwal pelajaran, jadi acuan dokumen kelas' },
-  ],
-  bendahara: [
-    { label: 'Kas', path: '/finance', desc: 'Kelola pemasukan, pengeluaran, dan saldo kas kelas' },
-  ],
-  siswa: [
-    { label: 'Profil Saya', path: '/profile', desc: 'Lihat & lengkapi profil kamu' },
-    { label: 'Album Kenangan', path: '/albums', desc: 'Lihat momen & kenangan kelas' },
-  ],
-};
+// Menu cepat dibangun DINAMIS dari permission asli (bukan nama role) — biar
+// kartu yang muncul di beranda dijamin nyambung ke fitur yang beneran bisa
+// dipakai user itu, sama kayak sidebar. Role custom apapun yang Owner bikin
+// otomatis dapet kartu yang sesuai tanpa perlu dihardcode manual.
+function buildRolePanel(role, permissions = {}) {
+  if (role === 'owner') {
+    return [
+      { label: 'Kelola User & Role', path: '/users', desc: 'Atur akses dan jabatan seluruh anggota' },
+      { label: 'Role & Permission', path: '/roles', desc: 'Kelola jabatan dan hak aksesnya' },
+      { label: 'Pengaturan Website', path: '/settings', desc: 'Tema, banner, backup & restore database' },
+      { label: 'Activity Log', path: '/activity-log', desc: 'Riwayat aktivitas seluruh sistem' },
+    ];
+  }
 
-// Fallback buat role custom yang dibuat Owner (Keamanan, Kebersihan, dst) dan
-// belum ada di daftar spesifik di atas — tetap dikasih menu cepat yang masuk akal.
-const DEFAULT_PANEL = [
-  { label: 'Struktur Organisasi', path: '/struktur', desc: 'Lihat susunan pengurus & jabatan kelas' },
-  { label: 'Pengumuman', path: '/announcements', desc: 'Lihat pengumuman terbaru' },
-];
+  const panel = [];
+  if (permissions.manage_students) panel.push({ label: 'Data Siswa', path: '/students', desc: 'Kelola data siswa kelas' });
+  if (permissions.manage_gallery) panel.push({ label: 'Album Kenangan', path: '/albums', desc: 'Kelola galeri & foto kelas' });
+  if (permissions.manage_announcements) panel.push({ label: 'Pengumuman', path: '/announcements', desc: 'Buat & kelola pengumuman kelas' });
+  if (permissions.manage_schedule) panel.push({ label: 'Jadwal', path: '/schedule', desc: 'Kelola jadwal pelajaran' });
+
+  if (permissions.manage_finance) {
+    panel.push({ label: 'Kas', path: '/finance', desc: 'Kelola pemasukan, pengeluaran, dan saldo kas kelas' });
+  } else if (permissions.view_kas) {
+    panel.push({ label: 'Kas', path: '/finance', desc: 'Lihat saldo dan riwayat transaksi kas kelas' });
+  }
+
+  if (role === 'siswa' || role === 'pengunjung') {
+    panel.push({ label: 'Profil Saya', path: '/profile', desc: 'Lihat & lengkapi profil kamu' });
+  }
+
+  // Role tanpa permission manage_* apapun (Wakil, atau role custom kosong)
+  // tetap dikasih pintasan yang masuk akal, bukan kartu kosong.
+  if (!panel.length) {
+    panel.push({ label: 'Struktur Organisasi', path: '/struktur', desc: 'Lihat susunan pengurus & jabatan kelas' });
+    panel.push({ label: 'Pengumuman', path: '/announcements', desc: 'Lihat pengumuman terbaru' });
+  }
+
+  return panel;
+}
 
 function panelCard(item) {
   return `
@@ -273,7 +273,7 @@ export default async function renderDashboardPage(container) {
     </div>
   `).join('') || '<div class="empty-state">Belum ada pengumuman.</div>';
 
-  const rolePanel = me ? (ROLE_PANEL[role] || DEFAULT_PANEL) : [];
+  const rolePanel = me ? buildRolePanel(role, perms) : [];
 
   container.innerHTML = `
     ${heroCarousel(settings?.homepage, settings?.site_name || 'Class Tekavis', isOwner)}

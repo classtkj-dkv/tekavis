@@ -1,71 +1,63 @@
-const MENU_BY_ROLE = {
-  owner: [
-    { label: 'Dashboard', path: '/', icon: 'layout-dashboard' },
-    { label: 'Siswa', path: '/students', icon: 'users' },
-    { label: 'Album Kenangan', path: '/albums', icon: 'image' },
-    { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
-    { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
-    { label: 'Kas', path: '/finance', icon: 'wallet' },
-    { label: 'Kelola User & Role', path: '/users', icon: 'shield' },
-    { label: 'Role & Permission', path: '/roles', icon: 'key' },
-    { label: 'Activity Log', path: '/activity-log', icon: 'history' },
-    { label: 'Pengaturan Website', path: '/settings', icon: 'settings' },
-  ],
-  admin: [
-    { label: 'Dashboard', path: '/', icon: 'layout-dashboard' },
-    { label: 'Siswa', path: '/students', icon: 'users' },
-    { label: 'Album Kenangan', path: '/albums', icon: 'image' },
-    { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
-    { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
-  ],
-  ketua: [
-    { label: 'Dashboard', path: '/', icon: 'layout-dashboard' },
-    { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
-  ],
-  wakil: [
-    { label: 'Dashboard', path: '/', icon: 'layout-dashboard' },
-  ],
-  sekretaris: [
-    { label: 'Dashboard', path: '/', icon: 'layout-dashboard' },
-    { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
-  ],
-  bendahara: [
-    { label: 'Dashboard', path: '/', icon: 'layout-dashboard' },
-    { label: 'Kas', path: '/finance', icon: 'wallet' },
-  ],
-  siswa: [
-    { label: 'Dashboard', path: '/', icon: 'layout-dashboard' },
-    { label: 'Profil Saya', path: '/profile', icon: 'user' },
-    { label: 'Album Kenangan', path: '/albums', icon: 'image' },
-    { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
-    { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
-  ],
-  pengunjung: [
-    { label: 'Dashboard', path: '/', icon: 'layout-dashboard' },
-    { label: 'Profil Saya', path: '/profile', icon: 'user' },
-    { label: 'Siswa', path: '/students', icon: 'users' },
-    { label: 'Album Kenangan', path: '/albums', icon: 'image' },
-    { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
-    { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
-  ],
-  guest: [
-    { label: 'Beranda', path: '/', icon: 'layout-dashboard' },
-    { label: 'Siswa', path: '/students', icon: 'users' },
-    { label: 'Album Kenangan', path: '/albums', icon: 'image' },
-    { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
-    { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
-    { label: 'Masuk / Daftar', path: '/login', icon: 'log-in' },
-  ],
-};
+// Menu sidebar dibangun DINAMIS dari role + permission asli user (bukan
+// daftar statis per nama role) — jadi kalau Owner bikin role custom baru
+// (misal "Keamanan", "Humas") lewat Role & Permission, siapapun yang pegang
+// role itu otomatis dapet akses sidebar ke halaman yang permission-nya
+// mereka punya, tanpa perlu ada yang nambahin manual di kode ini.
 
+const DASHBOARD_ITEM = { label: 'Dashboard', path: '/', icon: 'layout-dashboard' };
+const STRUKTUR_ITEM = { label: 'Struktur Organisasi', path: '/struktur', icon: 'users-round' };
+const PROFILE_ITEM = { label: 'Profil Saya', path: '/profile', icon: 'user' };
+const FINANCE_ITEM = { label: 'Kas', path: '/finance', icon: 'wallet' };
+
+// Data publik (siswa/jadwal/pengumuman/album) — bisa dilihat siapapun yang
+// login (bahkan guest, tergantung setting visibility Owner), jadi selalu
+// muncul di sidebar buat semua role yang login.
+const PUBLIC_DATA_ITEMS = [
+  { label: 'Siswa', path: '/students', icon: 'users' },
+  { label: 'Album Kenangan', path: '/albums', icon: 'image' },
+  { label: 'Pengumuman', path: '/announcements', icon: 'megaphone' },
+  { label: 'Jadwal', path: '/schedule', icon: 'calendar' },
+];
+
+const OWNER_ONLY_ITEMS = [
+  { label: 'Kelola User & Role', path: '/users', icon: 'shield' },
+  { label: 'Role & Permission', path: '/roles', icon: 'key' },
+  { label: 'Activity Log', path: '/activity-log', icon: 'history' },
+  { label: 'Pengaturan Website', path: '/settings', icon: 'settings' },
+];
+
+const GUEST_MENU = [
+  { label: 'Beranda', path: '/', icon: 'layout-dashboard' },
+  ...PUBLIC_DATA_ITEMS,
+  { label: 'Masuk / Daftar', path: '/login', icon: 'log-in' },
+];
+
+export function getMenuForUser(role, permissions = {}) {
+  if (!role || role === 'guest') return GUEST_MENU;
+
+  const isOwner = role === 'owner';
+  const canViewKas = isOwner || permissions.view_kas || permissions.manage_finance;
+
+  const menu = [
+    DASHBOARD_ITEM,
+    STRUKTUR_ITEM,
+    PROFILE_ITEM,
+    ...PUBLIC_DATA_ITEMS,
+  ];
+
+  // Kas itu satu-satunya data yang sengaja privat — cuma muncul buat yang
+  // beneran diizinkan (Owner, atau pemegang jabatan yang dikasih izin lihat
+  // kas, misal Bendahara).
+  if (canViewKas) menu.push(FINANCE_ITEM);
+
+  if (isOwner) menu.push(...OWNER_ONLY_ITEMS);
+
+  return menu;
+}
+
+// Kompatibilitas ke pemanggil lama yang cuma ngirim role tanpa permissions.
 export function getMenuForRole(role) {
-  const menu = MENU_BY_ROLE[role] || MENU_BY_ROLE.siswa;
-  const hasStruktur = menu.some(item => item.path === '/struktur');
-  if (hasStruktur) return menu;
-
-  // Sisipkan "Struktur Organisasi" setelah Dashboard/Beranda untuk semua role,
-  // termasuk role custom (Keamanan, Kebersihan, dst) yang belum masuk daftar di atas.
-  return [menu[0], { label: 'Struktur Organisasi', path: '/struktur', icon: 'users-round' }, ...menu.slice(1)];
+  return getMenuForUser(role, {});
 }
 
 // Pemetaan key ikon (sudah ada di data menu) ke class Font Awesome — murni visual,
@@ -86,8 +78,8 @@ const ICON_MAP = {
   'log-in': 'fa-solid fa-right-to-bracket',
 };
 
-export function renderSidebar(role, siteName = 'Class Tekavis', logoUrl = '') {
-  const menu = getMenuForRole(role);
+export function renderSidebar(role, siteName = 'Class Tekavis', logoUrl = '', permissions = {}) {
+  const menu = getMenuForUser(role, permissions);
   const currentPath = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
 
   const items = menu.map(item => `
