@@ -2,35 +2,50 @@ import { api } from './apiClient.js';
 import { getSession } from './session.js';
 import { studentDetailDialogHtml, openStudentDetail } from './studentDetail.js';
 
+function studentCardHtml(s) {
+  const initials = (s.name || '?').trim().slice(0, 1).toUpperCase();
+  return `
+    <div class="student-card">
+      <div class="student-card-photo" style="${s.photo_url ? `background-image:url('${s.photo_url}')` : ''}">
+        ${!s.photo_url ? initials : ''}
+      </div>
+      <div class="student-card-info">
+        <span class="student-card-name" title="${s.name}">${s.name}</span>
+        <button type="button" class="student-card-menu-btn detail-trigger" data-id="${s.id}" title="Lihat detail">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </button>
+      </div>
+      ${s.profile_id ? '' : ''}
+    </div>
+  `;
+}
+
 export default async function renderStudentsPage(container) {
   const me = await getSession();
   const canManage = me?.role === 'owner' || me?.permissions?.manage_students;
 
-  const students = await api.get('/api/students').catch(() => []);
+  const [students, settings] = await Promise.all([
+    api.get('/api/students').catch(() => []),
+    api.get('/api/settings').catch(() => null),
+  ]);
+  const footerText = settings?.contact?.card_footer || `${settings?.site_name || 'Class Tekavis'} • Data Siswa`;
 
-  const rows = students.map(s => {
-    const initials = (s.name || '?').trim().slice(0, 1).toUpperCase();
-    const avatar = s.photo_url
-      ? `<img src="${s.photo_url}" alt="${s.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`
-      : initials;
-    return `
-    <tr class="student-row" data-id="${s.id}" style="cursor:pointer;">
-      <td>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div class="org-avatar" style="flex-shrink:0; overflow:hidden;">${avatar}</div>
-          <span>${s.name}${s.profile_id ? ' <i class="fa-solid fa-circle-check" style="color:var(--color-success); font-size:11px;" title="Punya akun login"></i>' : ''}</span>
-        </div>
-      </td>
+  const grid = students.length
+    ? `<div class="student-card-grid">${students.map(studentCardHtml).join('')}</div>`
+    : '<div class="empty-state">Belum ada data siswa.</div>';
+
+  const manageRows = canManage ? students.map(s => `
+    <tr>
+      <td>${s.name}${s.profile_id ? ' <i class="fa-solid fa-circle-check" style="color:var(--color-success); font-size:11px;" title="Punya akun login"></i>' : ''}</td>
       <td>${s.major}</td>
-      <td>${s.birth_place}, ${new Date(s.birth_date).toLocaleDateString('id-ID')}</td>
+      <td>${s.birth_place}${s.birth_date ? ', ' + new Date(s.birth_date).toLocaleDateString('id-ID') : ''}</td>
       <td>${s.nisn || '-'}</td>
-      ${canManage ? `<td style="white-space:nowrap;">
+      <td style="white-space:nowrap;">
         <button class="icon-btn edit-student-btn" data-id="${s.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
         <button class="icon-btn delete-student-btn" data-id="${s.id}" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-      </td>` : ''}
+      </td>
     </tr>
-  `;
-  }).join('') || `<tr><td colspan="${canManage ? 5 : 4}" class="empty-state">Belum ada data siswa.</td></tr>`;
+  `).join('') : '';
 
   container.innerHTML = `
     <div class="card-header">
@@ -38,14 +53,20 @@ export default async function renderStudentsPage(container) {
       ${canManage ? '<button id="add-student-btn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Tambah Siswa</button>' : ''}
     </div>
 
-    <div class="card" style="overflow-x:auto;">
-      <table class="table">
-        <thead><tr><th>Nama</th><th>Jurusan</th><th>Tempat, Tgl Lahir</th><th>NISN</th>${canManage ? '<th>Aksi</th>' : ''}</tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
+    <p style="font-size:12.5px; margin-bottom:14px;">Ketuk <i class="fa-solid fa-ellipsis-vertical"></i> di kartu buat lihat detail profil.</p>
+    ${grid}
 
     ${studentDetailDialogHtml('page')}
+
+    ${canManage ? `
+      <h2 class="section-title" style="margin-top:32px; font-size:16px;">Kelola Data (Admin/Owner)</h2>
+      <div class="card" style="overflow-x:auto; margin-top:10px;">
+        <table class="table">
+          <thead><tr><th>Nama</th><th>Jurusan</th><th>Tempat, Tgl Lahir</th><th>NISN</th><th>Aksi</th></tr></thead>
+          <tbody>${manageRows || '<tr><td colspan="5" class="empty-state">Belum ada data siswa.</td></tr>'}</tbody>
+        </table>
+      </div>
+    ` : ''}
 
     <dialog id="student-dialog" class="modal">
       <form id="student-form" class="modal-content">
@@ -84,6 +105,15 @@ export default async function renderStudentsPage(container) {
       </form>
     </dialog>
   `;
+
+  document.querySelectorAll('.detail-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const s = students.find(x => x.id === btn.dataset.id);
+      if (s) openStudentDetail('page', s, footerText);
+    });
+  });
+
+  if (!canManage) return;
 
   const dialog = document.getElementById('student-dialog');
   const form = document.getElementById('student-form');
@@ -126,16 +156,6 @@ export default async function renderStudentsPage(container) {
     } catch (err) {
       alert(err.message);
     }
-  });
-
-  // Klik baris = buka detail profil. Tombol edit/hapus (kalau ada) dicek
-  // duluan biar klik di tombol itu gak ikut kebuka detailnya.
-  container.querySelectorAll('.student-row').forEach(row => {
-    row.addEventListener('click', (e) => {
-      if (e.target.closest('.icon-btn')) return;
-      const s = students.find(x => x.id === row.dataset.id);
-      if (s) openStudentDetail('page', s);
-    });
   });
 
   container.querySelectorAll('.edit-student-btn').forEach(btn => {

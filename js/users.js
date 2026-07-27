@@ -34,7 +34,10 @@ export default async function renderUsersPage(container) {
   container.innerHTML = `
     <div class="card-header">
       <h1 class="section-title" style="margin:0;">Kelola User &amp; Role</h1>
-      <a href="#/roles" class="btn btn-secondary">Atur Permission Role</a>
+      <div style="display:flex; gap:8px;">
+        ${me?.role === 'owner' ? '<button id="add-user-btn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Tambah User</button>' : ''}
+        <a href="#/roles" class="btn btn-secondary">Atur Permission Role</a>
+      </div>
     </div>
     <div class="card" style="overflow-x:auto;">
       <table class="table">
@@ -42,7 +45,50 @@ export default async function renderUsersPage(container) {
         <tbody>${rows}</tbody>
       </table>
     </div>
+
+    <dialog id="add-user-dialog" class="modal">
+      <form id="add-user-form" class="modal-content">
+        <h2 class="section-title">Tambah User Baru</h2>
+        <p style="font-size:12px; color:var(--color-text-muted); margin:6px 0 12px;">
+          Buat akun buat pengurus/staff (misal Wali Kelas, Ketua, Bendahara) yang belum pernah daftar sendiri.
+          Untuk siswa, pakai halaman Data Siswa biar biodatanya lengkap.
+        </p>
+        <label class="input-label">Nama Lengkap</label>
+        <input class="input" name="full_name" required />
+
+        <label class="input-label" style="margin-top:10px;">Gmail (email login)</label>
+        <input class="input" type="email" name="email" required />
+
+        <label class="input-label" style="margin-top:10px;">Password</label>
+        <input class="input" type="text" name="password" required placeholder="Minimal 6 karakter" />
+
+        <label class="input-label" style="margin-top:10px;">Jabatan / Role</label>
+        <select class="input" name="role_id" required>
+          ${roles.filter(r => r.name !== 'owner' && r.name !== 'siswa').map(r => `<option value="${r.id}">${r.label}</option>`).join('')}
+        </select>
+
+        <div style="display:flex; gap:10px; margin-top:18px;">
+          <button type="button" id="cancel-add-user" class="btn btn-secondary" style="flex:1;">Batal</button>
+          <button type="submit" class="btn btn-primary" style="flex:1;">Buat Akun</button>
+        </div>
+      </form>
+    </dialog>
   `;
+
+  const addDialog = document.getElementById('add-user-dialog');
+  document.getElementById('add-user-btn')?.addEventListener('click', () => addDialog.showModal());
+  document.getElementById('cancel-add-user')?.addEventListener('click', () => addDialog.close());
+  document.getElementById('add-user-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = Object.fromEntries(new FormData(e.target).entries());
+    try {
+      await api.post('/api/users', payload);
+      addDialog.close();
+      renderUsersPage(container);
+    } catch (err) {
+      alert(err.message);
+    }
+  });
 
   container.querySelectorAll('.role-select').forEach(select => {
     select.addEventListener('change', async (e) => {

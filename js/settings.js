@@ -105,6 +105,10 @@ export default async function renderSettingsPage(container) {
       <label class="input-label" style="margin-top:14px;">Teks Footer</label>
       <input class="input" name="footer_text" value="${settings.footer_text || ''}" />
 
+      <label class="input-label" style="margin-top:14px;">Footer Kartu Profil Siswa</label>
+      <input class="input" id="card_footer" value="${settings.contact?.card_footer || ''}" placeholder="Contoh: @class.tekavis • SMKS Syadam" />
+      <p style="font-size:11.5px; color:var(--color-text-muted); margin-top:4px;">Muncul di bagian bawah kartu detail profil siswa.</p>
+
       <button type="submit" class="btn btn-primary" style="margin-top:18px;">Simpan Perubahan</button>
       <p id="settings-saved" style="color:var(--color-success); font-size:13px; margin-top:10px;" hidden>Tersimpan.</p>
     </form>
@@ -171,6 +175,7 @@ export default async function renderSettingsPage(container) {
   document.getElementById('settings-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const payload = Object.fromEntries(new FormData(e.target).entries());
+    payload.contact = { ...(settings.contact || {}), card_footer: document.getElementById('card_footer').value.trim() };
     try {
       await api.patch('/api/settings', payload);
       document.getElementById('settings-saved').hidden = false;

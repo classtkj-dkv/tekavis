@@ -185,24 +185,25 @@ function bindHeroCarousel() {
 // Preview "Daftar Siswa" di beranda — publik (gak wajib login), dengan
 // pencarian cepat (filter client-side) dan tap nama buat lihat detail profil.
 // ---------------------------------------------------------------------------
-function studentRow(s) {
+function studentCard(s) {
   const initials = (s.name || '?').trim().slice(0, 1).toUpperCase();
-  const avatar = s.photo_url
-    ? `<img src="${s.photo_url}" alt="${s.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`
-    : initials;
   return `
-    <div class="list-item student-row" data-id="${s.id}" data-name="${(s.name || '').toLowerCase()}" data-nisn="${(s.nisn || '').toLowerCase()}" style="display:flex; align-items:center; gap:12px;">
-      <div class="org-avatar" style="flex-shrink:0; overflow:hidden;">${avatar}</div>
-      <div style="min-width:0;">
-        <div class="list-item-title">${s.name}</div>
-        <div class="list-item-meta">${s.major || '-'} ${s.nisn ? `· NISN ${s.nisn}` : ''}</div>
+    <div class="student-card" data-name="${(s.name || '').toLowerCase()}" data-nisn="${(s.nisn || '').toLowerCase()}">
+      <div class="student-card-photo" style="${s.photo_url ? `background-image:url('${s.photo_url}')` : ''}">
+        ${!s.photo_url ? initials : ''}
+      </div>
+      <div class="student-card-info">
+        <span class="student-card-name" title="${s.name}">${s.name}</span>
+        <button type="button" class="student-card-menu-btn detail-trigger" data-id="${s.id}" title="Lihat detail">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </button>
       </div>
     </div>
   `;
 }
 
 function studentListSection(students) {
-  const rows = students.map(studentRow).join('') || '<div class="empty-state">Belum ada data siswa.</div>';
+  const cards = students.map(studentCard).join('') || '<div class="empty-state">Belum ada data siswa.</div>';
   return `
     <div class="card-header" style="margin-top:28px;">
       <div>
@@ -217,7 +218,7 @@ function studentListSection(students) {
         <input id="student-search" class="input" style="padding-left:38px;" type="search" placeholder="Cari nama / NIS..." />
       </div>
     ` : ''}
-    <div class="list-plain" id="student-list">${rows}</div>
+    <div class="student-card-grid" id="student-list">${cards}</div>
     ${studentDetailDialogHtml('dash')}
   `;
 }
@@ -228,9 +229,9 @@ function bindStudentSearch() {
   if (!input || !list) return;
   input.addEventListener('input', () => {
     const q = input.value.trim().toLowerCase();
-    list.querySelectorAll('.student-row').forEach(row => {
-      const match = row.dataset.name.includes(q) || row.dataset.nisn.includes(q);
-      row.style.display = match ? '' : 'none';
+    list.querySelectorAll('.student-card').forEach(card => {
+      const match = card.dataset.name.includes(q) || card.dataset.nisn.includes(q);
+      card.style.display = match ? '' : 'none';
     });
   });
 }
@@ -322,5 +323,5 @@ export default async function renderDashboardPage(container) {
   bindHeroCarousel();
   bindScheduleWeek('dash-sched');
   bindStudentSearch();
-  bindStudentDetailClicks('#student-list .student-row', students, 'dash');
+  bindStudentDetailClicks('#student-list .detail-trigger', students, 'dash', settings?.contact?.card_footer || settings?.site_name || 'Class Tekavis');
 }
