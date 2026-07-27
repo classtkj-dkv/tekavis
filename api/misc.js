@@ -59,7 +59,7 @@ export default optionalAuth(async (req, res, ctx) => {
 
       const { data: members, error: memberError } = await admin
         .from('profiles')
-        .select('id, full_name, avatar_url, role_id');
+        .select('id, full_name, avatar_url, role_id, motto, hobby, dream_job');
       if (memberError) throw memberError;
 
       const structure = roles.map(role => ({
@@ -67,7 +67,7 @@ export default optionalAuth(async (req, res, ctx) => {
         label: role.name === 'admin' ? 'Wali Kelas' : role.label,
         members: members
           .filter(m => m.role_id === role.id)
-          .map(m => ({ id: m.id, full_name: m.full_name, avatar_url: m.avatar_url })),
+          .map(m => ({ id: m.id, full_name: m.full_name, avatar_url: m.avatar_url, motto: m.motto, hobby: m.hobby, dream_job: m.dream_job })),
       }));
       return ok(res, structure);
     }

@@ -2,11 +2,10 @@ import { getSupabaseAdmin } from './_lib/supabaseClient.js';
 import { requireAuth } from './_lib/auth.js';
 import { isRole } from './_lib/permissions.js';
 import { logActivity } from './_lib/activityLog.js';
-import { ok, forbidden, badRequest, serverError } from './_lib/response.js';
+import { ok, created, forbidden, badRequest, serverError } from './_lib/response.js';
 
-// GET   /api/users        -> daftar user + role (Owner & Admin)
-// PATCH /api/users        -> body: { user_id, role_id } ganti role (Owner)
 // GET    /api/users        -> daftar user + role (Owner & Admin)
+// POST   /api/users        -> body: { email, password, full_name, role_id } bikin akun staff baru (Owner) — mis. Wali Kelas
 // PATCH  /api/users        -> body: { user_id, role_id } ganti role (Owner)
 // DELETE /api/users?id=... -> hapus user (Owner). Kalau user ini juga siswa
 //                             berakun, data siswanya (nama/foto/dll) TETAP ada,
@@ -23,6 +22,40 @@ export default requireAuth(async (req, res, ctx) => {
         .order('full_name', { ascending: true });
       if (error) throw error;
       return ok(res, data);
+    }
+
+    if (req.method === 'POST') {
+      if (!isRole(ctx, 'owner')) return forbidden(res, 'Hanya Owner yang dapat membuat akun baru');
+      const { email, password, full_name, role_id } = req.body || {};
+      if (!email || !password || !full_name || !role_id) {
+        return badRequest(res, 'Email, password, nama, dan jabatan wajib diisi');
+      }
+
+      const { data: targetRole } = await admin.from('roles').select('name').eq('id', role_id).single();
+      if (targetRole?.name === 'owner') return forbidden(res, 'Tidak bisa membuat akun dengan role Owner lewat sini');
+      if (targetRole?.name === 'siswa') {
+        return badRequest(res, 'Buat akun siswa lewat halaman Data Siswa, bukan di sini (biar biodatanya lengkap)');
+      }
+
+      const { data: authUser, error: authError } = await admin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+      });
+      if (authError) return badRequest(res, `Gagal membuat akun: ${authError.message}`);
+
+      const { data, error } = await admin
+        .from('profiles')
+        .insert({ id: authUser.user.id, role_id, full_name })
+        .select('id, full_name, avatar_url, roles(id, name, label)')
+        .single();
+      if (error) {
+        await admin.auth.admin.deleteUser(authUser.user.id);
+        throw error;
+      }
+
+      await logActivity(req, ctx, { action: 'create_staff_user', targetTable: 'profiles', targetId: data.id, meta: { role_id } });
+      return created(res, data);
     }
 
     if (req.method === 'PATCH') {

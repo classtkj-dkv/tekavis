@@ -10,6 +10,38 @@ import { ok, created, badRequest, serverError, unauthorized } from './_lib/respo
 //                                   otomatis bikin akun login (role siswa) + data biodata terhubung
 // PATCH  /api/students?id=...   -> edit siswa (manage_students) — email/password opsional (kosongkan = tidak diubah)
 // DELETE /api/students?id=...   -> hapus siswa + akun login terkait (manage_students)
+// Tampilan detail siswa dibagi 3 level privasi (server-side, bukan cuma
+// disembunyiin di UI): guest (belum login) paling terbatas, pengunjung
+// (login tapi bukan siswa/pengurus) menengah, member (siswa/pengurus/admin/
+// owner — siapapun yang BUKAN pengunjung) dapet full data.
+function maskNisn(nisn) {
+  return '•'.repeat(String(nisn).length);
+}
+
+function shapeStudentForViewer(s, ctx) {
+  const role = ctx?.profile?.roles?.name || null;
+  const base = {
+    id: s.id,
+    name: s.name,
+    major: s.major,
+    photo_url: s.photo_url,
+    profile_id: s.profile_id,
+    birth_place: s.birth_place,
+  };
+
+  if (!role) {
+    // Guest: nama, foto, kota lahir doang, NISN disamarin (bukan disembunyiin total)
+    return { ...base, nisn: s.nisn ? maskNisn(s.nisn) : null };
+  }
+  if (role === 'pengunjung') {
+    // Login tapi cuma pengunjung umum (daftar sendiri lewat web): NISN & tanggal
+    // lahir persis disembunyiin total, tapi jurusan/hobi/cita-cita boleh keliatan
+    return { ...base, profiles: s.profiles };
+  }
+  // Siswa terdaftar, pengurus struktur, admin (wali kelas), owner -> full
+  return { ...base, birth_date: s.birth_date, nisn: s.nisn, profiles: s.profiles };
+}
+
 export default optionalAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
   const { id } = req.query;
@@ -24,7 +56,7 @@ export default optionalAuth(async (req, res, ctx) => {
         .select('*, profiles(motto, hobby, dream_job)')
         .order('name', { ascending: true });
       if (error) throw error;
-      return ok(res, data);
+      return ok(res, data.map(s => shapeStudentForViewer(s, ctx)));
     }
 
     if (req.method === 'POST') {
