@@ -37,8 +37,8 @@ export default async function renderStudentsPage(container) {
   const manageRows = canManage ? students.map(s => `
     <tr>
       <td>${s.name}${s.profile_id ? ' <i class="fa-solid fa-circle-check" style="color:var(--color-success); font-size:11px;" title="Punya akun login"></i>' : ''}</td>
-      <td>${s.major}</td>
-      <td>${s.birth_place}${s.birth_date ? ', ' + new Date(s.birth_date).toLocaleDateString('id-ID') : ''}</td>
+      <td>${s.major || '-'}</td>
+      <td>${s.birth_place ? s.birth_place + (s.birth_date ? ', ' + new Date(s.birth_date).toLocaleDateString('id-ID') : '') : '-'}</td>
       <td>${s.nisn || '-'}</td>
       <td style="white-space:nowrap;">
         <button class="icon-btn edit-student-btn" data-id="${s.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
@@ -91,12 +91,12 @@ export default async function renderStudentsPage(container) {
         <input class="input" name="nisn" />
 
         <div style="display:flex; gap:10px; margin-top:10px;">
-          <div style="flex:1;"><label class="input-label">Tempat Lahir</label><input class="input" name="birth_place" required /></div>
-          <div style="flex:1;"><label class="input-label">Tanggal Lahir</label><input class="input" type="date" name="birth_date" required /></div>
+          <div style="flex:1;"><label class="input-label">Tempat Lahir (opsional)</label><input class="input" name="birth_place" /></div>
+          <div style="flex:1;"><label class="input-label">Tanggal Lahir (opsional)</label><input class="input" type="date" name="birth_date" /></div>
         </div>
 
-        <label class="input-label" style="margin-top:10px;">Jurusan</label>
-        <input class="input" name="major" required />
+        <label class="input-label" style="margin-top:10px;">Jurusan (opsional)</label>
+        <input class="input" name="major" />
 
         <div style="display:flex; gap:10px; margin-top:18px;">
           <button type="button" id="cancel-student" class="btn btn-secondary" style="flex:1;">Batal</button>
