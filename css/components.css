@@ -373,3 +373,69 @@ select.input {
 .toast-success { border-left-color: var(--color-success); }
 .toast-warning { border-left-color: var(--color-warning); }
 .toast-danger { border-left-color: var(--color-danger); }
+
+/* ============================================================
+   REFACTOR MOBILE (≤768px) — tabel jadi kartu vertikal, bukan tabel
+   lebar yang di-scroll horizontal. Murni CSS (nth-child buat label kolom),
+   gak nambah/ubah markup JS sama sekali.
+   ============================================================ */
+@media (max-width: 768px) {
+  .table-wrapper {
+    overflow-x: visible;
+    box-shadow: none;
+    border: none;
+    background: none;
+  }
+
+  .table, .table tbody, .table tr, .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table thead { display: none; }
+
+  .table tr {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    box-shadow: var(--shadow-xs);
+  }
+  .table tr:last-child { margin-bottom: 0; }
+
+  .table td {
+    border-bottom: none;
+    padding: 5px 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  /* Label kolom disuntik lewat CSS berdasarkan posisi (bukan attr HTML,
+     jadi gak butuh perubahan markup). Di-scope KHUSUS ke tabel Jadwal
+     (di dalam .day-slide) karena urutan kolomnya tetap (Jam/Mapel/Guru/
+     Ruangan) — tabel lain (Siswa/Kas/User/dll) beda struktur kolom,
+     jadi dibiarkan tanpa label (tetap kekstack rapi, cuma gak ada label).
+     Kolom Aksi sengaja gak dikasih label karena isinya cuma tombol ikon. */
+  .day-slide .table td:nth-child(1)::before { content: "Jam"; }
+  .day-slide .table td:nth-child(2)::before { content: "Mapel / Kegiatan"; }
+  .day-slide .table td:nth-child(3)::before { content: "Guru"; }
+  .day-slide .table td:nth-child(4)::before { content: "Ruangan"; }
+  .day-slide .table td::before {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+  .day-slide .table td:nth-child(5)::before { content: none; }
+  .table td:last-child { justify-content: flex-end; }
+
+  .schedule-break-row {
+    background-color: rgba(217, 119, 6, 0.06);
+    border-radius: var(--radius-md);
+  }
+}

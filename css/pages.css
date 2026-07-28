@@ -582,3 +582,116 @@
   font-weight: 700;
   flex-shrink: 0;
 }
+
+/* ============================================================
+   REFACTOR MOBILE (≤768px) — HANYA layout mobile, desktop tidak diubah.
+   Hero tetap full-width; di sini cuma dikasih tinggi tetap 220-260px
+   khusus mobile (cover-crop) biar konsisten & gak makan tempat vertikal
+   terlalu banyak kayak sebelumnya. Desktop tetap natural width:100%,
+   height:auto seperti sebelum blok ini.
+   ============================================================ */
+@media (max-width: 768px) {
+  /* .hero-slide & .hero-slide-img dapet inline style dari JS (gak boleh
+     diubah sesuai instruksi) — override pakai !important cuma di sini,
+     khusus mobile, desktop tetap pakai nilai aslinya. */
+  .hero-slide {
+    height: 240px !important; /* di rentang 220-260px yang diminta */
+  }
+  .hero-slide-img {
+    position: absolute !important;
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+
+  /* Judul beranda lebih ringkas + nama panjang dipotong ellipsis.
+     Elemennya punya inline font-size dari JS, jadi override pakai !important
+     cuma di breakpoint mobile ini (satu-satunya cara ubah tampilan tanpa
+     nyentuh JS-nya). */
+  .app-content > h1.section-title:first-of-type {
+    font-size: 17px !important;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Statistik & Menu Cepat: grid 2 kolom tetap (auto-fit bisa jatuh ke 1
+     kolom kalau lebar pas-pasan — dipaksa 2 kolom biar konsisten) */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .stat-grid .stat-card {
+    padding: 14px;
+  }
+  .stat-grid .stat-icon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+  .stat-grid .stat-value { font-size: 20px; }
+  .stat-grid .stat-label { font-size: 11px; }
+
+  /* Menu Cepat pakai class stat-grid juga — card lebih pendek */
+  .card-hover {
+    padding: 14px;
+  }
+
+  /* Album Kenangan: horizontal scroll, bukan grid yang wrap ke banyak baris */
+  .album-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  .album-grid .album-card {
+    flex: 0 0 62%;
+    scroll-snap-align: start;
+    height: 140px;
+  }
+
+  /* Daftar Siswa: 1 kolom, kartu jadi baris horizontal (foto kecil + nama)
+     biar gak jadi kotak raksasa kalau dipaksa selebar layar */
+  .student-card-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .student-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .student-card-photo {
+    width: 52px;
+    height: 52px;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .student-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Pengumuman: card lebih compact */
+  .list-item {
+    padding: 10px 12px;
+  }
+  .list-item-title { font-size: 13px; }
+  .list-item-meta { font-size: 11.5px; }
+
+  /* Semua section konten pakai padding 16px yang konsisten */
+  .app-content {
+    padding: 16px;
+  }
+}
