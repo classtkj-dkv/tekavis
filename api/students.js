@@ -62,8 +62,8 @@ export default optionalAuth(async (req, res, ctx) => {
     if (req.method === 'POST') {
       requirePermission(ctx, 'manage_students');
       const { email, password, name, birth_place, birth_date, major, nisn } = req.body || {};
-      if (!name || !birth_place || !birth_date || !major) {
-        return badRequest(res, 'Nama, tempat lahir, tanggal lahir, dan jurusan wajib diisi');
+      if (!name) {
+        return badRequest(res, 'Nama wajib diisi');
       }
       if (!email || !password) {
         return badRequest(res, 'Gmail dan password wajib diisi untuk membuat akun siswa');
@@ -90,7 +90,10 @@ export default optionalAuth(async (req, res, ctx) => {
         .from('students')
         .insert({
           profile_id: authUser.user.id,
-          name, birth_place, birth_date, major,
+          name,
+          birth_place: birth_place || null,
+          birth_date: birth_date || null,
+          major: major || null,
           nisn: nisn || null,
         })
         .select()
@@ -111,6 +114,9 @@ export default optionalAuth(async (req, res, ctx) => {
       const { email, password, ...rest } = req.body || {};
       const allowed = ['name', 'birth_place', 'birth_date', 'major', 'nisn'];
       const patch = Object.fromEntries(Object.entries(rest).filter(([k]) => allowed.includes(k)));
+      ['birth_place', 'birth_date', 'major', 'nisn'].forEach(key => {
+        if (patch[key] === '') patch[key] = null;
+      });
 
       const { data: existing } = await admin.from('students').select('profile_id').eq('id', id).maybeSingle();
 
