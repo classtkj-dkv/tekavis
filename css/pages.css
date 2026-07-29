@@ -654,9 +654,10 @@
     padding-bottom: 4px;
   }
   .album-grid .album-card {
-    flex: 0 0 62%;
+    flex: 0 0 42%;
+    aspect-ratio: 1 / 1;
+    height: auto;
     scroll-snap-align: start;
-    height: 140px;
   }
 
   /* Daftar Siswa: 1 kolom, kartu jadi baris horizontal (foto kecil + nama)
