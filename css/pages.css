@@ -627,6 +627,11 @@
     gap: 10px;
     margin-bottom: 18px;
   }
+  /* Kalau jumlah kartu ganjil, kartu terakhir sendirian di baris bawah —
+     biar gak nyisain kotak kosong kayak "hantu", lebarin penuh 1 baris. */
+  .stat-grid > *:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
   .stat-grid .stat-card {
     padding: 14px;
   }
