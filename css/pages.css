@@ -585,26 +585,24 @@
 
 /* ============================================================
    REFACTOR MOBILE (≤768px) — HANYA layout mobile, desktop tidak diubah.
-   Hero tetap full-width; di sini cuma dikasih tinggi tetap 220-260px
-   khusus mobile (cover-crop) biar konsisten & gak makan tempat vertikal
-   terlalu banyak kayak sebelumnya. Desktop tetap natural width:100%,
-   height:auto seperti sebelum blok ini.
+   Hero full-width, foto ditampilkan UTUH (natural width:100%, height:auto)
+   — gak ada cover-crop lagi, jadi gak akan pernah kepotong. Overlay teks
+   (badge/judul/deskripsi) otomatis ikut di atas foto lewat gradient di
+   .hero-slide-overlay, terlepas dari berapa pun tinggi fotonya.
    ============================================================ */
 @media (max-width: 768px) {
   /* .hero-slide & .hero-slide-img dapet inline style dari JS (gak boleh
      diubah sesuai instruksi) — override pakai !important cuma di sini,
-     khusus mobile, desktop tetap pakai nilai aslinya. */
+     khusus mobile, buat "matikan" cover-crop dan balikin ke natural size. */
   .hero-slide {
-    height: 240px !important; /* di rentang 220-260px yang diminta */
+    height: auto !important;
   }
   .hero-slide-img {
-    position: absolute !important;
-    inset: 0 !important;
-    top: 0 !important;
-    left: 0 !important;
+    position: static !important;
+    inset: auto !important;
     width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+    height: auto !important;
+    object-fit: contain !important;
     object-position: center !important;
   }
 
