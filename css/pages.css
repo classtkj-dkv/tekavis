@@ -585,45 +585,71 @@
 
 /* ============================================================
    REFACTOR MOBILE (≤768px) — HANYA layout mobile, desktop tidak diubah.
-   Hero full-width, foto ditampilkan UTUH (natural width:100%, height:auto)
-   — gak ada cover-crop lagi, jadi gak akan pernah kepotong. Overlay teks
-   (badge/judul/deskripsi) otomatis ikut di atas foto lewat gradient di
-   .hero-slide-overlay, terlepas dari berapa pun tinggi fotonya.
+   Dibangun sebagai layout mobile TERSENDIRI (bukan layout desktop yang
+   diperkecil): hero dipendekin + rounded besar, semua card di-compact-in,
+   whitespace antar section dipangkas biar terasa kayak app native, bukan
+   website desktop yang dipaksa muat ke hp.
    ============================================================ */
 @media (max-width: 768px) {
-  /* .hero-slide & .hero-slide-img dapet inline style dari JS (gak boleh
-     diubah sesuai instruksi) — override pakai !important cuma di sini,
-     khusus mobile, buat "matikan" cover-crop dan balikin ke natural size. */
-  .hero-slide {
-    height: auto !important;
-  }
-  .hero-slide-img {
-    position: static !important;
-    inset: auto !important;
-    width: 100% !important;
-    height: auto !important;
-    object-fit: contain !important;
-    object-position: center !important;
+  /* Semua section konten pakai padding 16px yang konsisten, jarak antar
+     elemen langsung (bukan lewat margin gede tiap section) di-tighten
+     lewat * + * di bawah. */
+  .app-content {
+    padding: 16px;
   }
 
-  /* Judul beranda lebih ringkas + nama panjang dipotong ellipsis.
-     Elemennya punya inline font-size dari JS, jadi override pakai !important
-     cuma di breakpoint mobile ini (satu-satunya cara ubah tampilan tanpa
-     nyentuh JS-nya). */
+  /* ---------- HERO: dipendekin + rounded besar (kartu, bukan edge-to-
+     edge) — persis kayak desain referensi. .hero-carousel/.hero-slide/
+     .hero-slide-img dapet inline style dari JS, override pakai
+     !important cuma di breakpoint ini. */
+  .hero-carousel {
+    border-radius: 22px !important;
+    margin-bottom: 16px !important;
+  }
+  .hero-slide {
+    height: 170px !important;
+  }
+  .hero-slide-img {
+    position: absolute !important;
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+  .hero-slide-overlay {
+    padding: 14px 16px !important;
+  }
+  .hero-slide-overlay h2 { font-size: 17px !important; }
+  .hero-slide-overlay p { font-size: 11.5px !important; }
+
+  /* ---------- Judul beranda: lebih ringkas, jarak bawah dipangkas,
+     nama panjang dipotong ellipsis. Font-size inline dari JS, override
+     !important cuma di sini. */
   .app-content > h1.section-title:first-of-type {
-    font-size: 17px !important;
+    font-size: 16px !important;
+    margin-bottom: 14px !important;
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  /* Statistik & Menu Cepat: grid 2 kolom tetap (auto-fit bisa jatuh ke 1
-     kolom kalau lebar pas-pasan — dipaksa 2 kolom biar konsisten) */
+  /* ---------- Judul section (h2) di seluruh halaman: lebih kecil,
+     jarak bawah dipangkas dari 12-20px jadi konsisten 10px. */
+  h2.section-title {
+    font-size: 14.5px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* ---------- Statistik & Menu Cepat: tetap grid 2 kolom, tinggi
+     kartu ditarget ~90-100px lewat padding+font yang lebih rapat. */
   .stat-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    margin-bottom: 18px;
+    margin-bottom: 16px !important;
   }
   /* Kalau jumlah kartu ganjil, kartu terakhir sendirian di baris bawah —
      biar gak nyisain kotak kosong kayak "hantu", lebarin penuh 1 baris. */
@@ -631,27 +657,33 @@
     grid-column: 1 / -1;
   }
   .stat-grid .stat-card {
-    padding: 14px;
+    padding: 14px 14px 12px;
+    min-height: 92px;
+    justify-content: center;
   }
   .stat-grid .stat-icon {
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     margin-bottom: 6px;
-    font-size: 14px;
+    font-size: 12.5px;
+    border-radius: 9px;
   }
-  .stat-grid .stat-value { font-size: 20px; }
-  .stat-grid .stat-label { font-size: 11px; }
+  .stat-grid .stat-value { font-size: 19px; }
+  .stat-grid .stat-label { font-size: 10.5px; margin-top: 2px; }
 
-  /* Menu Cepat pakai class stat-grid juga — card lebih pendek */
+  /* Menu Cepat pakai class stat-grid juga — card lebih pendek & rapat */
   .card-hover {
-    padding: 14px;
+    padding: 13px 14px;
   }
+  .card-hover [style*="font-size:14px"] { font-size: 13px !important; }
+  .card-hover [style*="font-size:12px"] { font-size: 11px !important; }
 
-  /* Album Kenangan: horizontal scroll, bukan grid yang wrap ke banyak baris */
+  /* ---------- Album Kenangan: horizontal scroll, bukan grid yang wrap
+     ke banyak baris */
   .album-grid {
     display: flex;
     overflow-x: auto;
-    gap: 12px;
+    gap: 10px;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 4px;
@@ -663,8 +695,9 @@
     scroll-snap-align: start;
   }
 
-  /* Daftar Siswa: 1 kolom, kartu jadi baris horizontal (foto kecil + nama)
-     biar gak jadi kotak raksasa kalau dipaksa selebar layar */
+  /* ---------- Daftar Siswa: 1 kolom, kartu jadi baris horizontal (foto
+     kecil + nama) biar gak jadi kotak raksasa kalau dipaksa selebar
+     layar */
   .student-card-grid {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -673,13 +706,14 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    padding: 10px 12px;
   }
   .student-card-photo {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
     aspect-ratio: 1 / 1;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 15px;
     flex-shrink: 0;
   }
   .student-card-info {
@@ -687,15 +721,43 @@
     min-width: 0;
   }
 
-  /* Pengumuman: card lebih compact */
-  .list-item {
-    padding: 10px 12px;
+  /* ---------- Pengumuman: card lebih compact, jarak antar item & section
+     dipangkas */
+  .list-plain {
+    gap: 8px;
+    margin-bottom: 16px !important;
   }
-  .list-item-title { font-size: 13px; }
-  .list-item-meta { font-size: 11.5px; }
+  .list-item {
+    padding: 11px 13px;
+  }
+  .list-item-title { font-size: 12.5px; }
+  .list-item-meta { font-size: 11px; margin-top: 2px; }
 
-  /* Semua section konten pakai padding 16px yang konsisten */
-  .app-content {
-    padding: 16px;
+  /* ---------- Jadwal: tab hari & kartu jam lebih rapat */
+  .day-tabs {
+    gap: 5px;
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+  }
+  .day-tab {
+    padding: 6px 13px;
+    font-size: 11.5px;
+  }
+  .day-slide .table tr {
+    padding: 9px 12px;
+    margin-bottom: 8px;
+  }
+  .day-slide .table td {
+    padding: 4px 0;
+  }
+
+  /* ---------- Header "Album Kenangan" (card-header dengan tombol Lihat
+     Semua) — margin-top gede dari JS dipangkas */
+  .card-header {
+    margin-bottom: 10px !important;
+  }
+  .card-header[style*="margin-top:28px"] {
+    margin-top: 18px !important;
   }
 }
+
