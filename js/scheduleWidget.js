@@ -79,20 +79,42 @@ export function bindScheduleWeek(idPrefix = 'sw') {
     tabs.forEach(t => t.classList.toggle('active', Number(t.dataset.day) === day));
   }
 
+  // Tinggi track ikutin slide yang lagi aktif doang (bukan slide paling
+  // tinggi di antara 7 hari) — sebelumnya flex-row bikin semua slide
+  // "stretch" ke tinggi hari yang jadwalnya paling banyak, jadi pas lagi
+  // buka hari yang kosong/dikit malah nyisa kotak kosong gede di bawahnya.
+  function setTrackHeight(day) {
+    const idx = ALL_DAYS.indexOf(day);
+    const slideEl = track.children[idx];
+    if (slideEl) track.style.height = `${slideEl.offsetHeight}px`;
+  }
+
   function scrollToDay(day, smooth = true) {
     const idx = ALL_DAYS.indexOf(day);
     track.scrollTo({ left: track.clientWidth * idx, behavior: smooth ? 'smooth' : 'auto' });
     setActiveTab(day);
+    setTrackHeight(day);
   }
 
   // Langsung buka di hari ini tanpa animasi (biar gak keliatan "geser" pas baru buka)
   scrollToDay(todayDbDay(), false);
 
+  // Safety-net: recompute sesaat setelah render pertama (jaga-jaga font/layout
+  // belum settle pas offsetHeight pertama kali dibaca) & tiap resize/orientasi
+  // layar berubah.
+  setTimeout(() => setTrackHeight(todayDbDay()), 150);
+  window.addEventListener('resize', () => {
+    const activeTab = tabs.find(t => t.classList.contains('active'));
+    setTrackHeight(activeTab ? Number(activeTab.dataset.day) : todayDbDay());
+  });
+
   track.addEventListener('scroll', () => {
     clearTimeout(track._scrollTimer);
     track._scrollTimer = setTimeout(() => {
       const idx = Math.round(track.scrollLeft / track.clientWidth);
-      setActiveTab(ALL_DAYS[idx] ?? todayDbDay());
+      const day = ALL_DAYS[idx] ?? todayDbDay();
+      setActiveTab(day);
+      setTrackHeight(day);
     }, 80);
   });
 
