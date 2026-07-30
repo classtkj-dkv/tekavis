@@ -81,7 +81,7 @@ async function bootstrap() {
     app.innerHTML = `
       <div class="app-shell">
         ${renderSidebar(role, siteName, settings?.logo_url, me?.permissions)}
-        <div>
+        <div class="app-main">
           ${renderNavbar(me?.profile, me?.email)}
           <main class="app-content" id="page-content"></main>
           <footer class="app-footer">
