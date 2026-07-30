@@ -1,3 +1,4 @@
+/* pages.css */
 /* ============================================================
    AUTH (login / register)
    ============================================================ */
@@ -7,150 +8,125 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 24px;
   background-color: var(--color-bg);
 }
 
 .auth-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-xl);
-  padding: 36px 32px;
+  padding: 48px 40px;
   box-shadow: var(--shadow-lg);
-  animation: authFadeUp .35s ease;
+  background: var(--color-card);
+  animation: authFadeUp .4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes authFadeUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.auth-logo {
-  text-align: center;
-  margin-bottom: 8px;
-}
+.auth-logo { text-align: center; margin-bottom: 12px; }
 .auth-logo .auth-brand-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
   background: var(--gradient-brand);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 22px;
-  margin-bottom: 14px;
+  font-size: 28px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-md);
 }
 
-.auth-title { font-size: 21px; margin-bottom: 4px; text-align: center; }
-.auth-subtitle { font-size: 13px; color: var(--color-text-muted); margin-bottom: 22px; text-align: center; }
+.auth-title { font-size: 24px; margin-bottom: 8px; text-align: center; }
+.auth-subtitle { font-size: 15px; color: var(--color-text-muted); margin-bottom: 32px; text-align: center; }
 .auth-error {
   color: var(--color-danger);
-  font-size: 13px;
-  margin-top: 10px;
-  background: rgba(220,38,38,0.08);
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(220,38,38,0.2);
+  font-size: 14px;
+  margin-top: 12px;
+  background: rgba(220, 38, 38, 0.08);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(220, 38, 38, 0.2);
 }
-.auth-footer { margin-top: 18px; font-size: 13px; text-align: center; color: var(--color-text-muted); }
+.auth-footer { margin-top: 24px; font-size: 14px; text-align: center; color: var(--color-text-muted); }
 .auth-footer a { color: var(--color-primary); font-weight: 700; }
 .auth-footer a:hover { text-decoration: underline; }
 
-.auth-copyright {
-  text-align: center;
-  font-size: 11px;
-  color: var(--color-text-muted);
-  margin-top: 18px;
-}
+.auth-copyright { text-align: center; font-size: 13px; color: var(--color-text-muted); margin-top: 24px; }
 
 /* ============================================================
    DASHBOARD GRIDS
    ============================================================ */
+.section-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.01em; }
+
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 14px;
-  margin-bottom: 26px;
-}
-
-.section-title {
-  font-size: 17px;
-  font-weight: 800;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
 }
 
 .two-col {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 20px;
+  gap: 24px;
 }
 
-@media (max-width: 900px) {
-  .two-col { grid-template-columns: 1fr; }
-}
-
-.list-plain { display: flex; flex-direction: column; gap: 10px; }
+.list-plain { display: flex; flex-direction: column; gap: 12px; }
 .list-item {
-  padding: 13px 15px;
+  padding: 16px 20px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background-color: var(--color-surface);
-  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+  transition: all var(--transition-fast);
 }
-.list-item:hover { box-shadow: var(--shadow-xs); border-color: var(--color-primary); }
-.list-item-title { font-weight: 700; font-size: 13.5px; }
-.list-item-meta { font-size: 12px; color: var(--color-text-muted); margin-top: 3px; }
+.list-item:hover { box-shadow: var(--shadow-card); border-color: var(--color-primary); transform: translateY(-2px); }
+.list-item-title { font-weight: 700; font-size: 15px; color: var(--color-text-primary); }
+.list-item-meta { font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
 
 .empty-state {
-  padding: 28px 16px;
+  padding: 40px 24px;
   text-align: center;
   color: var(--color-text-muted);
-  font-size: 13px;
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-md);
+  font-size: 14px;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-bg-2);
 }
 
 /* ============================================================
    ROLES & PERMISSIONS
    ============================================================ */
-.role-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
+.role-list { display: flex; flex-direction: column; gap: 20px; }
 .role-card, .org-role-card {
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background-color: var(--color-card);
-  padding: 18px 20px;
+  padding: 24px;
+  box-shadow: var(--shadow-xs);
 }
-
 .permission-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 10px 16px;
-  margin-top: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px 20px;
+  margin-top: 16px;
 }
-
-.permission-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--color-text-secondary);
-}
-
+.permission-item { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--color-text-secondary); }
 .role-select {
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--color-border);
   background-color: var(--color-surface);
   color: var(--color-text-primary);
-  font-size: 12.5px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -159,94 +135,60 @@
    ============================================================ */
 .album-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 16px;
 }
-
 .album-card {
-  height: 160px;
+  height: 180px;
   background-size: cover;
   background-position: center;
   background-color: var(--color-bg-2);
   position: relative;
   overflow: hidden;
-  padding: 0;
   display: block;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xs);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
   transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
-.album-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
-
+.album-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 .album-card-overlay {
   position: absolute;
   inset: auto 0 0 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-  padding: 14px;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  padding: 20px;
   color: #fff;
 }
+.album-card-name { font-weight: 800; font-size: 16px; margin-bottom: 2px; }
+.album-card-meta { font-size: 13px; color: rgba(255, 255, 255, 0.8); }
 
-.album-card-name { font-weight: 700; font-size: 14px; }
-.album-card-meta { font-size: 12px; opacity: 0.85; }
-
-.photo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
-}
-
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
 .photo-thumb {
   aspect-ratio: 1;
   background-size: cover;
   background-position: center;
   background-color: var(--color-bg-2);
-  border-radius: var(--radius-md);
-  display: block;
-  transition: transform var(--transition-fast);
-}
-.photo-thumb:hover { transform: scale(1.02); }
-
-.photo-detail {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-}
-@media (max-width: 900px) {
-  .photo-detail { grid-template-columns: 1fr; }
-}
-
-.photo-detail-img {
-  width: 100%;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xs);
+  display: block;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
+.photo-thumb:hover { transform: scale(1.03); box-shadow: var(--shadow-md); }
 
+.photo-detail { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; }
+.photo-detail-img { width: 100%; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); }
 .photo-detail-info {
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 20px;
+  border-radius: var(--radius-xl);
+  padding: 24px;
 }
-
-.detail-list {
-  display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 10px 12px;
-  font-size: 13px;
-  margin: 0;
-}
-.detail-list dt { color: var(--color-text-muted); }
-.detail-list dd { margin: 0; }
+.detail-list { display: grid; grid-template-columns: 100px 1fr; gap: 12px 16px; font-size: 14px; margin: 0; }
+.detail-list dt { color: var(--color-text-muted); font-weight: 600; }
+.detail-list dd { margin: 0; font-weight: 500; }
 
 /* ============================================================
-   KARTU DETAIL SISWA (ID card style) & GRID KARTU SISWA
+   KARTU DETAIL SISWA & GRID KARTU SISWA
    ============================================================ */
-.id-card-modal {
-  max-width: 340px;
-  overflow: hidden;
-}
-
 .id-card-photo {
   position: relative;
   width: 100%;
@@ -258,82 +200,50 @@
   align-items: center;
   justify-content: center;
   color: var(--color-text-muted);
-  font-size: 40px;
+  font-size: 48px;
   font-weight: 800;
 }
-
 .id-card-major-badge {
   position: absolute;
-  left: 12px;
-  bottom: 12px;
-  background: rgba(0,0,0,0.55);
+  left: 16px;
+  bottom: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
 }
-
-.id-card-body {
-  padding: 18px 20px;
-}
-
-.id-card-fields {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.id-card-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 13px;
-}
-.id-card-row dt {
-  color: var(--color-text-muted);
-  font-weight: 600;
-  flex-shrink: 0;
-}
-.id-card-row dd {
-  margin: 0;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  text-align: right;
-}
-
+.id-card-body { padding: 24px; }
+.id-card-fields { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.id-card-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; font-size: 14px; }
+.id-card-row dt { color: var(--color-text-muted); font-weight: 600; flex-shrink: 0; }
+.id-card-row dd { margin: 0; font-weight: 700; color: var(--color-text-primary); text-align: right; }
 .id-card-footer {
-  padding: 12px 20px;
+  padding: 16px 24px;
   border-top: 1px solid var(--color-border);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-text-muted);
   text-align: center;
 }
 
 .student-card-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
 }
-@media (min-width: 640px) {
-  .student-card-grid { grid-template-columns: repeat(3, 1fr); }
-}
-@media (min-width: 1000px) {
-  .student-card-grid { grid-template-columns: repeat(4, 1fr); }
-}
-
 .student-card {
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: var(--shadow-xs);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  display: flex;
+  flex-direction: column;
 }
-.student-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
-
+.student-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-card); }
 .student-card-photo {
   width: 100%;
   aspect-ratio: 3 / 4;
@@ -344,31 +254,28 @@
   align-items: center;
   justify-content: center;
   color: var(--color-text-muted);
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 800;
 }
-
 .student-card-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 16px;
 }
-
 .student-card-name {
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .student-card-menu-btn {
   flex-shrink: 0;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
   border: none;
   background: var(--color-bg-2);
   color: var(--color-text-secondary);
@@ -376,41 +283,38 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--transition-fast);
 }
 .student-card-menu-btn:hover { background: var(--color-accent-light); color: var(--color-primary); }
 
 /* ============================================================
    PROFILE
    ============================================================ */
-.profile-card {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  max-width: 520px;
-}
+.profile-card { display: flex; gap: 24px; align-items: center; max-width: 600px; }
 .profile-avatar {
-  width: 72px;
-  height: 72px;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
   background: var(--gradient-brand);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 /* ============================================================
-   HERO CAROUSEL (beranda — foto yang bisa digeser)
+   HERO CAROUSEL
    ============================================================ */
 .hero-carousel {
   position: relative;
   border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
-  margin-bottom: 26px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 32px;
   background-color: var(--color-bg-2);
 }
 
@@ -429,17 +333,15 @@
   scroll-snap-align: center;
   position: relative;
   width: 100%;
-  overflow: hidden;
   background-color: var(--color-bg-2);
 }
 
-/* Foto tampil 100% utuh sesuai ukuran aslinya — lebar penuh, tinggi
-   ngikutin otomatis. Gak ada batasan/cap apapun, jadi gak akan pernah ada
-   letterbox/bar kosong di sisi manapun. */
 .hero-slide-img {
   display: block;
   width: 100%;
   height: auto;
+  object-fit: contain;
+  position: relative !important;
 }
 
 .hero-slide-overlay {
@@ -448,316 +350,172 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 20px 22px;
-  background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.1) 75%, transparent);
+  padding: 32px;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
   color: #fff;
   pointer-events: none;
 }
 
-.hero-slide-overlay .hero-badge,
-.hero-badge {
+.hero-slide-overlay .hero-badge, .hero-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
+  gap: 8px;
+  padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.18);
-  backdrop-filter: blur(6px);
-  font-size: 11px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 12px;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
-.hero-slide-overlay h2 {
-  font-size: 19px;
-  color: #fff;
-  margin-bottom: 4px;
-}
-
-.hero-slide-overlay p {
-  font-size: 12.5px;
-  color: rgba(255,255,255,0.85);
-}
+.hero-slide-overlay h2 { font-size: 24px; color: #fff; margin-bottom: 8px; }
+.hero-slide-overlay p { font-size: 15px; color: rgba(255, 255, 255, 0.9); max-width: 600px; }
 
 .hero-nav {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
   color: #fff;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  transition: background var(--transition-fast);
+  font-size: 16px;
+  transition: all var(--transition-fast);
+  z-index: 3;
 }
-.hero-nav:hover { background: rgba(0,0,0,0.55); }
-.hero-prev { left: 10px; }
-.hero-next { right: 10px; }
+.hero-nav:hover { background: rgba(0, 0, 0, 0.6); transform: translateY(-50%) scale(1.05); }
+.hero-prev { left: 16px; }
+.hero-next { right: 16px; }
 
 .hero-dots {
   position: absolute;
-  bottom: 10px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 6px;
+  gap: 8px;
+  z-index: 3;
 }
-
 .hero-dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   padding: 0;
   border: none;
   border-radius: 999px;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.4);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-base);
 }
-.hero-dot.active {
-  background: #fff;
-  width: 18px;
-}
-
-@media (max-width: 640px) {
-  .hero-nav { display: none; }
-}
+.hero-dot.active { background: #fff; width: 24px; }
 
 /* ============================================================
    STRUKTUR ORGANISASI
    ============================================================ */
-.org-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-}
-
-.org-role-label {
-  font-size: 14.5px;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-.org-role-top {
-  border: 1.5px solid var(--color-warning);
-  background: linear-gradient(135deg, rgba(217,119,6,0.06), transparent);
-}
-.org-role-top .org-role-label { font-size: 16px; }
-
-.org-member-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
+.org-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+.org-role-label { font-size: 16px; font-weight: 800; margin-bottom: 16px; }
+.org-role-top { border: 2px solid var(--color-warning); background: linear-gradient(135deg, rgba(217, 119, 6, 0.04), transparent); }
+.org-role-top .org-role-label { font-size: 18px; color: var(--color-warning); }
+.org-member-list { display: flex; flex-direction: column; gap: 12px; }
 .org-member {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 13px;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--color-text-secondary);
-  border-radius: var(--radius-sm);
+  padding: 8px;
+  border-radius: var(--radius-md);
   transition: background-color var(--transition-fast);
 }
-.org-member:hover {
-  background-color: var(--color-accent-light);
-  color: var(--color-primary);
-}
-
+.org-member:hover { background-color: var(--color-accent-light); color: var(--color-primary); }
 .org-avatar {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--gradient-brand);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
 }
 
 /* ============================================================
-   REFACTOR MOBILE (≤768px) — HANYA layout mobile, desktop tidak diubah.
-   Dibangun sebagai layout mobile TERSENDIRI (bukan layout desktop yang
-   diperkecil): hero dipendekin + rounded besar, semua card di-compact-in,
-   whitespace antar section dipangkas biar terasa kayak app native, bukan
-   website desktop yang dipaksa muat ke hp.
+   REFACTOR MOBILE PAGES (≤992px & ≤768px)
    ============================================================ */
-@media (max-width: 768px) {
-  /* Semua section konten pakai padding 16px yang konsisten, jarak antar
-     elemen langsung (bukan lewat margin gede tiap section) di-tighten
-     lewat * + * di bawah. */
-  .app-content {
-    padding: 16px;
-  }
-
-  /* ---------- HERO: dipendekin + rounded besar (kartu, bukan edge-to-
-     edge) — persis kayak desain referensi. .hero-carousel/.hero-slide/
-     .hero-slide-img dapet inline style dari JS, override pakai
-     !important cuma di breakpoint ini. */
-  .hero-carousel {
-    border-radius: 22px !important;
-    margin-bottom: 16px !important;
-  }
-  .hero-slide {
-    height: 170px !important;
-  }
-  .hero-slide-img {
-    position: absolute !important;
-    inset: 0 !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    object-position: center !important;
-  }
-  .hero-slide-overlay {
-    padding: 14px 16px !important;
-  }
-  .hero-slide-overlay h2 { font-size: 17px !important; }
-  .hero-slide-overlay p { font-size: 11.5px !important; }
-
-  /* ---------- Judul beranda: lebih ringkas, jarak bawah dipangkas,
-     nama panjang dipotong ellipsis. Font-size inline dari JS, override
-     !important cuma di sini. */
-  .app-content > h1.section-title:first-of-type {
-    font-size: 16px !important;
-    margin-bottom: 14px !important;
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* ---------- Judul section (h2) di seluruh halaman: lebih kecil,
-     jarak bawah dipangkas dari 12-20px jadi konsisten 10px. */
-  h2.section-title {
-    font-size: 14.5px !important;
-    margin-bottom: 10px !important;
-  }
-
-  /* ---------- Statistik & Menu Cepat: tetap grid 2 kolom, tinggi
-     kartu ditarget ~90-100px lewat padding+font yang lebih rapat. */
-  .stat-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 16px !important;
-  }
-  /* Kalau jumlah kartu ganjil, kartu terakhir sendirian di baris bawah —
-     biar gak nyisain kotak kosong kayak "hantu", lebarin penuh 1 baris. */
-  .stat-grid > *:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-  }
-  .stat-grid .stat-card {
-    padding: 14px 14px 12px;
-    min-height: 92px;
-    justify-content: center;
-  }
-  .stat-grid .stat-icon {
-    width: 30px;
-    height: 30px;
-    margin-bottom: 6px;
-    font-size: 12.5px;
-    border-radius: 9px;
-  }
-  .stat-grid .stat-value { font-size: 19px; }
-  .stat-grid .stat-label { font-size: 10.5px; margin-top: 2px; }
-
-  /* Menu Cepat pakai class stat-grid juga — card lebih pendek & rapat */
-  .card-hover {
-    padding: 13px 14px;
-  }
-  .card-hover [style*="font-size:14px"] { font-size: 13px !important; }
-  .card-hover [style*="font-size:12px"] { font-size: 11px !important; }
-
-  /* ---------- Album Kenangan: horizontal scroll, bukan grid yang wrap
-     ke banyak baris */
-  .album-grid {
-    display: flex;
-    overflow-x: auto;
-    gap: 10px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
-  }
-  .album-grid .album-card {
-    flex: 0 0 42%;
-    aspect-ratio: 1 / 1;
-    height: auto;
-    scroll-snap-align: start;
-  }
-
-  /* ---------- Daftar Siswa: 1 kolom, kartu jadi baris horizontal (foto
-     kecil + nama) biar gak jadi kotak raksasa kalau dipaksa selebar
-     layar */
-  .student-card-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  .student-card {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 10px 12px;
-  }
-  .student-card-photo {
-    width: 48px;
-    height: 48px;
-    aspect-ratio: 1 / 1;
-    border-radius: 10px;
-    font-size: 15px;
-    flex-shrink: 0;
-  }
-  .student-card-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  /* ---------- Pengumuman: card lebih compact, jarak antar item & section
-     dipangkas */
-  .list-plain {
-    gap: 8px;
-    margin-bottom: 16px !important;
-  }
-  .list-item {
-    padding: 11px 13px;
-  }
-  .list-item-title { font-size: 12.5px; }
-  .list-item-meta { font-size: 11px; margin-top: 2px; }
-
-  /* ---------- Jadwal: tab hari & kartu jam lebih rapat */
-  .day-tabs {
-    gap: 5px;
-    padding-bottom: 8px;
-    margin-bottom: 4px;
-  }
-  .day-tab {
-    padding: 6px 13px;
-    font-size: 11.5px;
-  }
-  .day-slide .table tr {
-    padding: 9px 12px;
-    margin-bottom: 8px;
-  }
-  .day-slide .table td {
-    padding: 4px 0;
-  }
-
-  /* ---------- Header "Album Kenangan" (card-header dengan tombol Lihat
-     Semua) — margin-top gede dari JS dipangkas */
-  .card-header {
-    margin-bottom: 10px !important;
-  }
-  .card-header[style*="margin-top:28px"] {
-    margin-top: 18px !important;
-  }
+@media (max-width: 992px) {
+  .two-col, .photo-detail { grid-template-columns: 1fr; gap: 20px; }
 }
 
+@media (max-width: 768px) {
+  /* Headings Adjustments */
+  .section-title { font-size: 16px; margin-bottom: 12px; }
+  h1.section-title:first-of-type { font-size: 20px; margin-bottom: 16px; }
+
+  /* Hero Adjustments */
+  .hero-carousel { margin-bottom: 24px !important; border-radius: var(--radius-lg) !important; }
+  .hero-slide { height: auto !important; }
+  .hero-slide-overlay { padding: 20px 16px !important; }
+  .hero-slide-overlay h2 { font-size: 18px !important; }
+  .hero-slide-overlay p { font-size: 13px !important; }
+  .hero-nav { display: none; }
+  .hero-dots { bottom: 12px; }
+
+  /* Stat Grids & Quick Menu */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px !important;
+  }
+  .stat-grid > *:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .stat-card { gap: 4px; padding: 16px; min-height: auto; }
+  .stat-card .stat-icon { width: 40px; height: 40px; font-size: 16px; margin-bottom: 8px; }
+  .stat-card .stat-value { font-size: 22px; }
+  .stat-card .stat-label { font-size: 12px; }
+  .card-hover { padding: 16px; border-radius: var(--radius-lg); }
+
+  /* Album Grid - Pure Grid (No Horizontal Scroll) */
+  .album-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    display: grid !important;
+    overflow-x: visible !important;
+    padding-bottom: 0 !important;
+  }
+  .album-card { height: 140px; border-radius: var(--radius-md); flex: none; aspect-ratio: auto; }
+  .album-card-overlay { padding: 12px; }
+  .album-card-name { font-size: 14px; }
+  .album-card-meta { font-size: 12px; }
+
+  /* Photo Details Grid */
+  .photo-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* Student Cards - Keep Grid */
+  .student-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .student-card { border-radius: var(--radius-md); display: flex; flex-direction: column; padding: 0; }
+  .student-card-photo { aspect-ratio: 3 / 4; width: 100%; border-radius: 0; }
+  .student-card-info { padding: 12px 10px; flex-wrap: wrap; }
+  .student-card-name { font-size: 13px; }
+
+  /* Lists Plain */
+  .list-plain { gap: 10px; margin-bottom: 16px !important; }
+  .list-item { padding: 14px 16px; border-radius: var(--radius-md); }
+  .list-item-title { font-size: 14px; }
+
+  /* General Cards / Headers */
+  .card-header { margin-bottom: 12px !important; }
+}
