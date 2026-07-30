@@ -4,6 +4,16 @@
   min-height: 100vh;
 }
 
+/* Grid item kolom "1fr" (pembungkus navbar+konten+footer). Grid item
+   default-nya min-width:auto — artinya gak bisa menyusut di bawah ukuran
+   konten paling lebar di dalamnya (misal .table yang min-width:560px).
+   min-width:0 di sini motong rantai itu di sumbernya, jadi child manapun
+   yang punya min-width besar gak akan pernah lagi memaksa .app-shell —
+   dan seluruh halaman — melebar. Ini ROOT CAUSE fix. */
+.app-main {
+  min-width: 0;
+}
+
 /* ---------- Sidebar ---------- */
 .sidebar {
   background-color: var(--color-sidebar);

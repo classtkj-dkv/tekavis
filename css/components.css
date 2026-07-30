@@ -417,9 +417,16 @@ select.input {
     background: none;
   }
 
+  /* min-width:560px dari rule dasar .table (buat scroll horizontal di
+     mobile tabel biasa) HARUS direset di sini — sebelumnya cuma
+     width:100% yang diset, padahal min-width selalu menang atas width
+     kalau bentrok. Itu yang bikin .table masih maksa lebar ≥560px
+     walau layarnya HP, lalu ngerembet maksa .app-shell ikut melebar. */
   .table, .table tbody, .table tr, .table td {
     display: block;
     width: 100%;
+    min-width: 0;
+    overflow: visible;
   }
 
   .table thead { display: none; }
