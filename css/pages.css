@@ -591,18 +591,6 @@
    .hero-slide-overlay, terlepas dari berapa pun tinggi fotonya.
    ============================================================ */
 @media (max-width: 768px) {
-  /* Banner khusus mobile: full-bleed nempel ke tepi kiri-kanan layar,
-     lepas dari padding 16px .app-content, tanpa rounded corner — beda
-     dari desktop yang tetap tampil sebagai card rounded dengan margin.
-     .hero-carousel dapet inline style border-radius dari JS, jadi
-     override juga pakai !important. */
-  .hero-carousel {
-    width: 100vw !important;
-    margin-left: calc(50% - 50vw) !important;
-    margin-right: calc(50% - 50vw) !important;
-    border-radius: 0 !important;
-  }
-
   /* .hero-slide & .hero-slide-img dapet inline style dari JS (gak boleh
      diubah sesuai instruksi) — override pakai !important cuma di sini,
      khusus mobile, buat "matikan" cover-crop dan balikin ke natural size. */
