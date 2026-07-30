@@ -108,6 +108,16 @@ async function bootstrap() {
           document.getElementById('sidebar')?.classList.remove('sidebar-open');
         }
       });
+
+      // Tap di luar sidebar (area backdrop gelap) buat nutup drawer di
+      // mobile — sebelumnya cuma bisa ditutup lewat tombol hamburger lagi
+      // atau nge-klik link, jadi berasa gak natural buat pola mobile.
+      document.addEventListener('click', (e) => {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar?.classList.contains('sidebar-open')) return;
+        if (e.target.closest('#sidebar') || e.target.closest('#sidebar-toggle')) return;
+        sidebar.classList.remove('sidebar-open');
+      });
     }
 
     if (me) {
