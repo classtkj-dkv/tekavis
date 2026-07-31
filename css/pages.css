@@ -560,9 +560,16 @@
   align-items: center;
   gap: 10px;
   font-size: 13px;
+  font-family: inherit;
   color: var(--color-text-secondary);
   border-radius: var(--radius-sm);
   transition: background-color var(--transition-fast);
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
 }
 .org-member:hover {
   background-color: var(--color-accent-light);
@@ -581,6 +588,120 @@
   font-size: 12px;
   font-weight: 700;
   flex-shrink: 0;
+}
+
+/* ============================================================
+   STRUKTUR ORGANISASI — TREE BERPASANGAN
+   Wali Kelas di atas, cabang ke 2 kolom (Ketua/Wakil, lalu pasangan role
+   lain), garis penghubung murni CSS (::before), otomatis nyesuain kalau
+   ada slot yang kosong/disembunyikan (lihat buildOrgTree di struktur.js).
+   ============================================================ */
+.org-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.org-node {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-xs);
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+.org-node-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+.org-node-members {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.org-node .org-member { padding: 2px 0; }
+.org-member-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.org-node-top {
+  border-color: var(--color-warning);
+  background: linear-gradient(135deg, rgba(217,119,6,0.08), var(--color-card));
+  text-align: center;
+  min-width: 200px;
+}
+.org-node-top .org-node-label { color: var(--color-warning); }
+.org-node-top .org-node-members { align-items: center; }
+
+/* Garis vertikal dari Wali Kelas turun ke cabang */
+.org-top-wrap {
+  position: relative;
+  padding-bottom: 24px;
+}
+.org-top-wrap::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 2px;
+  height: 24px;
+  background: var(--color-border);
+  transform: translateX(-50%);
+}
+
+.org-branch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+  max-width: 640px;
+  position: relative;
+  padding-top: 20px;
+}
+/* Bar horizontal + 2 stub turun ke tiap kolom — hidup cuma kalau ada
+   minimal 1 kolom terisi (parent .org-branch cuma dirender kalau ada isi) */
+.org-branch::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 2px;
+  background: var(--color-border);
+}
+.org-branch-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+.org-branch-col::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -20px;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+.org-branch-col .org-node { width: 100%; }
+
+.org-solo-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  width: 100%;
 }
 
 /* ============================================================
@@ -759,5 +880,12 @@
   .card-header[style*="margin-top:28px"] {
     margin-top: 18px !important;
   }
+  /* ---------- Struktur Organisasi: node lebih compact di mobile ---------- */
+  .org-node { padding: 10px 12px; }
+  .org-node-top { min-width: 0; width: 100%; }
+  .org-branch { gap: 12px; max-width: 100%; }
+  .org-branch-col { gap: 14px; }
+  .org-avatar { width: 26px; height: 26px; font-size: 11px; }
+  .org-member { font-size: 12px; }
 }
 
