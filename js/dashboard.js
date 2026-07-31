@@ -2,6 +2,7 @@ import { api } from './apiClient.js';
 import { getSession } from './session.js';
 import { renderScheduleWeek, bindScheduleWeek } from './scheduleWidget.js';
 import { studentDetailDialogHtml, bindStudentDetailClicks } from './studentDetail.js';
+import { buildOrgTree, bindMemberDetailClicks } from './struktur.js';
 
 const STAT_ICON_CYCLE = [
   { icon: 'fa-solid fa-user-graduate', chip: 'si-blue' },
@@ -61,6 +62,40 @@ function buildRolePanel(role, permissions = {}) {
   }
 
   return panel;
+}
+
+// Widget ringkas struktur organisasi di beranda: Wali Kelas + Ketua/Wakil
+// aja (biar gak makan tempat), pakai pairing logic yang sama kayak
+// halaman /struktur — otomatis kosong kalau belum ada yang diisi.
+function orgPreviewMember(m, roleLabel) {
+  const initial = (m.full_name || 'U').trim().slice(0, 1).toUpperCase();
+  return `
+    <button type="button" class="org-member member-detail-trigger" data-id="${m.id}" data-role-label="${roleLabel}">
+      <span class="org-avatar" style="${m.avatar_url ? `background-image:url('${m.avatar_url}'); background-size:cover; background-position:center;` : ''}">${m.avatar_url ? '' : initial}</span>
+      <span class="org-member-name">${m.full_name || 'Tanpa nama'}</span>
+    </button>
+  `;
+}
+
+function orgPreviewSection(structure) {
+  const tree = buildOrgTree(structure);
+  const rows = [tree.top, ...(tree.leaderRow || [])].filter(r => r && r.members?.length);
+  if (!rows.length) return '';
+
+  return `
+    <div class="card-header" style="margin-top:28px;">
+      <h2 class="section-title" style="margin:0;">Struktur Organisasi</h2>
+      <a href="#/struktur" class="btn btn-secondary btn-sm">Lihat Semua</a>
+    </div>
+    <div class="list-plain" style="margin-bottom:24px;">
+      ${rows.map(role => `
+        <div class="list-item" style="display:flex; flex-direction:column; gap:8px;">
+          <span class="list-item-meta" style="text-transform:uppercase; letter-spacing:0.02em;">${role.label}</span>
+          ${role.members.map(m => orgPreviewMember(m, role.label)).join('')}
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
 
 function panelCard(item) {
@@ -244,12 +279,13 @@ export default async function renderDashboardPage(container) {
   const canViewKas = role === 'owner' || perms.view_kas;
   const isOwner = role === 'owner';
 
-  const [announcements, schedule, settings, students, albums] = await Promise.all([
+  const [announcements, schedule, settings, students, albums, orgStructure] = await Promise.all([
     api.get('/api/announcements').catch(() => []),
     api.get('/api/schedule').catch(() => []),
     api.get('/api/settings').catch(() => null),
     api.get('/api/students').catch(() => []), // publik — gak digantungin status login
     api.get('/api/albums').catch(() => []), // publik juga
+    api.get('/api/misc', { resource: 'org-structure' }).catch(() => []),
   ]);
 
   let stats = '';
@@ -296,6 +332,8 @@ export default async function renderDashboardPage(container) {
     <h2 class="section-title">Jadwal Hari Ini</h2>
     ${renderScheduleWeek(schedule, { canManage: false, idPrefix: 'dash-sched' })}
 
+    ${orgPreviewSection(orgStructure)}
+
     <div class="card-header" style="margin-top:28px;">
       <div>
         <h2 class="section-title" style="margin:0;">Album Kenangan</h2>
@@ -318,10 +356,15 @@ export default async function renderDashboardPage(container) {
     ` : '<div class="empty-state">Belum ada album.</div>'}
 
     ${studentListSection(students.slice(0, 8))}
+
+    <dialog id="member-detail-dialog" class="modal id-card-modal">
+      <div class="modal-content" id="member-detail-body" style="padding:0;"></div>
+    </dialog>
   `;
 
   bindHeroCarousel();
   bindScheduleWeek('dash-sched');
+  bindMemberDetailClicks(orgStructure.flatMap(role => (role.members || []).map(m => ({ ...m, roleLabel: role.label }))));
   bindStudentSearch();
   bindStudentDetailClicks('#student-list .detail-trigger', students, 'dash', settings?.contact?.card_footer || settings?.site_name || 'Class Tekavis');
 }

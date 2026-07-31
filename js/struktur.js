@@ -1,60 +1,147 @@
 import { api } from './apiClient.js';
 
-function memberCard(m, role) {
-  const initials = (m.full_name || 'U').trim().slice(0, 1).toUpperCase();
+// ============================================================
+// PAIRING LOGIC — murni di frontend, gak nyentuh data/backend.
+// "Ketua" & "Wakil" di-hardcode sebagai pasangan baris pertama (sesuai
+// role bawaan sistem, lihat supabase/0001_init.sql). Role lain dipasangin
+// otomatis kalau labelnya "X" & "X 2" (mis. "Sekretaris" & "Sekretaris 2",
+// "Bendahara" & "Bendahara 2") — Owner tinggal nambah role baru lewat
+// halaman Role & Permission pakai pola penamaan itu buat bikin baris
+// baru di tree ini. Role yang gak punya pasangan (custom, mis. "Humas")
+// otomatis masuk ke daftar "Jabatan Lain" di bawah — ini yang jadi slot
+// buat jabatan tambahan, dinamis sesuai role yang Owner buat, BUKAN
+// kotak kosong statis.
+// ============================================================
+function baseLabel(label) {
+  return String(label || '').trim().replace(/\s+(2|ii)$/i, '').trim().toLowerCase();
+}
+
+function isFilled(role) {
+  return !!(role && role.members && role.members.length);
+}
+
+export function buildOrgTree(structure) {
+  const top = structure.find(r => r.name === 'admin') || null;
+  const ketua = structure.find(r => r.name === 'ketua') || null;
+  const wakil = structure.find(r => r.name === 'wakil') || null;
+  const usedIds = new Set([top, ketua, wakil].filter(Boolean).map(r => r.id));
+
+  const rest = structure.filter(r => !usedIds.has(r.id));
+  const groups = new Map();
+  rest.forEach(r => {
+    const key = baseLabel(r.label);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(r);
+  });
+
+  const pairRows = [];
+  const solos = [];
+  groups.forEach(list => {
+    if (list.length >= 2) {
+      list.sort((a, b) => a.label.length - b.label.length);
+      pairRows.push([list[0], list[1]]);
+      list.slice(2).forEach(r => solos.push(r));
+    } else {
+      solos.push(list[0]);
+    }
+  });
+
+  return {
+    top,
+    leaderRow: (isFilled(ketua) || isFilled(wakil)) ? [ketua, wakil] : null,
+    pairRows: pairRows.filter(([a, b]) => isFilled(a) || isFilled(b)),
+    solos: solos.filter(isFilled),
+  };
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function initials(name) {
+  return (name || 'U').trim().slice(0, 1).toUpperCase();
+}
+
+function orgMember(m, roleLabel) {
   return `
-    <button type="button" class="org-member member-detail-trigger" data-id="${m.id}" data-role-label="${role.label}" style="border:none; background:none; padding:0; cursor:pointer; text-align:left; width:100%;">
-      <div class="org-avatar" style="${m.avatar_url ? `background-image:url('${m.avatar_url}'); background-size:cover; background-position:center;` : ''}">${m.avatar_url ? '' : initials}</div>
-      <span>${m.full_name || 'Tanpa nama'}</span>
-      <i class="fa-solid fa-chevron-right" style="margin-left:auto; color:var(--color-text-muted); font-size:11px;"></i>
+    <button type="button" class="org-member member-detail-trigger" data-id="${m.id}" data-role-label="${roleLabel}">
+      <span class="org-avatar" style="${m.avatar_url ? `background-image:url('${m.avatar_url}'); background-size:cover; background-position:center;` : ''}">${m.avatar_url ? '' : initials(m.full_name)}</span>
+      <span class="org-member-name">${m.full_name || 'Tanpa nama'}</span>
     </button>
   `;
 }
 
-function roleCard(role, isTop = false) {
-  const members = role.members || [];
+function orgNode(role, variant = '') {
+  if (!isFilled(role)) return '';
   return `
-    <div class="card org-role-card ${isTop ? 'org-role-top' : ''}">
-      <h2 class="org-role-label">${isTop ? '<i class="fa-solid fa-crown" style="color:var(--color-warning); margin-right:6px;"></i>' : ''}${role.label}</h2>
-      ${members.length
-        ? `<div class="org-member-list">${members.map(m => memberCard(m, role)).join('')}</div>`
-        : `<p class="empty-state" style="padding:12px 0;">Belum diisi</p>`
-      }
+    <div class="org-node ${variant}">
+      <div class="org-node-label">${role.label}</div>
+      <div class="org-node-members">${role.members.map(m => orgMember(m, role.label)).join('')}</div>
     </div>
   `;
 }
 
 export default async function renderStrukturPage(container) {
   const structure = await api.get('/api/misc', { resource: 'org-structure' }).catch(() => []);
-  const [top, ...rest] = structure;
-
   const allMembers = structure.flatMap(role => (role.members || []).map(m => ({ ...m, roleLabel: role.label })));
+  const tree = buildOrgTree(structure);
+  const hasAnything = tree.top || tree.leaderRow || tree.pairRows.length || tree.solos.length;
 
   container.innerHTML = `
     <h1 class="section-title">Struktur Organisasi</h1>
-    <p style="font-size:13px; color:var(--color-text-muted); margin-bottom:16px;">
-      Satu jabatan bisa diisi 1 atau lebih orang (misal Sekretaris 1 &amp; Sekretaris 2). Ketuk nama buat lihat profilnya.
+    <p style="font-size:13px; color:var(--color-text-muted); margin-bottom:20px;">
+      Susunan pengurus kelas. Ketuk nama buat lihat profilnya.
     </p>
-    ${!structure.length ? '<div class="empty-state">Belum ada jabatan yang dibuat. Owner bisa menambah lewat halaman Role &amp; Permission.</div>' : ''}
-    ${top ? `<div style="margin-bottom:16px;">${roleCard(top, true)}</div>` : ''}
-    ${rest.length ? `<div class="org-grid">${rest.map(r => roleCard(r)).join('')}</div>` : ''}
+
+    ${!hasAnything ? '<div class="empty-state">Belum ada jabatan yang diisi. Owner bisa menambah lewat halaman Role &amp; Permission, lalu isi anggotanya lewat Kelola User.</div>' : `
+      <div class="org-chart">
+        ${isFilled(tree.top) ? `
+          <div class="org-top-wrap">
+            ${orgNode(tree.top, 'org-node-top')}
+          </div>
+        ` : ''}
+
+        ${tree.leaderRow || tree.pairRows.length ? `
+          <div class="org-branch">
+            <div class="org-branch-col">
+              ${tree.leaderRow ? orgNode(tree.leaderRow[0]) : ''}
+              ${tree.pairRows.map(([a]) => orgNode(a)).join('')}
+            </div>
+            <div class="org-branch-col">
+              ${tree.leaderRow ? orgNode(tree.leaderRow[1]) : ''}
+              ${tree.pairRows.map(([, b]) => orgNode(b)).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${tree.solos.length ? `
+          <h2 class="section-title" style="font-size:14.5px; margin:20px 0 10px;">Jabatan Lain</h2>
+          <div class="org-solo-list">${tree.solos.map(r => orgNode(r)).join('')}</div>
+        ` : ''}
+      </div>
+    `}
 
     <dialog id="member-detail-dialog" class="modal id-card-modal">
       <div class="modal-content" id="member-detail-body" style="padding:0;"></div>
     </dialog>
   `;
 
+  bindMemberDetailClicks(allMembers);
+}
+
+// Diekspor biar dashboard.js bisa pakai modal detail yang sama persis
+// (satu sumber kebenaran buat tampilan kartu ID anggota).
+export function bindMemberDetailClicks(allMembers, selector = '.member-detail-trigger') {
   const dialog = document.getElementById('member-detail-dialog');
   const body = document.getElementById('member-detail-body');
+  if (!dialog || !body) return;
 
-  document.querySelectorAll('.member-detail-trigger').forEach(btn => {
+  document.querySelectorAll(selector).forEach(btn => {
     btn.addEventListener('click', () => {
       const m = allMembers.find(x => x.id === btn.dataset.id);
       if (!m) return;
-      const initials = (m.full_name || 'U').trim().slice(0, 1).toUpperCase();
       const rows = [
         ['🏷️', 'Nama', m.full_name],
-        ['🪪', 'Jabatan', m.roleLabel],
+        ['🪪', 'Jabatan', m.roleLabel ?? btn.dataset.roleLabel],
         m.motto ? ['💬', 'Moto', m.motto] : null,
         m.hobby ? ['🎮', 'Hobi', m.hobby] : null,
         m.dream_job ? ['🚀', 'Cita-cita', m.dream_job] : null,
@@ -62,8 +149,8 @@ export default async function renderStrukturPage(container) {
 
       body.innerHTML = `
         <div class="id-card-photo" style="${m.avatar_url ? `background-image:url('${m.avatar_url}')` : ''}">
-          ${!m.avatar_url ? `<span>${initials}</span>` : ''}
-          <span class="id-card-major-badge">${m.roleLabel}</span>
+          ${!m.avatar_url ? `<span>${initials(m.full_name)}</span>` : ''}
+          <span class="id-card-major-badge">${m.roleLabel ?? btn.dataset.roleLabel}</span>
           <button type="button" class="icon-btn" onclick="this.closest('dialog').close()" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.4); color:#fff;"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="id-card-body">
