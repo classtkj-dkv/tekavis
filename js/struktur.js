@@ -2,22 +2,19 @@ import { api } from './apiClient.js';
 
 // ============================================================
 // PAIRING LOGIC — murni di frontend, gak nyentuh data/backend.
-// "Ketua" & "Wakil" di-hardcode sebagai pasangan baris pertama (sesuai
-// role bawaan sistem, lihat supabase/0001_init.sql). Role lain dipasangin
-// otomatis kalau labelnya "X" & "X 2" (mis. "Sekretaris" & "Sekretaris 2",
-// "Bendahara" & "Bendahara 2") — Owner tinggal nambah role baru lewat
-// halaman Role & Permission pakai pola penamaan itu buat bikin baris
-// baru di tree ini. Role yang gak punya pasangan (custom, mis. "Humas")
-// otomatis masuk ke daftar "Jabatan Lain" di bawah — ini yang jadi slot
-// buat jabatan tambahan, dinamis sesuai role yang Owner buat, BUKAN
-// kotak kosong statis.
+// "Ketua" & "Wakil" jadi baris pertama (role bawaan sistem). Role lain
+// dipasangin berdasarkan nama dasar yang sama (mis. "Bendahara" &
+// "Bendahara 2" jadi 1 baris cabang). Role yang beneran gak punya
+// pasangan (mis. cuma ada "Sekretaris" doang, gak ada "Sekretaris 2")
+// tetap nyatu di alur yang sama sebagai baris SOLO di tengah — bukan
+// dipisah ke section lain. Urutannya ngikutin urutan asli dari API.
 // ============================================================
-function baseLabel(label) {
-  return String(label || '').trim().replace(/\s+(2|ii)$/i, '').trim().toLowerCase();
-}
-
 function isFilled(role) {
   return !!(role && role.members && role.members.length);
+}
+
+function baseLabel(label) {
+  return String(label || '').trim().replace(/\s+(2|ii)$/i, '').trim().toLowerCase();
 }
 
 export function buildOrgTree(structure) {
@@ -26,7 +23,10 @@ export function buildOrgTree(structure) {
   const wakil = structure.find(r => r.name === 'wakil') || null;
   const usedIds = new Set([top, ketua, wakil].filter(Boolean).map(r => r.id));
 
-  const rest = structure.filter(r => !usedIds.has(r.id));
+  const rows = [];
+  if (isFilled(ketua) || isFilled(wakil)) rows.push([ketua, wakil]);
+
+  const rest = structure.filter(r => !usedIds.has(r.id) && isFilled(r));
   const groups = new Map();
   rest.forEach(r => {
     const key = baseLabel(r.label);
@@ -34,24 +34,18 @@ export function buildOrgTree(structure) {
     groups.get(key).push(r);
   });
 
-  const pairRows = [];
-  const solos = [];
-  groups.forEach(list => {
-    if (list.length >= 2) {
-      list.sort((a, b) => a.label.length - b.label.length);
-      pairRows.push([list[0], list[1]]);
-      list.slice(2).forEach(r => solos.push(r));
-    } else {
-      solos.push(list[0]);
+  const seenKeys = new Set();
+  rest.forEach(r => {
+    const key = baseLabel(r.label);
+    if (seenKeys.has(key)) return;
+    seenKeys.add(key);
+    const group = groups.get(key).slice().sort((a, b) => a.label.length - b.label.length);
+    for (let i = 0; i < group.length; i += 2) {
+      rows.push([group[i], group[i + 1] || null]);
     }
   });
 
-  return {
-    top,
-    leaderRow: (isFilled(ketua) || isFilled(wakil)) ? [ketua, wakil] : null,
-    pairRows: pairRows.filter(([a, b]) => isFilled(a) || isFilled(b)),
-    solos: solos.filter(isFilled),
-  };
+  return { top, rows };
 }
 
 // ============================================================
@@ -80,11 +74,22 @@ function orgNode(role, variant = '') {
   `;
 }
 
+// Satu baris = 2 kotak berdampingan (kalau berpasangan) ATAU 1 kotak
+// yang nempel di tengah, ngambang di atas garis trunk (kalau solo).
+function orgRow([a, b]) {
+  if (isFilled(a) && isFilled(b)) {
+    return orgNode(a) + orgNode(b);
+  }
+  const solo = isFilled(a) ? a : b;
+  if (!isFilled(solo)) return '';
+  return `<div class="org-node-solo">${orgNode(solo)}</div>`;
+}
+
 export default async function renderStrukturPage(container) {
   const structure = await api.get('/api/misc', { resource: 'org-structure' }).catch(() => []);
   const allMembers = structure.flatMap(role => (role.members || []).map(m => ({ ...m, roleLabel: role.label })));
   const tree = buildOrgTree(structure);
-  const hasAnything = tree.top || tree.leaderRow || tree.pairRows.length || tree.solos.length;
+  const hasAnything = isFilled(tree.top) || tree.rows.length;
 
   container.innerHTML = `
     <h1 class="section-title">Struktur Organisasi</h1>
@@ -100,22 +105,10 @@ export default async function renderStrukturPage(container) {
           </div>
         ` : ''}
 
-        ${tree.leaderRow || tree.pairRows.length ? `
+        ${tree.rows.length ? `
           <div class="org-branch">
-            <div class="org-branch-col">
-              ${tree.leaderRow ? orgNode(tree.leaderRow[0]) : ''}
-              ${tree.pairRows.map(([a]) => orgNode(a)).join('')}
-            </div>
-            <div class="org-branch-col">
-              ${tree.leaderRow ? orgNode(tree.leaderRow[1]) : ''}
-              ${tree.pairRows.map(([, b]) => orgNode(b)).join('')}
-            </div>
+            ${tree.rows.map(orgRow).join('')}
           </div>
-        ` : ''}
-
-        ${tree.solos.length ? `
-          <h2 class="section-title" style="font-size:14.5px; margin:20px 0 10px;">Jabatan Lain</h2>
-          <div class="org-solo-list">${tree.solos.map(r => orgNode(r)).join('')}</div>
         ` : ''}
       </div>
     `}

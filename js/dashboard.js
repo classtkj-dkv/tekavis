@@ -79,7 +79,7 @@ function orgPreviewMember(m, roleLabel) {
 
 function orgPreviewSection(structure) {
   const tree = buildOrgTree(structure);
-  const rows = [tree.top, ...(tree.leaderRow || [])].filter(r => r && r.members?.length);
+  const rows = [tree.top, ...(tree.rows[0] || [])].filter(r => r && r.members?.length);
   if (!rows.length) return '';
 
   return `
