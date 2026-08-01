@@ -3,6 +3,7 @@ import { getSession } from './session.js';
 import { renderScheduleWeek, bindScheduleWeek } from './scheduleWidget.js';
 import { studentDetailDialogHtml, bindStudentDetailClicks } from './studentDetail.js';
 import { buildOrgTree, bindMemberDetailClicks } from './struktur.js';
+import { SOCIAL_ICONS, socialIconClass } from './socialIcons.js';
 
 const STAT_ICON_CYCLE = [
   { icon: 'fa-solid fa-user-graduate', chip: 'si-blue' },
@@ -96,6 +97,95 @@ function orgPreviewSection(structure) {
       `).join('')}
     </div>
   `;
+}
+
+// ---------------------------------------------------------------------------
+// Tentang Kami / Visi / Misi — teks bebas dari site_settings.homepage,
+// diisi Owner lewat Pengaturan Website. Section-nya otomatis gak muncul
+// kalau field-nya kosong.
+// ---------------------------------------------------------------------------
+function aboutSection(homepage) {
+  if (!homepage?.about) return '';
+  return `
+    <h2 class="section-title">Tentang Kami</h2>
+    <div class="card about-card" style="margin-bottom:24px; white-space:pre-line;">${homepage.about}</div>
+  `;
+}
+
+function visiMisiSection(homepage) {
+  const visi = homepage?.visi;
+  const misi = homepage?.misi;
+  if (!visi && !misi) return '';
+  return `
+    ${visi ? `
+      <h2 class="section-title">Visi</h2>
+      <div class="card about-card" style="margin-bottom:24px; white-space:pre-line;">${visi}</div>
+    ` : ''}
+    ${misi ? `
+      <h2 class="section-title">Misi</h2>
+      <div class="card about-card" style="margin-bottom:24px; white-space:pre-line;">${misi}</div>
+    ` : ''}
+  `;
+}
+
+// ---------------------------------------------------------------------------
+// Kontak / Media Sosial — 2 section terpisah biar identitasnya beda:
+// "KONTAK / MEDIA SOSIAL" = akun resmi Class Tekavis, ditampilin sebagai
+// kartu (icon + label + link, warna aksen kelas). "DEVELOPER" = section
+// beda gaya, tombol "Hubungi Developer" buka modal berisi kontak si
+// developer, biar identitas class vs developer gak ketuker.
+// ---------------------------------------------------------------------------
+function contactClassSection(socialMedia) {
+  const entries = Array.isArray(socialMedia?.class) ? socialMedia.class : [];
+  if (!entries.length) return '';
+  return `
+    <h2 class="section-title">Kontak / Media Sosial</h2>
+    <p style="font-size:12.5px; margin-bottom:14px;">Akun resmi Class Tekavis — kontak &amp; media sosial kelas.</p>
+    <div class="contact-grid" style="margin-bottom:24px;">
+      ${entries.map(e => `
+        <a href="${e.url}" target="_blank" rel="noopener noreferrer" class="card card-hover contact-card contact-card-class">
+          <span class="contact-card-icon"><i class="${socialIconClass(e.icon)}"></i></span>
+          <span class="contact-card-label">${e.label || SOCIAL_ICONS[e.icon]?.label || 'Kontak'}</span>
+        </a>
+      `).join('')}
+    </div>
+  `;
+}
+
+function developerSection(socialMedia) {
+  const entries = Array.isArray(socialMedia?.developer) ? socialMedia.developer : [];
+  if (!entries.length) return '';
+  return `
+    <div class="card developer-card" style="margin-bottom:24px;">
+      <div class="developer-card-badge"><i class="fa-solid fa-code"></i></div>
+      <div class="developer-card-title">Developed by XREZZKY OFFICIAL</div>
+      <p class="developer-card-desc">Pembuat &amp; pengelola teknis website Class Tekavis.</p>
+      <button type="button" id="contact-dev-btn" class="btn btn-primary btn-sm">Hubungi Developer</button>
+    </div>
+
+    <dialog id="dev-contact-dialog" class="modal">
+      <div class="modal-content">
+        <div class="card-header" style="margin-bottom:14px;">
+          <h2 class="section-title" style="margin:0; font-size:16px;">Hubungi Developer</h2>
+          <button type="button" class="icon-btn" onclick="this.closest('dialog').close()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="contact-grid">
+          ${entries.map(e => `
+            <a href="${e.url}" target="_blank" rel="noopener noreferrer" class="card card-hover contact-card contact-card-dev">
+              <span class="contact-card-icon"><i class="${socialIconClass(e.icon)}"></i></span>
+              <span class="contact-card-label">${e.label || SOCIAL_ICONS[e.icon]?.label || 'Kontak'}</span>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    </dialog>
+  `;
+}
+
+function bindDeveloperContactModal() {
+  document.getElementById('contact-dev-btn')?.addEventListener('click', () => {
+    document.getElementById('dev-contact-dialog')?.showModal();
+  });
 }
 
 function panelCard(item) {
@@ -326,6 +416,8 @@ export default async function renderDashboardPage(container) {
       <div class="stat-grid" style="margin-bottom:24px;">${rolePanel.map(panelCard).join('')}</div>
     ` : ''}
 
+    ${aboutSection(settings?.homepage)}
+
     <h2 class="section-title">Pengumuman Terbaru</h2>
     <div class="list-plain" style="margin-bottom:24px;">${announcementItems}</div>
 
@@ -357,6 +449,10 @@ export default async function renderDashboardPage(container) {
 
     ${studentListSection(students.slice(0, 8))}
 
+    ${visiMisiSection(settings?.homepage)}
+    ${contactClassSection(settings?.social_media)}
+    ${developerSection(settings?.social_media)}
+
     <dialog id="member-detail-dialog" class="modal id-card-modal">
       <div class="modal-content" id="member-detail-body" style="padding:0;"></div>
     </dialog>
@@ -367,4 +463,5 @@ export default async function renderDashboardPage(container) {
   bindMemberDetailClicks(orgStructure.flatMap(role => (role.members || []).map(m => ({ ...m, roleLabel: role.label }))));
   bindStudentSearch();
   bindStudentDetailClicks('#student-list .detail-trigger', students, 'dash', settings?.contact?.card_footer || settings?.site_name || 'Class Tekavis');
+  bindDeveloperContactModal();
 }

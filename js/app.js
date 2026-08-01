@@ -5,36 +5,17 @@ import { renderSidebar, updateActiveSidebarLink } from './sidebar.js';
 import { renderNavbar, bindNavbarEvents, updateNotifBadge } from './navbar.js';
 import { api } from './apiClient.js';
 import { subscribeNotifications } from './realtime.js';
-import { socialIconClass } from './socialIcons.js';
 
 const AUTH_ROUTES = ['/login', '/register'];
 
 // Footer: baris copyright (bisa dikustom Owner lewat footer_text) + baris
-// "Developed by" yang selalu tampil, lalu 1-2 baris ikon kontak/medsos
-// (Class Tekavis & Developer) kalau Owner udah isi di Pengaturan Website.
-// Datanya dari settings.social_media = { class: [...], developer: [...] },
-// tiap entry { icon, label, url } — lihat socialIcons.js buat daftar ikonnya.
-function socialIconRow(entries, groupLabel) {
-  if (!Array.isArray(entries) || !entries.length) return '';
-  return `
-    <div class="footer-social-row">
-      <span class="footer-social-group-label">${groupLabel}</span>
-      ${entries.map(e => `
-        <a href="${e.url}" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="${e.label || ''}" aria-label="${e.label || groupLabel}">
-          <i class="${socialIconClass(e.icon)}"></i>
-        </a>
-      `).join('')}
-    </div>
-  `;
-}
-
+// "Developed by" yang selalu tampil. Kontak/medsos Class Tekavis & Developer
+// sekarang punya section sendiri yang lebih proper di halaman Beranda
+// (kartu + modal), jadi footer-nya sengaja disederhanain, gak dobel.
 function renderFooter(settings) {
-  const social = settings?.social_media || {};
   return `
     <div class="footer-copyright">${settings?.footer_text || `© ${new Date().getFullYear()} CLASS TEKAVIS. All Rights Reserved.`}</div>
     <div class="footer-copyright">Developed by XREZZKY OFFICIAL.</div>
-    ${socialIconRow(social.class, 'Class Tekavis')}
-    ${socialIconRow(social.developer, 'Developer')}
   `;
 }
 

@@ -180,6 +180,25 @@ export default async function renderSettingsPage(container) {
         <span id="banner-status" style="font-size:12px; color:var(--color-text-muted);"></span>
       </div>
 
+      <h2 class="section-title" style="margin-top:28px;">Tentang Kami / Visi / Misi</h2>
+      <p style="font-size:12.5px; margin-bottom:12px;">Tampil di halaman Beranda. Kosongkan kalau tidak ingin section-nya muncul.</p>
+      <form id="about-form" class="card" style="max-width:560px; display:flex; flex-direction:column; gap:14px;">
+        <div>
+          <label class="input-label">Tentang Kami</label>
+          <textarea class="input" name="about" rows="4" placeholder="Cerita singkat tentang kelas...">${homepage.about || ''}</textarea>
+        </div>
+        <div>
+          <label class="input-label">Visi</label>
+          <textarea class="input" name="visi" rows="3" placeholder="Visi kelas...">${homepage.visi || ''}</textarea>
+        </div>
+        <div>
+          <label class="input-label">Misi</label>
+          <textarea class="input" name="misi" rows="4" placeholder="Misi kelas (boleh per baris)...">${homepage.misi || ''}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:fit-content;">Simpan Tentang Kami</button>
+        <span id="about-status" style="font-size:12px; color:var(--color-text-muted);"></span>
+      </form>
+
       <h2 class="section-title" style="margin-top:28px;">Kontak &amp; Media Sosial</h2>
       <p style="font-size:12.5px; margin-bottom:12px;">Muncul di footer semua halaman. Pisah antara kontak Class Tekavis dan kontak Developer.</p>
       ${socialGroupSection('class', 'Class Tekavis', socialClass)}
@@ -227,6 +246,19 @@ export default async function renderSettingsPage(container) {
       document.getElementById('settings-saved').hidden = false;
     } catch (err) {
       alert(err.message);
+    }
+  });
+
+  document.getElementById('about-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = document.getElementById('about-status');
+    const data = Object.fromEntries(new FormData(e.target).entries());
+    try {
+      status.textContent = 'Menyimpan...';
+      await api.patch('/api/settings', { homepage: { ...homepage, about: data.about.trim(), visi: data.visi.trim(), misi: data.misi.trim() } });
+      status.textContent = 'Tersimpan.';
+    } catch (err) {
+      status.textContent = 'Gagal menyimpan: ' + err.message;
     }
   });
 
@@ -311,7 +343,7 @@ export default async function renderSettingsPage(container) {
       const badge = document.getElementById('banner-badge').value.trim();
       try {
         status.textContent = 'Menyimpan...';
-        await api.patch('/api/settings', { homepage: { badge, slides: nextSlides } });
+        await api.patch('/api/settings', { homepage: { ...homepage, badge, slides: nextSlides } });
         window.location.reload();
       } catch (err) {
         status.textContent = 'Gagal menyimpan: ' + err.message;
@@ -327,7 +359,7 @@ export default async function renderSettingsPage(container) {
       const nextSlides = slides.filter((_, i) => i !== index);
       const badge = document.getElementById('banner-badge').value.trim();
       try {
-        await api.patch('/api/settings', { homepage: { badge, slides: nextSlides } });
+        await api.patch('/api/settings', { homepage: { ...homepage, badge, slides: nextSlides } });
         if (target?.public_id) {
           await api.post('/api/settings?action=delete-asset', { publicId: target.public_id }).catch(() => {});
         }
