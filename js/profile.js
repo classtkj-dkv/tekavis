@@ -26,6 +26,7 @@ export default async function renderProfilePage(container) {
   const p = me.profile || {};
   const s = me.student || null; // hanya terisi kalau rolenya 'siswa'
   const photoUrl = s?.photo_url || p.avatar_url || '';
+  const attendance = s ? await api.get('/api/attendance', { resource: 'summary', student_id: s.id }).catch(() => null) : null;
 
   // Field terkunci (dikelola Admin/Owner lewat data siswa) — tampil apa adanya, tidak bisa diedit di sini.
   const lockedFields = s ? [
@@ -57,6 +58,16 @@ export default async function renderProfilePage(container) {
         <span id="photo-status" style="font-size:11px; color:var(--color-text-muted); display:block; margin-top:6px;"></span>
       </div>
     </div>
+
+    ${attendance ? `
+      <h2 class="section-title" style="margin-top:20px;">Rekap Absensi</h2>
+      <div class="stat-grid" style="margin-bottom:8px;">
+        <div class="card stat-card"><span class="stat-value" style="color:var(--color-success);">${attendance.hadir}</span><span class="stat-label">Hadir</span></div>
+        <div class="card stat-card"><span class="stat-value" style="color:var(--color-warning);">${attendance.izin}</span><span class="stat-label">Izin</span></div>
+        <div class="card stat-card"><span class="stat-value" style="color:var(--color-info);">${attendance.sakit}</span><span class="stat-label">Sakit</span></div>
+        <div class="card stat-card"><span class="stat-value" style="color:var(--color-danger);">${attendance.alpa}</span><span class="stat-label">Alpa</span></div>
+      </div>
+    ` : ''}
 
     <div class="card-header" style="margin-top:20px;">
       <h2 class="section-title" style="margin:0; font-size:16px;">Moto, Hobi &amp; Cita-cita</h2>

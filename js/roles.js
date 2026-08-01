@@ -10,6 +10,7 @@ const PERMISSION_DEFS = [
   { key: 'manage_schedule', label: 'Kelola Jadwal' },
   { key: 'manage_finance', label: 'Kelola Transaksi Kas' },
   { key: 'view_kas', label: 'Lihat Kas' },
+  { key: 'manage_attendance', label: 'Kelola Absensi (centang Hadir/Izin/Sakit/Alpa)' },
   { key: 'manage_documents', label: 'Kelola Dokumen/Notulen' },
 ];
 

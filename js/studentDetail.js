@@ -16,7 +16,7 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-export function openStudentDetail(idPrefix, student, footerText = 'Class Tekavis') {
+export async function openStudentDetail(idPrefix, student, footerText = 'Class Tekavis', showAttendance = false) {
   const dialog = document.getElementById(`${idPrefix}-detail-dialog`);
   const body = document.getElementById(`${idPrefix}-detail-body`);
   if (!dialog || !body) return;
@@ -50,19 +50,36 @@ export function openStudentDetail(idPrefix, student, footerText = 'Class Tekavis
           </div>
         `).join('')}
       </dl>
+      ${showAttendance ? `<div id="${idPrefix}-att-summary" class="id-card-attendance">Memuat absensi...</div>` : ''}
     </div>
     <div class="id-card-footer">🆔 ${footerText}</div>
   `;
   dialog.showModal();
+
+  if (showAttendance) {
+    const { api } = await import('./apiClient.js');
+    const totals = await api.get('/api/attendance', { resource: 'summary', student_id: student.id }).catch(() => null);
+    const slot = document.getElementById(`${idPrefix}-att-summary`);
+    if (slot && totals) {
+      slot.innerHTML = `
+        <div class="id-card-att-item"><span class="id-card-att-value" style="color:var(--color-success);">${totals.hadir}</span><span>Hadir</span></div>
+        <div class="id-card-att-item"><span class="id-card-att-value" style="color:var(--color-warning);">${totals.izin}</span><span>Izin</span></div>
+        <div class="id-card-att-item"><span class="id-card-att-value" style="color:var(--color-info);">${totals.sakit}</span><span>Sakit</span></div>
+        <div class="id-card-att-item"><span class="id-card-att-value" style="color:var(--color-danger);">${totals.alpa}</span><span>Alpa</span></div>
+      `;
+    } else if (slot) {
+      slot.remove();
+    }
+  }
 }
 
-export function bindStudentDetailClicks(containerSelector, students, idPrefix = 'sd', footerText) {
+export function bindStudentDetailClicks(containerSelector, students, idPrefix = 'sd', footerText, showAttendance = false) {
   document.querySelectorAll(containerSelector).forEach(trigger => {
     trigger.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       const student = students.find(s => s.id === trigger.dataset.id);
-      if (student) openStudentDetail(idPrefix, student, footerText);
+      if (student) openStudentDetail(idPrefix, student, footerText, showAttendance);
     });
   });
 }

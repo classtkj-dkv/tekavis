@@ -1,5 +1,6 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
+import { exportButtonsHtml, bindExportButtons } from './exportUtils.js';
 
 const rupiah = (n) => `Rp${Number(n).toLocaleString('id-ID')}`;
 const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -98,10 +99,14 @@ export default async function renderFinancePage(container) {
 
     ${recapSection}
 
-    <div class="card-header" style="margin-top:22px;">
+    <div class="card-header" style="margin-top:22px; flex-wrap:wrap; gap:8px;">
       <h1 class="section-title" style="margin:0;">Riwayat Transaksi</h1>
-      ${canManage ? '<button id="add-tx-btn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Tambah Transaksi</button>' : ''}
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        ${exportButtonsHtml('kas')}
+        ${canManage ? '<button id="add-tx-btn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Tambah Transaksi</button>' : ''}
+      </div>
     </div>
+    <span id="kas-export-status" style="font-size:12px; color:var(--color-text-muted);"></span>
 
     <div class="card" style="overflow-x:auto;">
       <table class="table">
@@ -194,4 +199,17 @@ export default async function renderFinancePage(container) {
       }
     });
   });
+
+  bindExportButtons('kas', () => ({
+    title: 'Riwayat Kas Class Tekavis',
+    headers: ['Tanggal', 'Jenis', 'Kategori', 'Keterangan', 'Nominal'],
+    rows: finance.transactions.map(t => [
+      new Date(t.transaction_date).toLocaleDateString('id-ID'),
+      t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+      t.category || '-',
+      t.description || '-',
+      rupiah(t.amount),
+    ]),
+    filename: `riwayat-kas-${new Date().toISOString().slice(0, 10)}`,
+  }), 'kas-export-status');
 }

@@ -462,6 +462,6 @@ export default async function renderDashboardPage(container) {
   bindScheduleWeek('dash-sched');
   bindMemberDetailClicks(orgStructure.flatMap(role => (role.members || []).map(m => ({ ...m, roleLabel: role.label }))));
   bindStudentSearch();
-  bindStudentDetailClicks('#student-list .detail-trigger', students, 'dash', settings?.contact?.card_footer || settings?.site_name || 'Class Tekavis');
+  bindStudentDetailClicks('#student-list .detail-trigger', students, 'dash', settings?.contact?.card_footer || settings?.site_name || 'Class Tekavis', Boolean(me && role !== 'pengunjung'));
   bindDeveloperContactModal();
 }

@@ -42,6 +42,7 @@ function registerAppRoutes() {
   registerRoute('/roles', () => import('./roles.js').then(m => m.default));
   registerRoute('/search', () => import('./search.js').then(m => m.default));
   registerRoute('/struktur', () => import('./struktur.js').then(m => m.default));
+  registerRoute('/absensi', () => import('./attendance.js').then(m => m.default));
 }
 
 async function bootstrap() {

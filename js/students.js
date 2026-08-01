@@ -109,7 +109,7 @@ export default async function renderStudentsPage(container) {
   document.querySelectorAll('.detail-trigger').forEach(btn => {
     btn.addEventListener('click', () => {
       const s = students.find(x => x.id === btn.dataset.id);
-      if (s) openStudentDetail('page', s, footerText);
+      if (s) openStudentDetail('page', s, footerText, Boolean(me && me.role !== 'pengunjung'));
     });
   });
 

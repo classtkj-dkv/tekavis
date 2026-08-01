@@ -8,6 +8,7 @@ const DASHBOARD_ITEM = { label: 'Dashboard', path: '/', icon: 'layout-dashboard'
 const STRUKTUR_ITEM = { label: 'Struktur Organisasi', path: '/struktur', icon: 'users-round' };
 const PROFILE_ITEM = { label: 'Profil Saya', path: '/profile', icon: 'user' };
 const FINANCE_ITEM = { label: 'Kas', path: '/finance', icon: 'wallet' };
+const ATTENDANCE_ITEM = { label: 'Absensi', path: '/absensi', icon: 'clipboard-check' };
 
 // Data publik (siswa/jadwal/pengumuman/album) — bisa dilihat siapapun yang
 // login (bahkan guest, tergantung setting visibility Owner), jadi selalu
@@ -45,6 +46,10 @@ export function getMenuForUser(role, permissions = {}) {
     ...PUBLIC_DATA_ITEMS,
   ];
 
+  // Absensi: siapapun yang login boleh lihat KECUALI role Pengunjung
+  // (permintaan eksplisit — pengunjung login tapi tetap gak boleh akses).
+  if (role !== 'pengunjung') menu.push(ATTENDANCE_ITEM);
+
   // Kas itu satu-satunya data yang sengaja privat — cuma muncul buat yang
   // beneran diizinkan (Owner, atau pemegang jabatan yang dikasih izin lihat
   // kas, misal Bendahara).
@@ -70,6 +75,7 @@ const ICON_MAP = {
   'megaphone': 'fa-solid fa-bullhorn',
   'calendar': 'fa-solid fa-calendar-days',
   'wallet': 'fa-solid fa-wallet',
+  'clipboard-check': 'fa-solid fa-clipboard-check',
   'shield': 'fa-solid fa-shield-halved',
   'key': 'fa-solid fa-key',
   'history': 'fa-solid fa-clock-rotate-left',
