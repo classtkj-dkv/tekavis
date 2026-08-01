@@ -8,7 +8,16 @@
   <meta name="theme-color" content="#4F6EF7" />
 
   <link rel="icon" href="./assets/favicon.svg" />
-  <link rel="manifest" href="./manifest.json" />
+  <link rel="manifest" href="/api/manifest" />
+  <link rel="apple-touch-icon" href="./assets/icon-192.png" />
+
+  <!-- PWA: biar pas di-install/dibuka dari home screen terasa kayak app native
+       (gak ada address bar), di iOS Safari maupun Android Chrome. -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tekavis" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -30,5 +39,19 @@
     };
   </script>
   <script type="module" src="./js/app.js?v=20"></script>
+
+  <script>
+    // Registrasi service worker buat kemampuan PWA (install ke home screen,
+    // asset statis kebuka instan). Dibungkus try/catch + event 'load' biar
+    // gak pernah nge-block/nge-lambatin render halaman, dan gak error di
+    // console kalau browsernya gak support atau lagi di http (bukan https).
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((err) => {
+          console.warn('Service worker gagal didaftarkan:', err.message);
+        });
+      });
+    }
+  </script>
 </body>
 </html>

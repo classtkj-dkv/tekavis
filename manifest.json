@@ -1,12 +1,17 @@
 {
+  "id": "/",
   "name": "Class Tekavis",
-  "short_name": "Kelas CMS",
-  "start_url": ".",
+  "short_name": "Tekavis",
+  "description": "Sistem Informasi Kelas Class Tekavis",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#F4F6FB",
+  "orientation": "portrait-primary",
+  "background_color": "#0F1117",
   "theme_color": "#4F6EF7",
   "icons": [
-    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
