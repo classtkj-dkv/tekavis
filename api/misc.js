@@ -4,16 +4,59 @@ import { isRole } from './_lib/permissions.js';
 import { isPublicResource } from './_lib/visibility.js';
 import { ok, badRequest, forbidden, unauthorized, serverError } from './_lib/response.js';
 
-// Endpoint serbaguna: gabungan search, struktur organisasi, activity log, dan
-// notifikasi jadi 1 file. Sengaja digabung supaya total Serverless Function di
-// /api tetap di bawah limit 12 punya Vercel Hobby plan (sebelumnya 14 file
-// terpisah bikin deployment gagal diam-diam di tahap "Deploying outputs").
-// Dibedain lewat query ?resource=search | org-structure | activity-log | notifications
+// Endpoint serbaguna: gabungan search, struktur organisasi, activity log,
+// notifikasi, dan manifest PWA jadi 1 file. Sengaja digabung supaya total
+// Serverless Function di /api tetap di bawah limit 12 punya Vercel Hobby
+// plan (tiap file .js di /api dihitung 1 function — lebih dari 12 bikin
+// deployment gagal). Dibedain lewat query
+// ?resource=search | org-structure | activity-log | notifications | manifest
 export default optionalAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
   const { resource } = req.query;
 
   try {
+    // ---------------- MANIFEST PWA (publik, gak lewat ok() karena harus
+    // JSON mentah + Content-Type khusus, bukan format {success,data}) ----------------
+    if (resource === 'manifest') {
+      if (req.method !== 'GET') return badRequest(res, 'Method tidak didukung');
+      let siteName = 'Class Tekavis';
+      let logoUrl = null;
+      try {
+        const { data } = await admin.from('site_settings').select('site_name, logo_url').eq('id', 1).single();
+        if (data?.site_name) siteName = data.site_name;
+        if (data?.logo_url) logoUrl = data.logo_url;
+      } catch {
+        // Gagal ambil settings (mis. DB down) -> tetap kirim manifest default di bawah,
+        // jangan sampai fitur install PWA ikut mati.
+      }
+      const cloudinaryIcon = (url, size) => {
+        if (!url || typeof url !== 'string' || !url.includes('/upload/')) return null;
+        return url.replace('/upload/', `/upload/w_${size},h_${size},c_pad,b_auto,f_png,q_auto/`);
+      };
+      const icon192 = cloudinaryIcon(logoUrl, 192);
+      const icon512 = cloudinaryIcon(logoUrl, 512);
+      const manifest = {
+        id: '/',
+        name: siteName,
+        short_name: siteName.length > 12 ? 'Tekavis' : siteName,
+        description: `Sistem Informasi Kelas ${siteName}`,
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        orientation: 'portrait-primary',
+        background_color: '#0F1117',
+        theme_color: '#4F6EF7',
+        icons: [
+          icon192 ? { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any' } : { src: '/assets/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          icon512 ? { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any' } : { src: '/assets/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          icon512 ? { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'maskable' } : { src: '/assets/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      };
+      res.setHeader('Content-Type', 'application/manifest+json');
+      res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+      return res.status(200).send(JSON.stringify(manifest));
+    }
+
     // ---------------- SEARCH (publik) ----------------
     if (resource === 'search') {
       if (req.method !== 'GET') return badRequest(res, 'Method tidak didukung');
