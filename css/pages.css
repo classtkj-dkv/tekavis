@@ -696,6 +696,92 @@
 .org-node-solo .org-node { width: auto; min-width: 200px; }
 
 /* ============================================================
+   TENTANG KAMI / VISI / MISI
+   ============================================================ */
+.about-card {
+  line-height: 1.7;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================
+   KONTAK / MEDIA SOSIAL — 2 identitas visual beda: Class Tekavis (biru,
+   warna brand) vs Developer (amber, biar jelas ini bukan kontak kelas).
+   ============================================================ */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 18px 12px;
+}
+.contact-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.contact-card-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.contact-card-class {
+  border-color: var(--color-accent-light);
+}
+.contact-card-class .contact-card-icon {
+  background: var(--color-accent-light);
+  color: var(--color-primary);
+}
+.contact-card-dev .contact-card-icon {
+  background: rgba(217,119,6,.12);
+  color: var(--color-warning);
+}
+
+.developer-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 24px 20px;
+  border-color: rgba(217,119,6,.3);
+  background: linear-gradient(135deg, rgba(217,119,6,0.06), var(--color-card));
+}
+.developer-card-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(217,119,6,.12);
+  color: var(--color-warning);
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.developer-card-title {
+  font-weight: 700;
+  font-size: 14.5px;
+}
+.developer-card-desc {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  max-width: 320px;
+  margin: 0 0 4px;
+}
+
+/* ============================================================
    REFACTOR MOBILE (≤768px) — HANYA layout mobile, desktop tidak diubah.
    Dibangun sebagai layout mobile TERSENDIRI (bukan layout desktop yang
    diperkecil): hero dipendekin + rounded besar, semua card di-compact-in,
@@ -878,5 +964,10 @@
   .org-node-solo .org-node { min-width: 0; width: 100%; max-width: 220px; }
   .org-avatar { width: 26px; height: 26px; font-size: 11px; }
   .org-member { font-size: 12px; }
+
+  .contact-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .contact-card { padding: 14px 10px; }
+  .contact-card-icon { width: 38px; height: 38px; font-size: 15px; }
+  .developer-card { padding: 20px 16px; }
 }
 
