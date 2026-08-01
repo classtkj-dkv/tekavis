@@ -666,43 +666,34 @@
   position: relative;
   padding-top: 20px;
 }
-/* Bar horizontal + 2 stub turun ke tiap kolom — hidup cuma kalau ada
-   minimal 1 kolom terisi (parent .org-branch cuma dirender kalau ada isi) */
+/* Trunk: satu garis vertikal tunggal di tengah, nembus dari atas sampai
+   bawah .org-branch. Baris berpasangan otomatis nempel kiri-kanan garis
+   ini (karena garisnya persis di tengah grid 2 kolom = di celah gap-nya).
+   Baris solo (grid-column:1/-1, lihat .org-node-solo) otomatis numpuk
+   pas di atas garis ini juga karena sama-sama di tengah. */
 .org-branch::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 25%;
-  right: 25%;
-  height: 2px;
-  background: var(--color-border);
-}
-.org-branch-col {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-}
-.org-branch-col::before {
-  content: "";
-  position: absolute;
   left: 50%;
-  top: -20px;
+  top: 0;
   bottom: 0;
   width: 2px;
   background: var(--color-border);
   transform: translateX(-50%);
   z-index: 0;
 }
-.org-branch-col .org-node { width: 100%; }
+.org-branch > .org-node { width: 100%; }
 
-.org-solo-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
-  width: 100%;
+/* Baris solo: pakai grid-column:1/-1 biar makan lebar penuh grid, lalu
+   kontennya di-center lewat flex — otomatis motong alur 2 kolom di CSS
+   Grid auto-flow, dan baris SESUDAHNYA otomatis balik ke kolom 1/2 lagi
+   tanpa perlu logic tambahan. */
+.org-node-solo {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
 }
+.org-node-solo .org-node { width: auto; min-width: 200px; }
 
 /* ============================================================
    REFACTOR MOBILE (≤768px) — HANYA layout mobile, desktop tidak diubah.
@@ -884,7 +875,7 @@
   .org-node { padding: 10px 12px; }
   .org-node-top { min-width: 0; width: 100%; }
   .org-branch { gap: 12px; max-width: 100%; }
-  .org-branch-col { gap: 14px; }
+  .org-node-solo .org-node { min-width: 0; width: 100%; max-width: 220px; }
   .org-avatar { width: 26px; height: 26px; font-size: 11px; }
   .org-member { font-size: 12px; }
 }
