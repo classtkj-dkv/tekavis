@@ -1,6 +1,7 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
 import { getAccessToken } from './supabaseClient.js';
+import { SOCIAL_ICONS, socialIconClass } from './socialIcons.js';
 
 // Baca file dari galeri/device sebagai base64, dikirim ke /api/settings?action=upload
 // yang lalu naruhnya ke Cloudinary dan balikin URL — jadi user tinggal pilih foto,
@@ -49,7 +50,44 @@ function slideCard(slide, index) {
   `;
 }
 
+function socialEntryCard(entry, group, index) {
+  return `
+    <div class="card" style="display:flex; gap:12px; align-items:center;" data-group="${group}" data-index="${index}">
+      <div class="footer-social-link" style="width:38px; height:38px; font-size:15px; flex-shrink:0;"><i class="${socialIconClass(entry.icon)}"></i></div>
+      <div style="flex:1; min-width:0;">
+        <div class="list-item-title">${entry.label || SOCIAL_ICONS[entry.icon]?.label || 'Kontak'}</div>
+        <div class="list-item-meta" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${entry.url}</div>
+      </div>
+      <button type="button" class="btn btn-danger btn-xs social-delete-btn" data-group="${group}" data-index="${index}"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  `;
+}
+
+function socialGroupSection(group, title, entries) {
+  return `
+    <div class="card" style="max-width:560px; display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
+      <label class="input-label" style="margin:0;">${title}</label>
+      <div id="social-list-${group}" style="display:flex; flex-direction:column; gap:10px;">
+        ${entries.length ? entries.map((e, i) => socialEntryCard(e, group, i)).join('') : '<div class="empty-state">Belum ada kontak.</div>'}
+      </div>
+
+      <hr style="border:none; border-top:1px solid var(--color-border); margin:2px 0;" />
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <select class="input" id="social-icon-${group}" style="flex:0 0 130px;">
+          ${Object.entries(SOCIAL_ICONS).map(([key, meta]) => `<option value="${key}">${meta.label}</option>`).join('')}
+        </select>
+        <input class="input" id="social-label-${group}" placeholder="Keterangan (mis. Instagram Kelas)" style="flex:1 1 160px;" />
+      </div>
+      <input class="input" id="social-url-${group}" placeholder="Link (https://...)" />
+      <button type="button" class="btn btn-secondary social-add-btn" data-group="${group}" style="width:fit-content;"><i class="fa-solid fa-plus"></i> Tambah Kontak</button>
+      <span class="social-status" id="social-status-${group}" style="font-size:12px; color:var(--color-text-muted);"></span>
+    </div>
+  `;
+}
+
 export default async function renderSettingsPage(container) {
+
   const me = await getSession();
   const isOwner = me?.role === 'owner';
 
@@ -61,6 +99,9 @@ export default async function renderSettingsPage(container) {
 
   const homepage = settings.homepage || {};
   const slides = Array.isArray(homepage.slides) ? homepage.slides : [];
+  const socialMedia = settings.social_media || {};
+  const socialClass = Array.isArray(socialMedia.class) ? socialMedia.class : [];
+  const socialDev = Array.isArray(socialMedia.developer) ? socialMedia.developer : [];
   const visibility = {
     students: true, schedule: true, announcements: true, albums: true, struktur: true, finance: false,
     ...(settings.visibility || {}),
@@ -138,6 +179,11 @@ export default async function renderSettingsPage(container) {
         <button type="button" id="banner-add-btn" class="btn btn-primary" style="width:fit-content;" disabled><i class="fa-solid fa-plus"></i> Tambah Slide</button>
         <span id="banner-status" style="font-size:12px; color:var(--color-text-muted);"></span>
       </div>
+
+      <h2 class="section-title" style="margin-top:28px;">Kontak &amp; Media Sosial</h2>
+      <p style="font-size:12.5px; margin-bottom:12px;">Muncul di footer semua halaman. Pisah antara kontak Class Tekavis dan kontak Developer.</p>
+      ${socialGroupSection('class', 'Class Tekavis', socialClass)}
+      ${socialGroupSection('developer', 'Developer', socialDev)}
 
       <h2 class="section-title" style="margin-top:28px;">Kontrol Akses Publik</h2>
       <p style="font-size:12.5px; margin-bottom:12px;">Atur halaman mana yang bisa dilihat siapa saja tanpa login/daftar, dan mana yang wajib login.</p>
@@ -289,6 +335,52 @@ export default async function renderSettingsPage(container) {
       } catch (err) {
         alert('Gagal menghapus: ' + err.message);
       }
+    });
+
+    // ---- Kelola kontak & medsos (Class Tekavis / Developer) ----
+    const socialData = { class: socialClass, developer: socialDev };
+
+    document.querySelectorAll('.social-add-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const group = btn.dataset.group;
+        const status = document.getElementById(`social-status-${group}`);
+        const icon = document.getElementById(`social-icon-${group}`).value;
+        const label = document.getElementById(`social-label-${group}`).value.trim();
+        const url = document.getElementById(`social-url-${group}`).value.trim();
+        if (!url) {
+          status.textContent = 'Link wajib diisi.';
+          return;
+        }
+        if (!/^https?:\/\//i.test(url)) {
+          status.textContent = 'Link harus diawali http:// atau https://';
+          return;
+        }
+        const nextEntries = [...socialData[group], { icon, label, url }];
+        try {
+          status.textContent = 'Menyimpan...';
+          await api.patch('/api/settings', { social_media: { ...socialMedia, [group]: nextEntries } });
+          window.location.reload();
+        } catch (err) {
+          status.textContent = 'Gagal menyimpan: ' + err.message;
+        }
+      });
+    });
+
+    document.querySelectorAll('[id^="social-list-"]').forEach(list => {
+      list.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.social-delete-btn');
+        if (!btn) return;
+        if (!confirm('Hapus kontak ini?')) return;
+        const group = btn.dataset.group;
+        const index = Number(btn.dataset.index);
+        const nextEntries = socialData[group].filter((_, i) => i !== index);
+        try {
+          await api.patch('/api/settings', { social_media: { ...socialMedia, [group]: nextEntries } });
+          window.location.reload();
+        } catch (err) {
+          alert('Gagal menghapus: ' + err.message);
+        }
+      });
     });
   }
 
