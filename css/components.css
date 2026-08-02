@@ -309,6 +309,26 @@ select.input {
 }
 
 /* ============================================================
+   MODAL ALERT/CONFIRM CUSTOM — pengganti alert()/confirm() bawaan browser
+   ============================================================ */
+.ui-confirm-modal {
+  max-width: 340px;
+}
+.ui-confirm-message {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  white-space: pre-line;
+}
+.ui-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.ui-confirm-actions .btn { flex: 1; }
+
+/* ============================================================
    BADGES
    ============================================================ */
 .badge {
