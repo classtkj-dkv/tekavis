@@ -156,11 +156,13 @@ function developerSection(socialMedia) {
   const entries = Array.isArray(socialMedia?.developer) ? socialMedia.developer : [];
   if (!entries.length) return '';
   return `
-    <div class="card developer-card" style="margin-bottom:24px;">
+    <div class="card developer-card-mini" style="margin-bottom:24px;">
       <div class="developer-card-badge"><i class="fa-solid fa-code"></i></div>
-      <div class="developer-card-title">Developed by XREZZKY OFFICIAL</div>
-      <p class="developer-card-desc">Pembuat &amp; pengelola teknis website Class Tekavis.</p>
-      <button type="button" id="contact-dev-btn" class="btn btn-primary btn-sm">Hubungi Developer</button>
+      <div class="developer-card-mini-text">
+        <div class="developer-card-title">Developed by XREZZKY OFFICIAL</div>
+        <p class="developer-card-desc">Pembuat website ini</p>
+      </div>
+      <button type="button" id="contact-dev-btn" class="btn btn-secondary btn-xs">Hubungi</button>
     </div>
 
     <dialog id="dev-contact-dialog" class="modal">

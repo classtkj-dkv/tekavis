@@ -115,6 +115,29 @@ export default async function renderFinancePage(container) {
       </table>
     </div>
 
+    ${me.role === 'owner' ? `
+      <h2 class="section-title" style="margin-top:28px; color:var(--color-danger);">Hapus Data Kas</h2>
+      <div class="card" style="max-width:560px; border-color:rgba(220,38,38,.3); margin-bottom:16px;">
+        <p style="font-size:12px; color:var(--color-text-muted); margin-bottom:12px;">
+          Menghapus riwayat transaksi kas secara permanen. Kosongkan kedua tanggal buat hapus SEMUA data. Aksi ini gak bisa dibatalkan — pastikan sudah backup dulu.
+        </p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+          <div style="flex:1; min-width:120px;">
+            <label class="input-label">Dari (kosongkan = semua)</label>
+            <input type="date" class="input" id="clear-from" />
+          </div>
+          <div style="flex:1; min-width:120px;">
+            <label class="input-label">Sampai</label>
+            <input type="date" class="input" id="clear-to" />
+          </div>
+        </div>
+        <label class="input-label">Password Akun Owner</label>
+        <input type="password" class="input" id="clear-password" placeholder="Konfirmasi password" autocomplete="current-password" />
+        <button type="button" id="clear-btn" class="btn btn-danger" style="margin-top:12px;"><i class="fa-solid fa-trash"></i> Hapus Data</button>
+        <span id="clear-status" style="font-size:12px; color:var(--color-text-muted); display:block; margin-top:8px;"></span>
+      </div>
+    ` : ''}
+
     <dialog id="add-tx-dialog" class="modal">
       <form id="add-tx-form" class="modal-content">
         <h2 class="section-title">Tambah Transaksi</h2>
@@ -198,6 +221,24 @@ export default async function renderFinancePage(container) {
         alert(err.message);
       }
     });
+  });
+
+  document.getElementById('clear-btn')?.addEventListener('click', async () => {
+    const from = document.getElementById('clear-from').value;
+    const to = document.getElementById('clear-to').value;
+    const password = document.getElementById('clear-password').value;
+    const status = document.getElementById('clear-status');
+    if (!password) { status.textContent = 'Password wajib diisi.'; return; }
+    const scope = (from && to) ? `data kas tanggal ${from} s/d ${to}` : 'SEMUA data kas';
+    if (!confirm(`Yakin mau hapus ${scope}? Aksi ini gak bisa dibatalkan.`)) return;
+    status.textContent = 'Menghapus...';
+    try {
+      await api.post('/api/finance?action=clear', { password, from: from || undefined, to: to || undefined });
+      status.textContent = 'Data terhapus ✓';
+      renderFinancePage(container);
+    } catch (err) {
+      status.textContent = 'Gagal: ' + err.message;
+    }
   });
 
   bindExportButtons('kas', () => ({
