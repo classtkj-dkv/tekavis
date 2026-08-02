@@ -2,6 +2,7 @@ import { api } from './apiClient.js';
 import { getSession } from './session.js';
 import { renderScheduleWeek, bindScheduleWeek, DAY_NAMES, todayDbDay } from './scheduleWidget.js';
 import { showToast } from './toast.js';
+import { showAlert, showConfirm } from './ui.js';
 
 export default async function renderSchedulePage(container) {
   const me = await getSession();
@@ -99,7 +100,7 @@ export default async function renderSchedulePage(container) {
       dialog.close();
       renderSchedulePage(container);
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 
@@ -147,12 +148,12 @@ export default async function renderSchedulePage(container) {
 
   container.querySelectorAll('.delete-schedule-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Hapus jadwal ini?')) return;
+      if (!(await showConfirm('Hapus jadwal ini?', { okText: 'Ya, hapus', danger: true }))) return;
       try {
         await api.delete(`/api/schedule?id=${btn.dataset.id}`);
         renderSchedulePage(container);
       } catch (err) {
-        alert(err.message);
+        await showAlert(err.message);
       }
     });
   });

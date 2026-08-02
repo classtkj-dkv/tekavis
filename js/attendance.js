@@ -2,6 +2,7 @@ import { api } from './apiClient.js';
 import { getSession } from './session.js';
 import { getAccessToken } from './supabaseClient.js';
 import { exportButtonsHtml, bindExportButtons } from './exportUtils.js';
+import { showAlert, showConfirm } from './ui.js';
 
 // Urutan sesuai yang diminta: Hadir, Sakit, Izin, Alpa
 const STATUS_DEFS = [
@@ -259,12 +260,12 @@ export default async function renderAttendancePage(container) {
   document.getElementById('recap-build-btn')?.addEventListener('click', async () => {
     const from = document.getElementById('recap-from').value;
     const to = document.getElementById('recap-to').value;
-    if (!from || !to) { alert('Isi tanggal Dari & Sampai dulu.'); return; }
+    if (!from || !to) { await showAlert('Isi tanggal Dari & Sampai dulu.'); return; }
     const result = await api.get('/api/attendance', {
       resource: 'recap', from, to,
       student_ids: selectedIds.length ? selectedIds.join(',') : undefined,
     }).catch(() => null);
-    if (!result) { alert('Gagal membuat rekap.'); return; }
+    if (!result) { await showAlert('Gagal membuat rekap.'); return; }
     currentRecap = result.recap;
     document.getElementById('recap-body').innerHTML = currentRecap.map((r, i) => recapRow(r, i + 1)).join('') || `<tr><td colspan="7" class="empty-state">Tidak ada data.</td></tr>`;
     document.getElementById('recap-result').style.display = '';
@@ -277,7 +278,7 @@ export default async function renderAttendancePage(container) {
     const status = document.getElementById('clear-status');
     if (!password) { status.textContent = 'Password wajib diisi.'; return; }
     const scope = (from && to) ? `data absensi tanggal ${from} s/d ${to}` : 'SEMUA data absensi';
-    if (!confirm(`Yakin mau hapus ${scope}? Semua centang bakal balik kosong dari 0. Aksi ini gak bisa dibatalkan.`)) return;
+    if (!(await showConfirm(`Yakin mau hapus ${scope}? Semua centang bakal balik kosong dari 0. Aksi ini gak bisa dibatalkan.`, { okText: 'Ya, hapus', danger: true }))) return;
     status.textContent = 'Menghapus...';
     try {
       await api.post('/api/attendance?action=clear', { password, from: from || undefined, to: to || undefined });

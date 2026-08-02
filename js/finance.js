@@ -1,6 +1,7 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
 import { exportButtonsHtml, bindExportButtons } from './exportUtils.js';
+import { showAlert, showConfirm } from './ui.js';
 
 const rupiah = (n) => `Rp${Number(n).toLocaleString('id-ID')}`;
 const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -186,7 +187,7 @@ export default async function renderFinancePage(container) {
       dialog.close();
       renderFinancePage(container);
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 
@@ -213,12 +214,12 @@ export default async function renderFinancePage(container) {
 
   container.querySelectorAll('.delete-tx-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Hapus transaksi ini?')) return;
+      if (!(await showConfirm('Hapus transaksi ini?', { okText: 'Ya, hapus', danger: true }))) return;
       try {
         await api.delete(`/api/finance?id=${btn.dataset.id}`);
         renderFinancePage(container);
       } catch (err) {
-        alert(err.message);
+        await showAlert(err.message);
       }
     });
   });
@@ -230,7 +231,7 @@ export default async function renderFinancePage(container) {
     const status = document.getElementById('clear-status');
     if (!password) { status.textContent = 'Password wajib diisi.'; return; }
     const scope = (from && to) ? `data kas tanggal ${from} s/d ${to}` : 'SEMUA data kas';
-    if (!confirm(`Yakin mau hapus ${scope}? Aksi ini gak bisa dibatalkan.`)) return;
+    if (!(await showConfirm(`Yakin mau hapus ${scope}? Aksi ini gak bisa dibatalkan.`, { okText: 'Ya, hapus', danger: true }))) return;
     status.textContent = 'Menghapus...';
     try {
       await api.post('/api/finance?action=clear', { password, from: from || undefined, to: to || undefined });

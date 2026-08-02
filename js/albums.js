@@ -1,5 +1,6 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
+import { showAlert, showConfirm } from './ui.js';
 
 export default async function renderAlbumsPage(container) {
   const me = await getSession();
@@ -103,7 +104,7 @@ export default async function renderAlbumsPage(container) {
       dialog.close();
       renderAlbumsPage(container);
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 
@@ -127,12 +128,12 @@ export default async function renderAlbumsPage(container) {
     btn.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (!confirm('Hapus album ini beserta seluruh fotonya?')) return;
+      if (!(await showConfirm('Hapus album ini beserta seluruh fotonya?', { okText: 'Ya, hapus', danger: true }))) return;
       try {
         await api.delete(`/api/albums?id=${btn.dataset.id}`);
         renderAlbumsPage(container);
       } catch (err) {
-        alert(err.message);
+        await showAlert(err.message);
       }
     });
   });

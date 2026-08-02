@@ -1,5 +1,6 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
+import { showAlert, showConfirm } from './ui.js';
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -86,7 +87,7 @@ export default async function renderAlbumDetailPage(container, { id }) {
       dialog.close();
       renderAlbumDetailPage(container, { id });
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 }

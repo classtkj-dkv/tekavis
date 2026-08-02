@@ -1,5 +1,6 @@
 import { api } from './apiClient.js';
 import { getSession, clearSessionCache } from './session.js';
+import { showAlert, showConfirm } from './ui.js';
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -137,7 +138,7 @@ export default async function renderProfilePage(container) {
       clearSessionCache();
       renderProfilePage(container);
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 }

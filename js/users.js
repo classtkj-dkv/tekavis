@@ -1,5 +1,6 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
+import { showAlert, showConfirm } from './ui.js';
 
 export default async function renderUsersPage(container) {
   const me = await getSession();
@@ -86,7 +87,7 @@ export default async function renderUsersPage(container) {
       addDialog.close();
       renderUsersPage(container);
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 
@@ -97,7 +98,7 @@ export default async function renderUsersPage(container) {
       try {
         await api.patch('/api/users', { user_id: userId, role_id: e.target.value });
       } catch (err) {
-        alert(err.message);
+        await showAlert(err.message);
         renderUsersPage(container);
       }
     });
@@ -105,12 +106,12 @@ export default async function renderUsersPage(container) {
 
   container.querySelectorAll('.delete-user-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Hapus user ini? Akun login-nya akan hilang permanen (data siswa terkait, kalau ada, tetap tersimpan).')) return;
+      if (!(await showConfirm('Hapus user ini? Akun login-nya akan hilang permanen (data siswa terkait, kalau ada, tetap tersimpan).', { okText: 'Ya, hapus', danger: true }))) return;
       try {
         await api.delete(`/api/users?id=${btn.dataset.id}`);
         renderUsersPage(container);
       } catch (err) {
-        alert(err.message);
+        await showAlert(err.message);
       }
     });
   });

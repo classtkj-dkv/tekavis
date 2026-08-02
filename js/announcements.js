@@ -1,5 +1,6 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
+import { showAlert, showConfirm } from './ui.js';
 
 export default async function renderAnnouncementsPage(container) {
   const me = await getSession();
@@ -79,7 +80,7 @@ export default async function renderAnnouncementsPage(container) {
       dialog.close();
       renderAnnouncementsPage(container);
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 
@@ -98,12 +99,12 @@ export default async function renderAnnouncementsPage(container) {
 
   container.querySelectorAll('.delete-announcement-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Hapus pengumuman ini?')) return;
+      if (!(await showConfirm('Hapus pengumuman ini?', { okText: 'Ya, hapus', danger: true }))) return;
       try {
         await api.delete(`/api/announcements?id=${btn.dataset.id}`);
         renderAnnouncementsPage(container);
       } catch (err) {
-        alert(err.message);
+        await showAlert(err.message);
       }
     });
   });

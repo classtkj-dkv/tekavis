@@ -1,4 +1,5 @@
 import { api } from './apiClient.js';
+import { showAlert, showConfirm } from './ui.js';
 
 // Daftar permission yang dikenali sistem. Kalau nambah fitur baru yang butuh
 // permission baru, tinggal tambahkan key di sini (dan cek di endpoint API terkait).
@@ -84,7 +85,7 @@ export default async function renderRolesPage(container) {
       dialog.close();
       renderRolesPage(container);
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 
@@ -101,7 +102,7 @@ export default async function renderRolesPage(container) {
         btn.textContent = 'Tersimpan ✓';
         setTimeout(() => { btn.textContent = 'Simpan Permission'; }, 1500);
       } catch (err) {
-        alert(err.message);
+        await showAlert(err.message);
       }
     });
   });
@@ -109,12 +110,12 @@ export default async function renderRolesPage(container) {
   container.querySelectorAll('.delete-role-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const card = btn.closest('.role-card');
-      if (!confirm(`Hapus role "${card.dataset.roleName}"?`)) return;
+      if (!(await showConfirm(`Hapus role "${card.dataset.roleName}"?`, { okText: 'Ya, hapus', danger: true }))) return;
       try {
         await api.delete(`/api/roles?id=${card.dataset.roleId}`);
         renderRolesPage(container);
       } catch (err) {
-        alert(err.message);
+        await showAlert(err.message);
       }
     });
   });

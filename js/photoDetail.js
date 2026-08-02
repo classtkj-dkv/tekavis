@@ -1,6 +1,7 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
 import { navigate } from './router.js';
+import { showAlert, showConfirm } from './ui.js';
 
 export default async function renderPhotoDetailPage(container, { id }) {
   const me = await getSession();
@@ -34,12 +35,12 @@ export default async function renderPhotoDetailPage(container, { id }) {
   `;
 
   document.getElementById('delete-photo-btn')?.addEventListener('click', async () => {
-    if (!confirm('Hapus foto ini secara permanen?')) return;
+    if (!(await showConfirm('Hapus foto ini secara permanen?', { okText: 'Ya, hapus', danger: true }))) return;
     try {
       await api.delete(`/api/photos?id=${id}`);
       navigate(`/albums/${photo.album_id}`);
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 }

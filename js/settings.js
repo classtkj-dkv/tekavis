@@ -2,6 +2,7 @@ import { api } from './apiClient.js';
 import { getSession } from './session.js';
 import { getAccessToken } from './supabaseClient.js';
 import { SOCIAL_ICONS, socialIconClass } from './socialIcons.js';
+import { showAlert, showConfirm } from './ui.js';
 
 // Baca file dari galeri/device sebagai base64, dikirim ke /api/settings?action=upload
 // yang lalu naruhnya ke Cloudinary dan balikin URL — jadi user tinggal pilih foto,
@@ -245,7 +246,7 @@ export default async function renderSettingsPage(container) {
       await api.patch('/api/settings', payload);
       document.getElementById('settings-saved').hidden = false;
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 
@@ -353,7 +354,7 @@ export default async function renderSettingsPage(container) {
     document.getElementById('banner-list')?.addEventListener('click', async (e) => {
       const btn = e.target.closest('.banner-delete-btn');
       if (!btn) return;
-      if (!confirm('Hapus foto beranda ini?')) return;
+      if (!(await showConfirm('Hapus foto beranda ini?', { okText: 'Ya, hapus', danger: true }))) return;
       const index = Number(btn.dataset.index);
       const target = slides[index];
       const nextSlides = slides.filter((_, i) => i !== index);
@@ -365,7 +366,7 @@ export default async function renderSettingsPage(container) {
         }
         window.location.reload();
       } catch (err) {
-        alert('Gagal menghapus: ' + err.message);
+        await showAlert('Gagal menghapus: ' + err.message);
       }
     });
 
@@ -402,7 +403,7 @@ export default async function renderSettingsPage(container) {
       list.addEventListener('click', async (e) => {
         const btn = e.target.closest('.social-delete-btn');
         if (!btn) return;
-        if (!confirm('Hapus kontak ini?')) return;
+        if (!(await showConfirm('Hapus kontak ini?', { okText: 'Ya, hapus', danger: true }))) return;
         const group = btn.dataset.group;
         const index = Number(btn.dataset.index);
         const nextEntries = socialData[group].filter((_, i) => i !== index);
@@ -410,7 +411,7 @@ export default async function renderSettingsPage(container) {
           await api.patch('/api/settings', { social_media: { ...socialMedia, [group]: nextEntries } });
           window.location.reload();
         } catch (err) {
-          alert('Gagal menghapus: ' + err.message);
+          await showAlert('Gagal menghapus: ' + err.message);
         }
       });
     });
@@ -447,25 +448,25 @@ export default async function renderSettingsPage(container) {
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 
   document.getElementById('restore-btn')?.addEventListener('click', async () => {
     const fileInput = document.getElementById('restore-file');
     const file = fileInput.files[0];
-    if (!file) return alert('Pilih file backup terlebih dahulu.');
-    if (!confirm('Restore akan MENIMPA data saat ini dengan isi file backup. Lanjutkan?')) return;
+    if (!file) { await showAlert('Pilih file backup terlebih dahulu.'); return; }
+    if (!(await showConfirm('Restore akan MENIMPA data saat ini dengan isi file backup. Lanjutkan?', { okText: 'Ya, restore', danger: true }))) return;
 
     try {
       const text = await file.text();
       const parsed = JSON.parse(text);
       const payload = parsed.tables ? { tables: parsed.tables } : { tables: parsed };
       await api.post('/api/settings?action=restore', payload);
-      alert('Restore berhasil. Halaman akan dimuat ulang.');
+      await showAlert('Restore berhasil. Halaman akan dimuat ulang.');
       window.location.reload();
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 }

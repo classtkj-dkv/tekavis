@@ -1,6 +1,7 @@
 import { api } from './apiClient.js';
 import { getSession } from './session.js';
 import { studentDetailDialogHtml, openStudentDetail } from './studentDetail.js';
+import { showAlert, showConfirm } from './ui.js';
 
 function studentCardHtml(s) {
   const initials = (s.name || '?').trim().slice(0, 1).toUpperCase();
@@ -154,7 +155,7 @@ export default async function renderStudentsPage(container) {
       dialog.close();
       renderStudentsPage(container);
     } catch (err) {
-      alert(err.message);
+      await showAlert(err.message);
     }
   });
 
@@ -176,12 +177,12 @@ export default async function renderStudentsPage(container) {
 
   container.querySelectorAll('.delete-student-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Hapus data siswa ini? Akun login-nya (kalau ada) juga akan ikut terhapus.')) return;
+      if (!(await showConfirm('Hapus data siswa ini? Akun login-nya (kalau ada) juga akan ikut terhapus.', { okText: 'Ya, hapus', danger: true }))) return;
       try {
         await api.delete(`/api/students?id=${btn.dataset.id}`);
         renderStudentsPage(container);
       } catch (err) {
-        alert(err.message);
+        await showAlert(err.message);
       }
     });
   });
