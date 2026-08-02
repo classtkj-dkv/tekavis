@@ -8,7 +8,7 @@ import { ok, created, forbidden, badRequest, serverError } from './_lib/response
 const BACKUP_TABLES = [
   'roles', 'profiles', 'students', 'albums', 'photos',
   'announcements', 'schedules', 'finance_transactions',
-  'notifications', 'site_settings',
+  'notifications', 'site_settings', 'attendance',
 ];
 const RESTORE_ORDER = BACKUP_TABLES;
 

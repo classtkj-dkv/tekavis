@@ -2,17 +2,32 @@ import { getSupabaseAdmin } from './_lib/supabaseClient.js';
 import { requireAuth } from './_lib/auth.js';
 import { requirePermission } from './_lib/permissions.js';
 import { logActivity } from './_lib/activityLog.js';
+import { verifyOwnerPassword } from './_lib/reauth.js';
 import { ok, created, forbidden, badRequest, serverError } from './_lib/response.js';
 
 // GET    /api/finance          -> ringkasan saldo + daftar transaksi (view_kas)
 // POST   /api/finance          -> tambah transaksi (manage_finance)
 // PATCH  /api/finance?id=...   -> edit transaksi (manage_finance)
 // DELETE /api/finance?id=...   -> hapus transaksi (manage_finance)
+// POST   /api/finance?action=clear -> hapus data kas massal (Owner + password). body: { password, from?, to? } -- kosongkan from/to buat hapus SEMUA
 export default requireAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
-  const { id } = req.query;
+  const { id, action } = req.query;
 
   try {
+    if (req.method === 'POST' && action === 'clear') {
+      const { password, from, to } = req.body || {};
+      const check = await verifyOwnerPassword(ctx, password);
+      if (!check.ok) return res.status(check.status).json({ success: false, error: check.message });
+
+      let query = admin.from('finance_transactions').delete();
+      query = (from && to) ? query.gte('transaction_date', from).lte('transaction_date', to) : query.gte('transaction_date', '1900-01-01');
+      const { error, count } = await query.select('id', { count: 'exact' });
+      if (error) throw error;
+      await logActivity(req, ctx, { action: 'clear_finance', targetTable: 'finance_transactions', meta: { from: from || null, to: to || null, count: count ?? null } });
+      return ok(res, { cleared: true, from: from || null, to: to || null });
+    }
+
     if (req.method === 'GET') {
       if (!ctx.profile?.roles?.permissions?.view_kas && ctx.profile?.roles?.name !== 'owner') {
         return forbidden(res, 'Anda tidak memiliki izin melihat kas');

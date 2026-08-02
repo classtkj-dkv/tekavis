@@ -2,6 +2,7 @@ import { getSupabaseAdmin } from './_lib/supabaseClient.js';
 import { requireAuth } from './_lib/auth.js';
 import { requirePermission } from './_lib/permissions.js';
 import { logActivity } from './_lib/activityLog.js';
+import { verifyOwnerPassword } from './_lib/reauth.js';
 import { ok, badRequest, forbidden, serverError } from './_lib/response.js';
 
 const STATUSES = ['hadir', 'izin', 'sakit', 'alpa'];
@@ -15,9 +16,10 @@ function emptyTotals() {
 // GET    /api/attendance?resource=recap&from=...&to=...&student_ids=id1,id2  -> rekap total per siswa dalam rentang tanggal (kosongkan student_ids buat semua siswa)
 // GET    /api/attendance?resource=summary&student_id=...          -> total sepanjang waktu 1 siswa (dipakai di profil)
 // POST   /api/attendance                                          -> simpan absensi 1 hari sekaligus (manage_attendance). body: { date, marks: [{student_id, status}] }
+// POST   /api/attendance?action=clear                             -> hapus data absensi massal (Owner + password). body: { password, from?, to? } -- kosongkan from/to buat hapus SEMUA
 export default requireAuth(async (req, res, ctx) => {
   const admin = getSupabaseAdmin();
-  const { resource } = req.query;
+  const { resource, action } = req.query;
 
   // Role "Pengunjung" login-nya diizinkan buat fitur lain, tapi sengaja
   // dikecualikan dari absensi (baca maupun tulis) sesuai permintaan Owner.
@@ -26,6 +28,19 @@ export default requireAuth(async (req, res, ctx) => {
   }
 
   try {
+    if (req.method === 'POST' && action === 'clear') {
+      const { password, from, to } = req.body || {};
+      const check = await verifyOwnerPassword(ctx, password);
+      if (!check.ok) return res.status(check.status).json({ success: false, error: check.message });
+
+      let query = admin.from('attendance').delete();
+      query = (from && to) ? query.gte('attendance_date', from).lte('attendance_date', to) : query.gte('attendance_date', '1900-01-01');
+      const { error, count } = await query.select('id', { count: 'exact' });
+      if (error) throw error;
+      await logActivity(req, ctx, { action: 'clear_attendance', targetTable: 'attendance', meta: { from: from || null, to: to || null, count: count ?? null } });
+      return ok(res, { cleared: true, from: from || null, to: to || null });
+    }
+
     if (req.method === 'GET' && resource === 'summary') {
       const { student_id } = req.query;
       if (!student_id) return badRequest(res, 'Parameter student_id wajib diisi');
