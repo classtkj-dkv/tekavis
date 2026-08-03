@@ -24,25 +24,25 @@ let sidebarCloseBound = false;
 function registerAppRoutes() {
   if (routesRegistered) return;
   routesRegistered = true;
-  registerRoute('/', () => import('./dashboard.js').then(m => m.default));
-  registerRoute('/login', () => import('./login.js').then(m => m.default));
-  registerRoute('/register', () => import('./register.js').then(m => m.default));
-  registerRoute('/students', () => import('./students.js').then(m => m.default));
-  registerRoute('/albums', () => import('./albums.js').then(m => m.default));
-  registerRoute('/albums/:id', () => import('./albumDetail.js').then(m => m.default));
-  registerRoute('/photos/:id', () => import('./photoDetail.js').then(m => m.default));
-  registerRoute('/announcements', () => import('./announcements.js').then(m => m.default));
-  registerRoute('/schedule', () => import('./schedule.js').then(m => m.default));
-  registerRoute('/finance', () => import('./finance.js').then(m => m.default));
-  registerRoute('/settings', () => import('./settings.js').then(m => m.default));
-  registerRoute('/profile', () => import('./profile.js').then(m => m.default));
-  registerRoute('/notifications', () => import('./notifications.js').then(m => m.default));
-  registerRoute('/activity-log', () => import('./activityLog.js').then(m => m.default));
-  registerRoute('/users', () => import('./users.js').then(m => m.default));
-  registerRoute('/roles', () => import('./roles.js').then(m => m.default));
-  registerRoute('/search', () => import('./search.js').then(m => m.default));
-  registerRoute('/struktur', () => import('./struktur.js').then(m => m.default));
-  registerRoute('/absensi', () => import('./attendance.js').then(m => m.default));
+  registerRoute('/', () => import('./dashboard.js?v=24').then(m => m.default));
+  registerRoute('/login', () => import('./login.js?v=24').then(m => m.default));
+  registerRoute('/register', () => import('./register.js?v=24').then(m => m.default));
+  registerRoute('/students', () => import('./students.js?v=24').then(m => m.default));
+  registerRoute('/albums', () => import('./albums.js?v=24').then(m => m.default));
+  registerRoute('/albums/:id', () => import('./albumDetail.js?v=24').then(m => m.default));
+  registerRoute('/photos/:id', () => import('./photoDetail.js?v=24').then(m => m.default));
+  registerRoute('/announcements', () => import('./announcements.js?v=24').then(m => m.default));
+  registerRoute('/schedule', () => import('./schedule.js?v=24').then(m => m.default));
+  registerRoute('/finance', () => import('./finance.js?v=24').then(m => m.default));
+  registerRoute('/settings', () => import('./settings.js?v=24').then(m => m.default));
+  registerRoute('/profile', () => import('./profile.js?v=24').then(m => m.default));
+  registerRoute('/notifications', () => import('./notifications.js?v=24').then(m => m.default));
+  registerRoute('/activity-log', () => import('./activityLog.js?v=24').then(m => m.default));
+  registerRoute('/users', () => import('./users.js?v=24').then(m => m.default));
+  registerRoute('/roles', () => import('./roles.js?v=24').then(m => m.default));
+  registerRoute('/search', () => import('./search.js?v=24').then(m => m.default));
+  registerRoute('/struktur', () => import('./struktur.js?v=24').then(m => m.default));
+  registerRoute('/absensi', () => import('./attendance.js?v=24').then(m => m.default));
 }
 
 async function bootstrap() {
