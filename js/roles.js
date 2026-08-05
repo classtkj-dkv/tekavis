@@ -13,6 +13,11 @@ const PERMISSION_DEFS = [
   { key: 'view_kas', label: 'Lihat Kas' },
   { key: 'manage_attendance', label: 'Kelola Absensi (centang Hadir/Izin/Sakit/Alpa)' },
   { key: 'manage_documents', label: 'Kelola Dokumen/Notulen' },
+  { key: 'self_edit_email', label: 'Ganti Email Sendiri (di Profil Saya)' },
+  { key: 'self_edit_password', label: 'Ganti Password Sendiri (di Profil Saya)' },
+  { key: 'self_edit_birth', label: 'Edit Tempat/Tanggal Lahir Sendiri' },
+  { key: 'self_edit_nisn', label: 'Edit NISN Sendiri' },
+  { key: 'self_edit_major', label: 'Edit Jurusan Sendiri' },
 ];
 
 function roleCard(role) {
