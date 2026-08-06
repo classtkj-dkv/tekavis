@@ -66,6 +66,17 @@ export default requireAuth(async (req, res, ctx) => {
       const { data: target } = await admin.from('profiles').select('id, roles(name)').eq('id', user_id).single();
       if (target?.roles?.name === 'owner') return forbidden(res, 'Role Owner tidak dapat diubah lewat endpoint ini');
 
+      // Sama kayak guard di POST: ganti role jadi "siswa" gak boleh lewat sini,
+      // karena cuma update profiles.role_id doang — TANPA bikin baris terhubung
+      // di tabel students. Akibatnya siswa "hantu": rolenya siswa tapi gak
+      // punya biodata (NISN/jurusan/TTL), field-field itu gak akan pernah
+      // muncul di Profil Saya. Wajib lewat halaman Data Siswa biar biodatanya
+      // lengkap & otomatis ke-link.
+      const { data: newRole } = await admin.from('roles').select('name').eq('id', role_id).single();
+      if (newRole?.name === 'siswa') {
+        return badRequest(res, 'Ganti ke role Siswa gak bisa lewat sini — biodatanya bakal kosong. Kalau user ini memang siswa, hapus akunnya di sini lalu buat ulang lewat halaman Data Siswa.');
+      }
+
       const { data, error } = await admin.from('profiles').update({ role_id }).eq('id', user_id).select().single();
       if (error) throw error;
       await logActivity(req, ctx, { action: 'change_user_role', targetTable: 'profiles', targetId: user_id, meta: { role_id } });
