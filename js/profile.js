@@ -21,19 +21,6 @@ export default async function renderProfilePage(container) {
   clearSessionCache();
   const me = await getSession();
 
-  // KOTAK DEBUG SEMENTARA — nempel di paling atas halaman, nunjukin PERSIS
-  // data yang diterima browser dari server. Aman (gak nampilin password).
-  // Bakal saya cabut lagi begitu akar masalahnya ketemu.
-  const debugBox = `
-    <div style="background:#3a2f00; border:2px solid #ffcc00; border-radius:10px; padding:14px; margin-bottom:16px; font-family:monospace; font-size:12px; color:#ffe680; white-space:pre-wrap; word-break:break-all;">
-DEBUG — screenshot kotak ini:
-email: ${me?.email}
-role: ${me?.role}
-has_student_data: ${Boolean(me?.student)}
-permissions: ${JSON.stringify(me?.permissions ?? null, null, 2)}
-    </div>
-  `;
-
   if (!me) {
     container.innerHTML = `
       <h1 class="section-title">Profil Saya</h1>
@@ -63,7 +50,6 @@ permissions: ${JSON.stringify(me?.permissions ?? null, null, 2)}
 
   container.innerHTML = `
     <h1 class="section-title">Profil Saya</h1>
-    ${debugBox}
     <div class="card profile-card">
       <div style="position:relative; flex-shrink:0;">
         <div class="profile-avatar" id="profile-avatar-preview" style="${photoUrl ? 'background:none; padding:0; overflow:hidden;' : ''}">
