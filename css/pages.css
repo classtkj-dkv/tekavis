@@ -815,6 +815,22 @@
 }
 .org-node-solo .org-node { width: auto; min-width: 200px; }
 
+/* Grup buat jabatan yang beneran cuma diisi 1 orang (gak punya pasangan) —
+   dikumpulin jadi SATU baris di paling bawah, ditata berdampingan (wrap),
+   bukan masing-masing dapet baris sendiri numpuk di trunk. Ini yang motong
+   garis vertikal biar gak jadi panjang lurus kayak salib. */
+.org-node-solo-group {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--color-border);
+}
+.org-node-solo-group .org-node { width: auto; min-width: 160px; }
+
 /* ============================================================
    TENTANG KAMI / VISI / MISI
    ============================================================ */
@@ -1086,6 +1102,8 @@
   .org-node-top { min-width: 0; width: 100%; }
   .org-branch { gap: 12px; max-width: 100%; }
   .org-node-solo .org-node { min-width: 0; width: 100%; max-width: 220px; }
+  .org-node-solo-group { gap: 10px; }
+  .org-node-solo-group .org-node { min-width: 0; width: auto; }
   .org-avatar { width: 26px; height: 26px; font-size: 11px; }
   .org-member { font-size: 12px; }
 
