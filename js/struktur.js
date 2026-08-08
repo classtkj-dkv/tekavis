@@ -2,12 +2,14 @@ import { api } from './apiClient.js';
 
 // ============================================================
 // PAIRING LOGIC — murni di frontend, gak nyentuh data/backend.
-// "Ketua" & "Wakil" jadi baris pertama (role bawaan sistem). Role lain
-// dipasangin berdasarkan nama dasar yang sama (mis. "Bendahara" &
-// "Bendahara 2" jadi 1 baris cabang). Role yang beneran gak punya
-// pasangan (mis. cuma ada "Sekretaris" doang, gak ada "Sekretaris 2")
-// tetap nyatu di alur yang sama sebagai baris SOLO di tengah — bukan
-// dipisah ke section lain. Urutannya ngikutin urutan asli dari API.
+// "Ketua" & "Wakil" jadi baris pertama (role bawaan sistem, selalu di
+// atas). Buat role lain: SEMUA ANGGOTA (bukan role-nya) dipasangin 2-2
+// jadi kotak kiri-kanan — jadi kalau 1 jabatan diisi 2 orang (mis.
+// Bendahara: Khoirunnisa & Fathiyah), otomatis kesplit kiri-kanan kayak
+// Ketua/Wakil, BUKAN numpuk dalam 1 kotak (itu yang bikin garis vertikal
+// jadi panjang lurus kayak salib). Orang yang beneran gak punya pasangan
+// (jabatan cuma diisi 1 orang) dikumpulin jadi satu grup di paling bawah,
+// ditata berdampingan (wrap), bukan masing-masing dapet baris sendiri.
 // ============================================================
 function isFilled(role) {
   return !!(role && role.members && role.members.length);
@@ -23,8 +25,12 @@ export function buildOrgTree(structure) {
   const wakil = structure.find(r => r.name === 'wakil') || null;
   const usedIds = new Set([top, ketua, wakil].filter(Boolean).map(r => r.id));
 
-  const rows = [];
-  if (isFilled(ketua) || isFilled(wakil)) rows.push([ketua, wakil]);
+  const leaderRow = (isFilled(ketua) || isFilled(wakil))
+    ? [
+        isFilled(ketua) ? { role: ketua, member: ketua.members[0] } : null,
+        isFilled(wakil) ? { role: wakil, member: wakil.members[0] } : null,
+      ]
+    : null;
 
   const rest = structure.filter(r => !usedIds.has(r.id) && isFilled(r));
   const groups = new Map();
@@ -34,18 +40,22 @@ export function buildOrgTree(structure) {
     groups.get(key).push(r);
   });
 
+  const pairRows = [];
+  const soloEntries = [];
   const seenKeys = new Set();
   rest.forEach(r => {
     const key = baseLabel(r.label);
     if (seenKeys.has(key)) return;
     seenKeys.add(key);
-    const group = groups.get(key).slice().sort((a, b) => a.label.length - b.label.length);
-    for (let i = 0; i < group.length; i += 2) {
-      rows.push([group[i], group[i + 1] || null]);
+    const group = groups.get(key);
+    const entries = group.flatMap(role => role.members.map(m => ({ role, member: m })));
+    for (let i = 0; i < entries.length; i += 2) {
+      if (entries[i + 1]) pairRows.push([entries[i], entries[i + 1]]);
+      else soloEntries.push(entries[i]);
     }
   });
 
-  return { top, rows };
+  return { top, leaderRow, pairRows, soloEntries };
 }
 
 // ============================================================
@@ -64,6 +74,19 @@ function orgMember(m, roleLabel) {
   `;
 }
 
+// Kotak buat 1 orang (role + 1 anggota) — dipakai buat semua node kecuali
+// Wali Kelas (yang masih boleh nampung >1 anggota kalau ada).
+function orgMemberNode(entry, variant = '') {
+  if (!entry) return '';
+  const { role, member } = entry;
+  return `
+    <div class="org-node ${variant}">
+      <div class="org-node-label">${role.label}</div>
+      <div class="org-node-members">${orgMember(member, role.label)}</div>
+    </div>
+  `;
+}
+
 function orgNode(role, variant = '') {
   if (!isFilled(role)) return '';
   return `
@@ -76,20 +99,18 @@ function orgNode(role, variant = '') {
 
 // Satu baris = 2 kotak berdampingan (kalau berpasangan) ATAU 1 kotak
 // yang nempel di tengah, ngambang di atas garis trunk (kalau solo).
-function orgRow([a, b]) {
-  if (isFilled(a) && isFilled(b)) {
-    return orgNode(a) + orgNode(b);
-  }
-  const solo = isFilled(a) ? a : b;
-  if (!isFilled(solo)) return '';
-  return `<div class="org-node-solo">${orgNode(solo)}</div>`;
+function orgPairRow([a, b]) {
+  if (a && b) return orgMemberNode(a) + orgMemberNode(b);
+  const solo = a || b;
+  if (!solo) return '';
+  return `<div class="org-node-solo">${orgMemberNode(solo)}</div>`;
 }
 
 export default async function renderStrukturPage(container) {
   const structure = await api.get('/api/misc', { resource: 'org-structure' }).catch(() => []);
   const allMembers = structure.flatMap(role => (role.members || []).map(m => ({ ...m, roleLabel: role.label })));
   const tree = buildOrgTree(structure);
-  const hasAnything = isFilled(tree.top) || tree.rows.length;
+  const hasAnything = isFilled(tree.top) || tree.leaderRow || tree.pairRows.length || tree.soloEntries.length;
 
   container.innerHTML = `
     <h1 class="section-title">Struktur Organisasi</h1>
@@ -105,9 +126,15 @@ export default async function renderStrukturPage(container) {
           </div>
         ` : ''}
 
-        ${tree.rows.length ? `
+        ${tree.leaderRow || tree.pairRows.length || tree.soloEntries.length ? `
           <div class="org-branch">
-            ${tree.rows.map(orgRow).join('')}
+            ${tree.leaderRow ? orgPairRow(tree.leaderRow) : ''}
+            ${tree.pairRows.map(orgPairRow).join('')}
+            ${tree.soloEntries.length ? `
+              <div class="org-node-solo-group">
+                ${tree.soloEntries.map(e => orgMemberNode(e)).join('')}
+              </div>
+            ` : ''}
           </div>
         ` : ''}
       </div>

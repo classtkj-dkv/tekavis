@@ -80,7 +80,10 @@ function orgPreviewMember(m, roleLabel) {
 
 function orgPreviewSection(structure) {
   const tree = buildOrgTree(structure);
-  const rows = [tree.top, ...(tree.rows[0] || [])].filter(r => r && r.members?.length);
+  const leaderRoles = (tree.leaderRow || [])
+    .filter(Boolean)
+    .map(entry => ({ label: entry.role.label, members: [entry.member] }));
+  const rows = [tree.top, ...leaderRoles].filter(r => r && r.members?.length);
   if (!rows.length) return '';
 
   return `
