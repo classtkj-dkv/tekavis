@@ -16,6 +16,7 @@ async function request(path, { method = 'GET', body, params } = {}) {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
+    cache: 'no-store',
   });
 
   const json = await res.json().catch(() => null);

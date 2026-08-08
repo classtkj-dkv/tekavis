@@ -21,6 +21,19 @@ export default async function renderProfilePage(container) {
   clearSessionCache();
   const me = await getSession();
 
+  // LOG DEBUG SEMENTARA — buka DevTools > Console pas halaman ini kebuka,
+  // bakal keliatan PERSIS data yang diterima browser dari server. Ini buat
+  // mastiin 100% apakah masalahnya di data yang dikirim server, atau di
+  // sesuatu yang lain. Aman dibiarkan (gak nampilin password/data sensitif),
+  // tinggal saya cabut lagi setelah ketemu akar masalahnya.
+  console.log('%c[DEBUG Profil Saya]', 'color:#4F6EF7; font-weight:bold; font-size:13px;', {
+    email: me?.email,
+    role: me?.role,
+    permissions: me?.permissions,
+    has_student_data: Boolean(me?.student),
+    student_id: me?.student?.id,
+  });
+
   if (!me) {
     container.innerHTML = `
       <h1 class="section-title">Profil Saya</h1>
