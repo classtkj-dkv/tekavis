@@ -25,6 +25,24 @@ export async function getAuthContext(req) {
     .eq('id', user.id)
     .single();
 
+  // Role "jabatan" (Ketua/Wakil/Sekretaris/Bendahara/Keamanan/Kebersihan,
+  // atau role kustom lain yang Owner buat di Role & Permission) itu isinya
+  // anggota kelas biasa yang KEBETULAN pegang jabatan — bukan tingkatan role
+  // baru yang menggantikan status siswa mereka. Jadi permission-nya
+  // DIGABUNG: base permission Siswa + tambahan permission jabatannya
+  // (permission jabatan menang kalau ada yang bentrok). Ini yang bikin
+  // orang yang jadi Bendahara/Ketua/dll tetap bisa pakai semua hak siswa
+  // biasa (ganti email/password sendiri, dst — kalau memang diizinkan buat
+  // Siswa) SEKALIGUS dapet tambahan izin dari jabatannya.
+  const roleName = profile?.roles?.name;
+  const isPositionRole = roleName && !['owner', 'admin', 'siswa', 'pengunjung'].includes(roleName);
+  if (isPositionRole) {
+    const { data: siswaRole } = await admin.from('roles').select('permissions').eq('name', 'siswa').maybeSingle();
+    if (siswaRole?.permissions) {
+      profile.roles.permissions = { ...siswaRole.permissions, ...(profile.roles.permissions || {}) };
+    }
+  }
+
   return { token, user, profile, supabase };
 }
 
