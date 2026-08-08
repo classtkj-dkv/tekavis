@@ -13,6 +13,12 @@ function fileToBase64(file) {
 }
 
 export default async function renderProfilePage(container) {
+  // SENGAJA gak pakai cache session sama sekali di halaman ini — Profil Saya
+  // harus selalu nunjukin permission TERBARU dari Owner. Kalau pakai cache,
+  // user yang udah login dari sebelum permission-nya diubah bakal tetap
+  // lihat versi lama sampai dia logout/login ulang, padahal di database
+  // udah kepasang benar.
+  clearSessionCache();
   const me = await getSession();
 
   if (!me) {
